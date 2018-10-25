@@ -1,10 +1,10 @@
 # Computer Graphics 203.3710, Winter 2018/2019
 ## Students Team data
 
-Name: 'Your real name'  
+Name: 'Yair Marom'  
 Student Number: 'Your student number'
 
-Name: 'Your real name'  
+Name: 'Liran Evenberg'  
 Student Number: 'Your student number'
 
 ### Lecturer
