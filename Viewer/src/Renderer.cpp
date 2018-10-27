@@ -6,6 +6,7 @@
 #include <imgui/imgui.h>
 #include <vector>
 #include <cmath>
+#include "glad/glad.h"
 
 #define INDEX(width,x,y,c) ((x)+(y)*(width))*3+(c)
 
@@ -82,7 +83,8 @@ void Renderer::Render(const Scene& scene)
 	// Draw a chess board in the middle of the screen
 	for (int i = 100; i < viewportWidth - 100; i++)
 	{
-		for (int j = 100; j < viewportHeight - 100; j++)
+		putPixel(i, int(viewportHeight/2), glm::vec3(1, 1, 0));
+		/*for (int j = 100; j < viewportHeight - 100; j++)
 		{
 			int mod_i = i / 50;
 			int mod_j = j / 50;
@@ -96,7 +98,7 @@ void Renderer::Render(const Scene& scene)
 			{
 				putPixel(i, j, glm::vec3(1, 0, 0));
 			}
-		}
+		}*/
 	}
 }
 
