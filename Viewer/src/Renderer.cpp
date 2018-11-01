@@ -82,18 +82,36 @@ void Renderer::DrawLineBersenhamAlg(GLfloat p1, GLfloat q1, GLfloat p2, GLfloat 
 	GLfloat c = q1 + a * p1;
 	GLfloat e = -1 * dp;
 
-	while (x <= p2)
+	if (a >= 0)
 	{
-		e = 2 * dq * x + 2 * dp * c - 2 * dp * y - 1;
-		if (e > 0)
-		{
-			y = y + 1;
-			e = e - 2 * dp;
+			while (x <= p2 || y <= q2)
+			{
+				if (a <= 1)
+				{
+					if (e > 0)
+					{
+						y = y + 1;
+						e = e - 2 * dp;
+					}
+					putPixel(x, y, glm::vec3(0, 0, 0));
+					x = x + 1;
+					e = e + 2 * dq;
+				}
+				else
+				{
+					if (e > 0)
+					{
+						x = x + 1;
+						e = e - 2 * dq;
+					}
+					putPixel(x, y, glm::vec3(1, 1, 1));
+					y = y + 1;
+					e = e + 2 * dp;
+				}
+			}
 		}
-		putPixel(x, y, glm::vec3(1, 1, 1));
-		x = x + 1;
-		e = e + 2 * dp;
-	}
+
+	
 
 }
 
@@ -104,7 +122,9 @@ void Renderer::Render(const Scene& scene)
 	//## Here you should render the scene.       ##
 	//#############################################
 
-	DrawLineBersenhamAlg(int(viewportWidth/2), int(viewportHeight / 2), int(viewportWidth / 2) + 50, int(viewportHeight / 2) + 50);
+
+	DrawLineBersenhamAlg(int(viewportWidth / 2), int(viewportHeight / 2), int(viewportWidth / 2) + 50, int(viewportHeight / 2) + 50);
+	DrawLineBersenhamAlg(int(viewportWidth / 2), int(viewportHeight / 2), int(viewportWidth / 2) + 50, int(viewportHeight / 2) + 150 );
 
 
 	/*
