@@ -42,7 +42,7 @@ void Renderer::createBuffers(int viewportWidth, int viewportHeight)
 		delete[] colorBuffer;
 	}
 
-	colorBuffer = new float[3* viewportWidth * viewportHeight];
+	colorBuffer = new float[3 * viewportWidth * viewportHeight];
 	for (int x = 0; x < viewportWidth; x++)
 	{
 		for (int y = 0; y < viewportHeight; y++)
@@ -75,6 +75,23 @@ void Renderer::SetViewport(int viewportWidth, int viewportHeight, int viewportX,
 
 void Renderer::DrawLineBersenhamAlg(GLfloat p1, GLfloat q1, GLfloat p2, GLfloat q2)
 {
+	//GLfloat x = p1, y = q1;
+	//GLfloat dp = p2 - p1;
+	//GLfloat dq = q2 - q1;
+	//GLfloat a = dq / dp;
+	//GLfloat c = q1 + a * p1;
+	//GLfloat e = -1 * dp;
+
+	if(p1>p2 || q1>q2)
+	{
+		GLfloat tmp = p1;
+		p1 = p2;
+		p2 = tmp;
+		tmp = q1;
+		q1 = q2;
+		q2 = tmp;
+	}
+
 	GLfloat x = p1, y = q1;
 	GLfloat dp = p2 - p1;
 	GLfloat dq = q2 - q1;
@@ -84,35 +101,121 @@ void Renderer::DrawLineBersenhamAlg(GLfloat p1, GLfloat q1, GLfloat p2, GLfloat 
 
 	if (a >= 0)
 	{
-			while (x <= p2 || y <= q2)
+		while (x <= p2)
+		{
+			if (a <= 1)
 			{
-				if (a <= 1)
+				if (e >= 0)
 				{
-					if (e > 0)
-					{
-						y = y + 1;
-						e = e - 2 * dp;
-					}
-					putPixel(x, y, glm::vec3(0, 0, 0));
-					x = x + 1;
-					e = e + 2 * dq;
-				}
-				else
-				{
-					if (e > 0)
-					{
-						x = x + 1;
-						e = e - 2 * dq;
-					}
-					putPixel(x, y, glm::vec3(1, 1, 1));
 					y = y + 1;
-					e = e + 2 * dp;
+					e = e - 2 * dp;
 				}
+				putPixel(x, y, glm::vec3(0, 0, 0));
+				x = x + 1;
+				e = e + 2 * dq;
+			}
+			else
+			{
+				if (e >= 0)
+				{
+					x = x + 1;
+					e = e - 2 * dq;
+				}
+				putPixel(x, y, glm::vec3(1, 1, 1));
+				y = y + 1;
+				e = e + 2 * dp;
 			}
 		}
-
-	
-
+		
+		while (y <= q2)
+		{
+			if (a <= 1)
+			{
+				if (e >= 0)
+				{
+					y = y + 1;
+					e = e - 2 * dp;
+				}
+				putPixel(x, y, glm::vec3(0, 0, 0));
+				x = x + 1;
+				e = e + 2 * dq;
+			}
+			else
+			{
+				if (e >= 0)
+				{
+					x = x + 1;
+					e = e - 2 * dq;
+				}
+				putPixel(x, y, glm::vec3(1, 1, 1));
+				y = y + 1;
+				e = e + 2 * dp;
+			}
+		}
+	}
+	else
+	{
+		while (y <= q2)
+		{
+			if (a >= -1)
+			{
+				if (e >= 0)
+				{
+					y = y + 1;
+					e = e - 2 * dp;
+				}
+				putPixel(x, y, glm::vec3(0, 0, 0));
+				x = x - 1;
+				e = e + 2 * dq;
+			}
+			else
+			{
+				if (e >= 0)
+				{
+					x = x - 1;
+					e = e - 2 * dq;
+				}
+				putPixel(x, y, glm::vec3(1, 1, 1));
+				y = y + 1;
+				e = e + 2 * abs(dp);
+			}
+		}
+		while (x <= p2)
+		{
+			if (a >= -1)
+			{
+				if (e >= 0)
+				{
+					y = y - 1;
+					e = e - 2 * dp;
+				}
+				putPixel(x, y, glm::vec3(0, 0, 0));
+				x = x + 1;
+				e = e + 2 * dq *(-1);
+			}
+			else
+			{
+			break; }
+		}
+		while(y >= q2)
+		{
+			if (a < -1)
+			{
+				if (e >= 0)
+				{
+					x = x + 1;
+					e = e - 2 * dq*(-1);
+				}
+				putPixel(x, y, glm::vec3(1, 1, 1));
+				y = y - 1;
+				e = e + 2 * dp;
+			}
+			else
+			{
+				break;
+			}
+		}
+	}
 }
 
 void Renderer::Render(const Scene& scene)
@@ -124,7 +227,14 @@ void Renderer::Render(const Scene& scene)
 
 
 	DrawLineBersenhamAlg(int(viewportWidth / 2), int(viewportHeight / 2), int(viewportWidth / 2) + 50, int(viewportHeight / 2) + 50);
-	DrawLineBersenhamAlg(int(viewportWidth / 2), int(viewportHeight / 2), int(viewportWidth / 2) + 50, int(viewportHeight / 2) + 150 );
+	DrawLineBersenhamAlg(int(viewportWidth / 2), int(viewportHeight / 2), int(viewportWidth / 2) + 50, int(viewportHeight / 2) + 150);
+	DrawLineBersenhamAlg(int(viewportWidth / 2), int(viewportHeight / 2), int(viewportWidth / 2) + 50, int(viewportHeight / 2) - 50);
+	DrawLineBersenhamAlg(int(viewportWidth / 2), int(viewportHeight / 2), int(viewportWidth / 2) + 50, int(viewportHeight / 2) - 150);
+
+	DrawLineBersenhamAlg(int(viewportWidth / 2), int(viewportHeight / 2), int(viewportWidth / 2) - 50, int(viewportHeight / 2) + 50);
+	DrawLineBersenhamAlg(int(viewportWidth / 2), int(viewportHeight / 2), int(viewportWidth / 2) - 50, int(viewportHeight / 2) + 150);
+	DrawLineBersenhamAlg(int(viewportWidth / 2), int(viewportHeight / 2), int(viewportWidth / 2) - 50, int(viewportHeight / 2) - 50);
+	DrawLineBersenhamAlg(int(viewportWidth / 2), int(viewportHeight / 2), int(viewportWidth / 2) - 50, int(viewportHeight / 2) - 150);
 
 
 	/*
@@ -179,7 +289,7 @@ void Renderer::initOpenGLRendering()
 	//	     | \ | <--- The exture is drawn over two triangles that stretch over the screen.
 	//	     |__\|
 	// (-1,-1)    (1,-1)
-	const GLfloat vtc[]={
+	const GLfloat vtc[] = {
 		-1, -1,
 		 1, -1,
 		-1,  1,
@@ -188,19 +298,19 @@ void Renderer::initOpenGLRendering()
 		 1,  1
 	};
 
-	const GLfloat tex[]={
+	const GLfloat tex[] = {
 		0,0,
 		1,0,
 		0,1,
 		0,1,
 		1,0,
-		1,1};
+		1,1 };
 
 	// Makes this buffer the current one.
 	glBindBuffer(GL_ARRAY_BUFFER, buffer);
 
 	// This is the opengl way for doing malloc on the gpu. 
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vtc)+sizeof(tex), NULL, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vtc) + sizeof(tex), NULL, GL_STATIC_DRAW);
 
 	// memcopy vtc to buffer[0,sizeof(vtc)-1]
 	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vtc), vtc);
@@ -209,25 +319,25 @@ void Renderer::initOpenGLRendering()
 	glBufferSubData(GL_ARRAY_BUFFER, sizeof(vtc), sizeof(tex), tex);
 
 	// Loads and compiles a sheder.
-	GLuint program = InitShader( "vshader.glsl", "fshader.glsl" );
+	GLuint program = InitShader("vshader.glsl", "fshader.glsl");
 
 	// Make this program the current one.
 	glUseProgram(program);
 
 	// Tells the shader where to look for the vertex position data, and the data dimensions.
-	GLint  vPosition = glGetAttribLocation( program, "vPosition" );
-	glEnableVertexAttribArray( vPosition );
-	glVertexAttribPointer( vPosition,2,GL_FLOAT,GL_FALSE,0,0 );
+	GLint  vPosition = glGetAttribLocation(program, "vPosition");
+	glEnableVertexAttribArray(vPosition);
+	glVertexAttribPointer(vPosition, 2, GL_FLOAT, GL_FALSE, 0, 0);
 
 	// Same for texture coordinates data.
-	GLint  vTexCoord = glGetAttribLocation( program, "vTexCoord" );
-	glEnableVertexAttribArray( vTexCoord );
-	glVertexAttribPointer( vTexCoord,2,GL_FLOAT,GL_FALSE,0,(GLvoid *)sizeof(vtc) );
+	GLint  vTexCoord = glGetAttribLocation(program, "vTexCoord");
+	glEnableVertexAttribArray(vTexCoord);
+	glVertexAttribPointer(vTexCoord, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid *)sizeof(vtc));
 
 	//glProgramUniform1i( program, glGetUniformLocation(program, "texture"), 0 );
 
 	// Tells the shader to use GL_TEXTURE0 as the texture id.
-	glUniform1i(glGetUniformLocation(program, "texture"),0);
+	glUniform1i(glGetUniformLocation(program, "texture"), 0);
 }
 
 void Renderer::createOpenGLBuffer()
