@@ -84,17 +84,17 @@ void Renderer::DrawLineBersenhamAlg(GLfloat p1, GLfloat q1, GLfloat p2, GLfloat 
 
 	while (x <= p2)
 	{
-		e = 2 * dq * x + 2 * dp * c - 2 * dp * y - 1;
+		//e = 2 * dq * x + 2 * dp * c - 2 * dp * y - 1;
 		if (e > 0)
 		{
 			y = y + 1;
 			e = e - 2 * dp;
 		}
-		putPixel(x, y, glm::vec3(1, 1, 1));
+		putPixel(x, y, glm::vec3(0, 0, 0));
 		x = x + 1;
-		e = e + 2 * dp;
+		e = e + 2 * dq;
 	}
-
+	int z = 2;
 }
 
 void Renderer::Render(const Scene& scene)
@@ -104,14 +104,20 @@ void Renderer::Render(const Scene& scene)
 	//## Here you should render the scene.       ##
 	//#############################################
 
-	DrawLineBersenhamAlg(int(viewportWidth/2), int(viewportHeight / 2), int(viewportWidth / 2) + 50, int(viewportHeight / 2) + 50);
+	int widthCenter = int(viewportWidth/2);
+	int heightCenter = int(viewportHeight / 2);
+	DrawLineBersenhamAlg(widthCenter, heightCenter, widthCenter + 150, heightCenter + 75);
+	DrawLineBersenhamAlg(widthCenter, heightCenter, widthCenter + 75, heightCenter + 150);
+	DrawLineBersenhamAlg(widthCenter, heightCenter, widthCenter - 75, heightCenter + 150);
+	DrawLineBersenhamAlg(widthCenter, heightCenter, widthCenter - 150, heightCenter + 75);
 
 
 	/*
 	// Draw a chess board in the middle of the screen
-	for (int i = 100; i < viewportWidth - 100; i++)
+	for (int i = 10; i < 30; i++)
 	{
-		//putPixel(i, int(viewportHeight/2), glm::vec3(1, 1, 0));
+		//putPixel(i, 200, glm::vec3(1, 1, 0));
+		putPixel(i, 400, glm::vec3(0, 0, 0));
 		for (int j = 100; j < viewportHeight - 100; j++)
 		{
 			int mod_i = i / 50;
@@ -127,8 +133,9 @@ void Renderer::Render(const Scene& scene)
 				putPixel(i, j, glm::vec3(1, 0, 0));
 			}
 		}
-	}
-	*/
+	}*/
+
+	
 }
 
 //##############################
