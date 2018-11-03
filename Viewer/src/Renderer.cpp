@@ -73,16 +73,9 @@ void Renderer::SetViewport(int viewportWidth, int viewportHeight, int viewportX,
 	createOpenGLBuffer();
 }
 
-void Renderer::DrawLineBersenhamAlg(GLfloat p1, GLfloat q1, GLfloat p2, GLfloat q2)
+void Renderer::DrawLineBersenhamAlg(GLfloat p1, GLfloat q1, GLfloat p2, GLfloat q2, glm::vec3 color)
 {
-	//GLfloat x = p1, y = q1;
-	//GLfloat dp = p2 - p1;
-	//GLfloat dq = q2 - q1;
-	//GLfloat a = dq / dp;
-	//GLfloat c = q1 + a * p1;
-	//GLfloat e = -1 * dp;
-
-	if(p1>p2 || q1>q2)
+	if (p1 > p2 || q1 > q2)
 	{
 		GLfloat tmp = p1;
 		p1 = p2;
@@ -99,7 +92,15 @@ void Renderer::DrawLineBersenhamAlg(GLfloat p1, GLfloat q1, GLfloat p2, GLfloat 
 	GLfloat c = q1 + a * p1;
 	GLfloat e = -1 * dp;
 
-	if (a >= 0)
+	if (a == 0)
+	{
+		while (x <= p2)
+		{
+			putPixel(x, y, color);
+			x = x + 1;
+		}
+	}
+	else if (a > 0)
 	{
 		while (x <= p2)
 		{
@@ -110,7 +111,7 @@ void Renderer::DrawLineBersenhamAlg(GLfloat p1, GLfloat q1, GLfloat p2, GLfloat 
 					y = y + 1;
 					e = e - 2 * dp;
 				}
-				putPixel(x, y, glm::vec3(0, 0, 0));
+				putPixel(x, y, color);
 				x = x + 1;
 				e = e + 2 * dq;
 			}
@@ -121,12 +122,12 @@ void Renderer::DrawLineBersenhamAlg(GLfloat p1, GLfloat q1, GLfloat p2, GLfloat 
 					x = x + 1;
 					e = e - 2 * dq;
 				}
-				putPixel(x, y, glm::vec3(1, 1, 1));
+				putPixel(x, y, color);
 				y = y + 1;
 				e = e + 2 * dp;
 			}
 		}
-		
+
 		while (y <= q2)
 		{
 			if (a <= 1)
@@ -136,7 +137,7 @@ void Renderer::DrawLineBersenhamAlg(GLfloat p1, GLfloat q1, GLfloat p2, GLfloat 
 					y = y + 1;
 					e = e - 2 * dp;
 				}
-				putPixel(x, y, glm::vec3(0, 0, 0));
+				putPixel(x, y, color);
 				x = x + 1;
 				e = e + 2 * dq;
 			}
@@ -147,7 +148,7 @@ void Renderer::DrawLineBersenhamAlg(GLfloat p1, GLfloat q1, GLfloat p2, GLfloat 
 					x = x + 1;
 					e = e - 2 * dq;
 				}
-				putPixel(x, y, glm::vec3(1, 1, 1));
+				putPixel(x, y, color);
 				y = y + 1;
 				e = e + 2 * dp;
 			}
@@ -164,7 +165,7 @@ void Renderer::DrawLineBersenhamAlg(GLfloat p1, GLfloat q1, GLfloat p2, GLfloat 
 					y = y + 1;
 					e = e - 2 * dp;
 				}
-				putPixel(x, y, glm::vec3(0, 0, 0));
+				putPixel(x, y, color);
 				x = x - 1;
 				e = e + 2 * dq;
 			}
@@ -175,7 +176,7 @@ void Renderer::DrawLineBersenhamAlg(GLfloat p1, GLfloat q1, GLfloat p2, GLfloat 
 					x = x - 1;
 					e = e - 2 * dq;
 				}
-				putPixel(x, y, glm::vec3(1, 1, 1));
+				putPixel(x, y, color);
 				y = y + 1;
 				e = e + 2 * abs(dp);
 			}
@@ -189,15 +190,16 @@ void Renderer::DrawLineBersenhamAlg(GLfloat p1, GLfloat q1, GLfloat p2, GLfloat 
 					y = y - 1;
 					e = e - 2 * dp;
 				}
-				putPixel(x, y, glm::vec3(0, 0, 0));
+				putPixel(x, y, color);
 				x = x + 1;
 				e = e + 2 * dq *(-1);
 			}
 			else
 			{
-			break; }
+				break;
+			}
 		}
-		while(y >= q2)
+		while (y >= q2)
 		{
 			if (a < -1)
 			{
@@ -206,7 +208,7 @@ void Renderer::DrawLineBersenhamAlg(GLfloat p1, GLfloat q1, GLfloat p2, GLfloat 
 					x = x + 1;
 					e = e - 2 * dq*(-1);
 				}
-				putPixel(x, y, glm::vec3(1, 1, 1));
+				putPixel(x, y, color);
 				y = y - 1;
 				e = e + 2 * dp;
 			}
@@ -220,45 +222,7 @@ void Renderer::DrawLineBersenhamAlg(GLfloat p1, GLfloat q1, GLfloat p2, GLfloat 
 
 void Renderer::Render(const Scene& scene)
 {
-	//#############################################
-	//## You should override this implementation ##
-	//## Here you should render the scene.       ##
-	//#############################################
-
-
-	DrawLineBersenhamAlg(int(viewportWidth / 2), int(viewportHeight / 2), int(viewportWidth / 2) + 50, int(viewportHeight / 2) + 50);
-	DrawLineBersenhamAlg(int(viewportWidth / 2), int(viewportHeight / 2), int(viewportWidth / 2) + 50, int(viewportHeight / 2) + 150);
-	DrawLineBersenhamAlg(int(viewportWidth / 2), int(viewportHeight / 2), int(viewportWidth / 2) + 50, int(viewportHeight / 2) - 50);
-	DrawLineBersenhamAlg(int(viewportWidth / 2), int(viewportHeight / 2), int(viewportWidth / 2) + 50, int(viewportHeight / 2) - 150);
-
-	DrawLineBersenhamAlg(int(viewportWidth / 2), int(viewportHeight / 2), int(viewportWidth / 2) - 50, int(viewportHeight / 2) + 50);
-	DrawLineBersenhamAlg(int(viewportWidth / 2), int(viewportHeight / 2), int(viewportWidth / 2) - 50, int(viewportHeight / 2) + 150);
-	DrawLineBersenhamAlg(int(viewportWidth / 2), int(viewportHeight / 2), int(viewportWidth / 2) - 50, int(viewportHeight / 2) - 50);
-	DrawLineBersenhamAlg(int(viewportWidth / 2), int(viewportHeight / 2), int(viewportWidth / 2) - 50, int(viewportHeight / 2) - 150);
-
-
-	/*
-	// Draw a chess board in the middle of the screen
-	for (int i = 100; i < viewportWidth - 100; i++)
-	{
-		//putPixel(i, int(viewportHeight/2), glm::vec3(1, 1, 0));
-		for (int j = 100; j < viewportHeight - 100; j++)
-		{
-			int mod_i = i / 50;
-			int mod_j = j / 50;
-
-			int odd = (mod_i + mod_j) % 2;
-			if (odd)
-			{
-				putPixel(i, j, glm::vec3(0, 1, 0));
-			}
-			else
-			{
-				putPixel(i, j, glm::vec3(1, 0, 0));
-			}
-		}
-	}
-	*/
+	int x = 2;
 }
 
 //##############################
@@ -373,3 +337,51 @@ void Renderer::SwapBuffers()
 	// Finally renders the data.
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 }
+
+
+
+/*
+ *	glm::vec3 color = glm::vec3(0, 0, 5);
+	DrawLineBersenhamAlg(int(viewportWidth / 2), int(viewportHeight / 2), int(viewportWidth / 2) + 50, int(viewportHeight / 2) + 50, color);
+	DrawLineBersenhamAlg(int(viewportWidth / 2), int(viewportHeight / 2), int(viewportWidth / 2) + 50, int(viewportHeight / 2) + 150, color);
+	DrawLineBersenhamAlg(int(viewportWidth / 2), int(viewportHeight / 2), int(viewportWidth / 2) + 50, int(viewportHeight / 2) - 50, color);
+	DrawLineBersenhamAlg(int(viewportWidth / 2), int(viewportHeight / 2), int(viewportWidth / 2) + 50, int(viewportHeight / 2) - 150, color);
+
+	DrawLineBersenhamAlg(int(viewportWidth / 2), int(viewportHeight / 2), int(viewportWidth / 2) - 50, int(viewportHeight / 2) + 50, color);
+	DrawLineBersenhamAlg(int(viewportWidth / 2), int(viewportHeight / 2), int(viewportWidth / 2) - 50, int(viewportHeight / 2) + 150, color);
+	DrawLineBersenhamAlg(int(viewportWidth / 2), int(viewportHeight / 2), int(viewportWidth / 2) - 50, int(viewportHeight / 2) - 50, color);
+	DrawLineBersenhamAlg(int(viewportWidth / 2), int(viewportHeight / 2), int(viewportWidth / 2) - 50, int(viewportHeight / 2) - 150, color);
+
+
+	DrawLineBersenhamAlg(int(viewportWidth / 2), int(viewportHeight / 2), int(viewportWidth / 2) - 50, int(viewportHeight / 2), color);
+	DrawLineBersenhamAlg(int(viewportWidth / 2), int(viewportHeight / 2), int(viewportWidth / 2) + 50, int(viewportHeight / 2), color);
+
+	DrawLineBersenhamAlg(int(viewportWidth / 2), int(viewportHeight / 2), int(viewportWidth / 2), int(viewportHeight / 2) - 50, color);
+	DrawLineBersenhamAlg(int(viewportWidth / 2), int(viewportHeight / 2), int(viewportWidth / 2), int(viewportHeight / 2) + 50, color);
+
+ *
+ *
+ */
+
+ /*
+ // Draw a chess board in the middle of the screen
+ for (int i = 100; i < viewportWidth - 100; i++)
+ {
+ //putPixel(i, int(viewportHeight/2), glm::vec3(1, 1, 0));
+ for (int j = 100; j < viewportHeight - 100; j++)
+ {
+ int mod_i = i / 50;
+ int mod_j = j / 50;
+
+ int odd = (mod_i + mod_j) % 2;
+ if (odd)
+ {
+ putPixel(i, j, glm::vec3(0, 1, 0));
+ }
+ else
+ {
+ putPixel(i, j, glm::vec3(1, 0, 0));
+ }
+ }
+ }
+ */

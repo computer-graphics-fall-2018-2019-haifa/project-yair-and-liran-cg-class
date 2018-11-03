@@ -56,3 +56,13 @@ const int Scene::GetActiveModelIndex() const
 {
 	return activeModelIndex;
 }
+
+int Scene::GetModelsNumber()
+{
+	return models.size();
+}
+
+MeshModel Scene::GetModelByIndex(int index)
+{
+	return *(models[index]);
+}
