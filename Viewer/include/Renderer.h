@@ -38,7 +38,7 @@ public:
 	void SetViewport(int viewportWidth, int viewportHeight, int viewportX = 0, int viewportY = 0);
 	void DrawLineBersenhamAlg(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2, glm::vec3 color);
 
-	void BersenhamAlg(GLfloat p1, GLfloat q1, GLfloat p2, GLfloat q2, bool tmp, glm::vec3 color);
+	void BersenhamAlg(GLfloat p1, GLfloat q1, GLfloat p2, GLfloat q2, bool isXYchanged, glm::vec3 color);
 
 	// Add more methods/functionality as needed...
 };

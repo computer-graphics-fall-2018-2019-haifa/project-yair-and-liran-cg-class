@@ -85,7 +85,7 @@ void Renderer::DrawLineBersenhamAlg(GLfloat p1, GLfloat q1, GLfloat p2, GLfloat 
 			std::swap(p1, p2);
 			std::swap(q1, q2);
 		}
-		BersenhamAlg(p1, q1, p2, q2, true, color);
+		BersenhamAlg(p1, q1, p2, q2, false, color);
 	}
 	else
 	{
@@ -96,11 +96,11 @@ void Renderer::DrawLineBersenhamAlg(GLfloat p1, GLfloat q1, GLfloat p2, GLfloat 
 			std::swap(p1, p2);
 			std::swap(q1, q2);
 		}
-		BersenhamAlg(p1, q1, p2, q2, false, color);
+		BersenhamAlg(p1, q1, p2, q2, true, color);
 	}
 }
 
-void Renderer::BersenhamAlg(GLfloat p1, GLfloat q1, GLfloat p2, GLfloat q2, bool tmp, glm::vec3 color = glm::vec3(0, 0, 5))
+void Renderer::BersenhamAlg(GLfloat p1, GLfloat q1, GLfloat p2, GLfloat q2, bool isXYchanged, glm::vec3 color = glm::vec3(0, 0, 5))
 {
 	GLfloat x = p1, y = q1;
 	GLfloat dp = p2 - p1;
@@ -117,10 +117,10 @@ void Renderer::BersenhamAlg(GLfloat p1, GLfloat q1, GLfloat p2, GLfloat q2, bool
 		{
 			y += yState; e -= 2 * dp;
 		}
-		if (tmp)
-			putPixel(x, y, color);
-		else
+		if (isXYchanged)
 			putPixel(y, x, color);
+		else
+			putPixel(x, y, color);
 		x++; e += 2 * dq;
 	}
 }
