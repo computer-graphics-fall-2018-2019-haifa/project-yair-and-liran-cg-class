@@ -76,221 +76,53 @@ void Renderer::SetViewport(int viewportWidth, int viewportHeight, int viewportX,
 
 void Renderer::DrawLineBersenhamAlg(GLfloat p1, GLfloat q1, GLfloat p2, GLfloat q2, glm::vec3 color = glm::vec3(0, 0, 5))
 {
-	if (p1 > p2 || q1 > q2)
-	{
-		GLfloat tmp = p1;
-		p1 = p2;
-		p2 = tmp;
-		tmp = q1;
-		q1 = q2;
-		q2 = tmp;
-	}
+	GLfloat a = fabs(q2 - q1)/(p2 - p1);
 
+	if (fabs(a) <= 1)
+	{
+		if (p1 > p2)
+		{
+			std::swap(p1, p2);
+			std::swap(q1, q2);
+		}
+		BersenhamAlg(p1, q1, p2, q2, true, color);
+	}
+	else
+	{
+		std::swap(p1, q1);
+		std::swap(p2, q2);
+		if (p1 > p2)
+		{
+			std::swap(p1, p2);
+			std::swap(q1, q2);
+		}
+		BersenhamAlg(p1, q1, p2, q2, false, color);
+	}
+}
+
+void Renderer::BersenhamAlg(GLfloat p1, GLfloat q1, GLfloat p2, GLfloat q2, bool tmp, glm::vec3 color = glm::vec3(0, 0, 5))
+{
 	GLfloat x = p1, y = q1;
 	GLfloat dp = p2 - p1;
-	GLfloat dq = q2 - q1;
+	GLfloat dq = fabs(q2 - q1);
 	GLfloat a = dq / dp;
 	GLfloat c = q1 + a * p1;
 	GLfloat e = -1 * dp;
 
-	if (a == 0)
+	int yState = q1 < q2 ? 1 : -1;
+
+	while (x <= p2)
 	{
-		while (x <= p2)
+		if (e > 0)
 		{
+			y += yState; e -= 2 * dp;
+		}
+		if (tmp)
 			putPixel(x, y, color);
-			x = x + 1;
-		}
-	}
-	else if (a > 0)
-	{
-		while (x <= p2)
-		{
-			if (a <= 1)
-			{
-				if (e >= 0)
-				{
-					y = y + 1;
-					e = e - 2 * dp;
-				}
-				putPixel(x, y, color);
-				x = x + 1;
-				e = e + 2 * dq;
-			}
-			else
-			{
-				if (e >= 0)
-				{
-					x = x + 1;
-					e = e - 2 * dq;
-				}
-				putPixel(x, y, color);
-				y = y + 1;
-				e = e + 2 * dp;
-			}
-		}
-
-		while (y <= q2)
-		{
-			if (a <= 1)
-			{
-				if (e >= 0)
-				{
-					y = y + 1;
-					e = e - 2 * dp;
-				}
-				putPixel(x, y, color);
-				x = x + 1;
-				e = e + 2 * dq;
-			}
-			else
-			{
-				if (e >= 0)
-				{
-					x = x + 1;
-					e = e - 2 * dq;
-				}
-				putPixel(x, y, color);
-				y = y + 1;
-				e = e + 2 * dp;
-			}
-		}
-	}
-	else
-	{
-		while (y <= q2)
-		{
-			if (a >= -1)
-			{
-				if (e >= 0)
-				{
-					y = y + 1;
-					e = e - 2 * dp;
-				}
-				putPixel(x, y, color);
-				x = x - 1;
-				e = e + 2 * dq;
-			}
-			else
-			{
-				if (e >= 0)
-				{
-					x = x - 1;
-					e = e - 2 * dq;
-				}
-				putPixel(x, y, color);
-				y = y + 1;
-				e = e + 2 * abs(dp);
-			}
-		}
-		while (x <= p2)
-		{
-			if (a >= -1)
-			{
-				if (e >= 0)
-				{
-					y = y - 1;
-					e = e - 2 * dp;
-				}
-				putPixel(x, y, color);
-				x = x + 1;
-				e = e + 2 * dq *(-1);
-			}
-			else
-			{
-				break;
-			}
-		}
-		while (y >= q2)
-		{
-			if (a < -1)
-			{
-				if (e >= 0)
-				{
-					x = x + 1;
-					e = e - 2 * dq*(-1);
-				}
-				putPixel(x, y, color);
-				y = y - 1;
-				e = e + 2 * dp;
-			}
-			else
-			{
-				break;
-			}
-		}
-	}
-}
-
-void Renderer::DrawLineBersenhamAlg2(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2, glm::vec3 color = glm::vec3(0, 0, 5))
-{
-	GLfloat dx, dy, x, y, d;
-	int s1, s2, temp;
-	bool swap = false;
-
-	dx = abs(x2 - x1);
-	dy = abs(y2 - y1);
-	s1 = glm::sign(x2 - x1);
-	s2 = glm::sign(y2 - y1);
-
-	/* Check if dx or dy has a greater range */
-	/* if dy has a greater range than dx swap dx and dy */
-	if (dy > dx)
-	{
-		temp = dx;
-		dx = dy;
-		dy = temp;
-		swap = true;
-	}
-
-	/* Set the initial decision parameter and the initial point */
-	d = 2 * dy - dx;
-	x = x1;
-	y = y1;
-
-	for (int i = 0; i < dx; i++)
-	{
-		putPixel(x, y, glm::vec3(0, 0, 0));
-
-		while (d >= 0)
-		{
-			if (swap)
-				x = x + s1;
-			else
-			{
-				y = y + s2;
-				d = d - 2 * dx;
-			}
-		}
-		if (swap)
-			y = y + s2;
 		else
-			x = x + s1;
-		d = d + 2 * dy;
+			putPixel(y, x, color);
+		x++; e += 2 * dq;
 	}
-	//glFlush();
-}
-
-void Render2(Scene& scene)
-{
-	glm::vec3 color = glm::vec3(0, 0, 5);
-	//DrawLineBersenhamAlg2(150,150, 150,600, color);
-	/*DrawLineBersenhamAlg(int(viewportWidth / 2), int(viewportHeight / 2), int(viewportWidth / 2) + 50, int(viewportHeight / 2) + 50, color);
-	DrawLineBersenhamAlg(int(viewportWidth / 2), int(viewportHeight / 2), int(viewportWidth / 2) + 50, int(viewportHeight / 2) + 150, color);
-	DrawLineBersenhamAlg(int(viewportWidth / 2), int(viewportHeight / 2), int(viewportWidth / 2) + 50, int(viewportHeight / 2) - 50, color);
-	DrawLineBersenhamAlg(int(viewportWidth / 2), int(viewportHeight / 2), int(viewportWidth / 2) + 50, int(viewportHeight / 2) - 150, color);
-
-	DrawLineBersenhamAlg(int(viewportWidth / 2), int(viewportHeight / 2), int(viewportWidth / 2) - 50, int(viewportHeight / 2) + 50, color);
-	DrawLineBersenhamAlg(int(viewportWidth / 2), int(viewportHeight / 2), int(viewportWidth / 2) - 50, int(viewportHeight / 2) + 150, color);
-	DrawLineBersenhamAlg(int(viewportWidth / 2), int(viewportHeight / 2), int(viewportWidth / 2) - 50, int(viewportHeight / 2) - 50, color);
-	DrawLineBersenhamAlg(int(viewportWidth / 2), int(viewportHeight / 2), int(viewportWidth / 2) - 50, int(viewportHeight / 2) - 150, color);
-
-
-	DrawLineBersenhamAlg(int(viewportWidth / 2), int(viewportHeight / 2), int(viewportWidth / 2) - 50, int(viewportHeight / 2), color);
-	DrawLineBersenhamAlg(int(viewportWidth / 2), int(viewportHeight / 2), int(viewportWidth / 2) + 50, int(viewportHeight / 2), color);
-
-	DrawLineBersenhamAlg(int(viewportWidth / 2), int(viewportHeight / 2), int(viewportWidth / 2), int(viewportHeight / 2) - 50, color);
-	DrawLineBersenhamAlg(int(viewportWidth / 2), int(viewportHeight / 2), int(viewportWidth / 2), int(viewportHeight / 2) + 50, color);
-*/
 }
 
 void Renderer::Render(Scene& scene)
@@ -302,39 +134,11 @@ void Renderer::Render(Scene& scene)
 		0 ,  0 ,  200,  0,
 		0 ,  0 ,  0 ,  1 };
 	glm::mat4x4 translationMatrix
-	{ 1,  0 ,  0 ,  400,
-		0 ,  1,  0 ,  400,
-		0 ,  0 ,  1,  400,
+	{ 1,  0 ,  0 ,  500,
+		0 ,  1,  0 ,  100,
+		0 ,  0 ,  1,  100,
 		0 ,  0 ,  0 ,  1 };
-	glm::mat4x4 worldTransformation = translationMatrix * scaleMatrix;
-
-	/*
-	std::vector<glm::vec3> vertices;
-	vertices.push_back(glm::vec3(0, 0, 0));
-	vertices.push_back(glm::vec3(0, 1, 0));
-	vertices.push_back(glm::vec3(1, 0, 0));
-	vertices.push_back(glm::vec3(0, 0, 4));
-	vertices.push_back(glm::vec3(0, 5, 4));
-	vertices.push_back(glm::vec3(5, 0, 4));
-	std::vector<glm::vec4> finalVertices;
-	for (int vertexIndex = 0; vertexIndex < vertices.size(); ++vertexIndex)
-	{
-		glm::vec3 vertex = vertices[vertexIndex];
-		glm::vec4 augmentedVertex(vertex[0], vertex[1], vertex[2], 1);
-		glm::vec4 finalVertex = worldTransformation * augmentedVertex;
-		finalVertices.push_back(finalVertex);
-	}
-	int indexArr1[] = { 0,1,2,3,4,5 };
-	int indexArr2[] = { 1,2,0,4,5,3 };
-	for (int i = 0; i < 6; ++i)
-	{
-		int v1Index = indexArr1[i];
-		int v2Index = indexArr2[i];
-		glm::vec3 v1 = finalVertices[v1Index];
-		glm::vec3 v2 = finalVertices[v2Index];
-		DrawLineBersenhamAlg(v1[0], v2[0], v1[1], v2[1]);
-	}
-	*/
+	glm::mat4x4 worldTransformation = transpose(translationMatrix)*scaleMatrix;
 
 	int modelsNumber = scene.GetModelCount();
 	for (int modelIndex = 0; modelIndex < modelsNumber; ++modelIndex)
@@ -363,22 +167,13 @@ void Renderer::Render(Scene& scene)
 				int v2Index = indexArr2[i];
 				int vertexIndex1 = face.GetVertexIndex(v1Index);
 				int vertexIndex2 = face.GetVertexIndex(v2Index);
-				glm::vec4 v1 = finalVertices[vertexIndex1-1];
-				glm::vec4 v2 = finalVertices[vertexIndex2-1];
-				DrawLineBersenhamAlg(v1[0]+300, v1[1]+300, v2[0]+300, v2[1]+300);
+				glm::vec4 v1 = finalVertices[vertexIndex1 - 1];
+				glm::vec4 v2 = finalVertices[vertexIndex2 - 1];
+				DrawLineBersenhamAlg(v1[0], v1[1], v2[0], v2[1]);
 			}
-			/*int p0 = face.GetVertexIndex(0);
-			int p1 = face.GetVertexIndex(1);
-			int p2 = face.GetVertexIndex(2);
-			glm::vec4 v0 = finalVertices[p0-1];
-			glm::vec4 v1 = finalVertices[p1-1];
-			glm::vec4 v2 = finalVertices[p2-1];
-			DrawLineBersenhamAlg(v0[0], v0[1], v1[0], v1[1]);
-			DrawLineBersenhamAlg(v1[0], v1[1], v2[0], v2[1]);
-			DrawLineBersenhamAlg(v2[0], v2[1], v0[0], v0[1]);*/
 		}
 	}
-	
+
 }
 
 //##############################
@@ -519,54 +314,54 @@ void Renderer::SwapBuffers()
  *
  */
 
-/*
- *std::vector<glm::vec3> vertices;
-	vertices.push_back(glm::vec3(0, 0, 0));
-	vertices.push_back(glm::vec3(0, 0, 1));
-	vertices.push_back(glm::vec3(0, 1, 0));
-	vertices.push_back(glm::vec3(4, 0, 0));
-	vertices.push_back(glm::vec3(4, 0, 5));
-	vertices.push_back(glm::vec3(4, 5, 0));
-	std::vector<glm::vec4> finalVertices;
-	for (int vertexIndex = 0; vertexIndex < vertices.size(); ++vertexIndex)
-	{
-		glm::vec3 vertex = vertices[vertexIndex];
-		glm::vec4 augmentedVertex(vertex[0], vertex[1], vertex[2], 1);
-		glm::vec4 finalVertex = worldTransformation * augmentedVertex;
-		finalVertices.push_back(finalVertex);
-	}
-	int indexArr1[] = { 0,1,2,3,4,5 };
-	int indexArr2[] = { 1,2,0,4,5,3 };
-	for (int i = 0; i < 6; ++i)
-	{
-		int v1Index = indexArr1[i];
-		int v2Index = indexArr2[i];
-		glm::vec3 v1 = finalVertices[v1Index];
-		glm::vec3 v2 = finalVertices[v2Index];
-		DrawLineBersenhamAlg(v1[0], v2[0], v1[1], v2[1]);
-	}
- *
- *
- */
  /*
- // Draw a chess board in the middle of the screen
- for (int i = 100; i < viewportWidth - 100; i++)
- {
- //putPixel(i, int(viewportHeight/2), glm::vec3(1, 1, 0));
- for (int j = 100; j < viewportHeight - 100; j++)
- {
- int mod_i = i / 50;
- int mod_j = j / 50;
+  *std::vector<glm::vec3> vertices;
+	 vertices.push_back(glm::vec3(0, 0, 0));
+	 vertices.push_back(glm::vec3(0, 0, 1));
+	 vertices.push_back(glm::vec3(0, 1, 0));
+	 vertices.push_back(glm::vec3(4, 0, 0));
+	 vertices.push_back(glm::vec3(4, 0, 5));
+	 vertices.push_back(glm::vec3(4, 5, 0));
+	 std::vector<glm::vec4> finalVertices;
+	 for (int vertexIndex = 0; vertexIndex < vertices.size(); ++vertexIndex)
+	 {
+		 glm::vec3 vertex = vertices[vertexIndex];
+		 glm::vec4 augmentedVertex(vertex[0], vertex[1], vertex[2], 1);
+		 glm::vec4 finalVertex = worldTransformation * augmentedVertex;
+		 finalVertices.push_back(finalVertex);
+	 }
+	 int indexArr1[] = { 0,1,2,3,4,5 };
+	 int indexArr2[] = { 1,2,0,4,5,3 };
+	 for (int i = 0; i < 6; ++i)
+	 {
+		 int v1Index = indexArr1[i];
+		 int v2Index = indexArr2[i];
+		 glm::vec3 v1 = finalVertices[v1Index];
+		 glm::vec3 v2 = finalVertices[v2Index];
+		 DrawLineBersenhamAlg(v1[0], v2[0], v1[1], v2[1]);
+	 }
+  *
+  *
+  */
+  /*
+  // Draw a chess board in the middle of the screen
+  for (int i = 100; i < viewportWidth - 100; i++)
+  {
+  //putPixel(i, int(viewportHeight/2), glm::vec3(1, 1, 0));
+  for (int j = 100; j < viewportHeight - 100; j++)
+  {
+  int mod_i = i / 50;
+  int mod_j = j / 50;
 
- int odd = (mod_i + mod_j) % 2;
- if (odd)
- {
- putPixel(i, j, glm::vec3(0, 1, 0));
- }
- else
- {
- putPixel(i, j, glm::vec3(1, 0, 0));
- }
- }
- }
- */
+  int odd = (mod_i + mod_j) % 2;
+  if (odd)
+  {
+  putPixel(i, j, glm::vec3(0, 1, 0));
+  }
+  else
+  {
+  putPixel(i, j, glm::vec3(1, 0, 0));
+  }
+  }
+  }
+  */
