@@ -32,11 +32,12 @@ public:
 	Renderer(int viewportWidth, int viewportHeight, int viewportX = 0, int viewportY = 0);
 	~Renderer();
 
-	void Render(const Scene& scene);
+	void Render(Scene& scene);
 	void SwapBuffers();
 	void ClearColorBuffer(const glm::vec3& color);
 	void SetViewport(int viewportWidth, int viewportHeight, int viewportX = 0, int viewportY = 0);
-	void DrawLineBersenhamAlg(GLfloat p1, GLfloat p2, GLfloat q1, GLfloat q2, glm::vec3 color);
+	void DrawLineBersenhamAlg2(GLfloat p1, GLfloat p2, GLfloat q1, GLfloat q2, glm::vec3 color);
+	void DrawLineBersenhamAlg(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2, glm::vec3 color);
 
 	// Add more methods/functionality as needed...
 };
