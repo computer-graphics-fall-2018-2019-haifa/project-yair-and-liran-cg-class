@@ -5,6 +5,9 @@
 #include <glm/glm.hpp>
 #include <GLFW/glfw3.h>
 #include <imgui/imgui.h>
+#include "../../build/ModelGeometricParameters.h"
+
+
 
 /*
  * Renderer class.
@@ -32,7 +35,7 @@ public:
 	Renderer(int viewportWidth, int viewportHeight, int viewportX = 0, int viewportY = 0);
 	~Renderer();
 
-	void Render(Scene& scene);
+	void Render(Scene& scene, ModelGeometricParameters& param);
 	void SwapBuffers();
 	void ClearColorBuffer(const glm::vec3& color);
 	void SetViewport(int viewportWidth, int viewportHeight, int viewportX = 0, int viewportY = 0);

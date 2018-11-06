@@ -9,6 +9,7 @@
 #include "glad/glad.h"
 #include <glm/common.hpp>
 
+#define M_PI           3.14159265358979323846  /* pi */
 #define INDEX(width,x,y,c) ((x)+(y)*(width))*3+(c)
 
 Renderer::Renderer(int viewportWidth, int viewportHeight, int viewportX, int viewportY) :
@@ -125,20 +126,41 @@ void Renderer::BersenhamAlg(GLfloat p1, GLfloat q1, GLfloat p2, GLfloat q2, bool
 	}
 }
 
-void Renderer::Render(Scene& scene)
+void Renderer::Render(Scene& scene, ModelGeometricParameters& param)
 {
-	int scaleFactor = 100;
 	glm::mat4x4 scaleMatrix
-	{ 200,  0 ,  0 ,  0,
-		0 ,  200,  0 ,  0,
-		0 ,  0 ,  200,  0,
+	{ param.scale_x,  0 ,  0 ,  0,
+		0 ,  param.scale_y,  0 ,  0,
+		0 ,  0 ,  param.scale_z,  0,
 		0 ,  0 ,  0 ,  1 };
 	glm::mat4x4 translationMatrix
-	{ 1,  0 ,  0 ,  500,
-		0 ,  1,  0 ,  100,
-		0 ,  0 ,  1,  100,
+	{ 1,  0 ,  0 ,  param.trans_x,
+		0 ,  1,  0 ,  param.trans_y,
+		0 ,  0 ,  1,  param.trans_z,
 		0 ,  0 ,  0 ,  1 };
-	glm::mat4x4 worldTransformation = transpose(translationMatrix)*scaleMatrix;
+
+	double degToRad = double(M_PI) / double(180);
+
+	glm::mat4x4 rotataionXmatrix
+	{   1,				0,						0 ,                            0,
+		0 ,       glm::cos(param.rot_x* degToRad),                 -1 * glm::sin(param.rot_x* degToRad) ,            0,
+		0,        glm::sin(param.rot_x* degToRad) ,                glm::cos(param.rot_x* degToRad),                  0,
+		0 ,             0 ,                     0 ,                            1 };
+
+	glm::mat4x4 rotataionYmatrix
+	{ glm::cos(param.rot_y* degToRad),	         0,				 glm::sin(param.rot_y* degToRad),				  0,
+		0 ,		             1,			         0,		                  0 ,
+		-1 * glm::sin(param.rot_y* degToRad),   0,              glm::cos(param.rot_y* degToRad),                0,
+		0 ,                  0,		     	     0,						  1 };
+
+
+	glm::mat4x4 rotataionZmatrix
+	{   glm::cos(param.rot_z* degToRad),       -1 * glm::sin(param.rot_z* degToRad),        0 ,                      0,
+		glm::sin(param.rot_z* degToRad) ,       glm::cos(param.rot_z* degToRad),            0 ,                      0,
+		0 ,                      0 ,                  1,                       0,
+		0 ,                      0 ,                  0 ,                      1 };
+	
+	glm::mat4x4 worldTransformation = rotataionXmatrix * rotataionYmatrix * rotataionZmatrix * transpose(translationMatrix)*scaleMatrix;
 
 	int modelsNumber = scene.GetModelCount();
 	for (int modelIndex = 0; modelIndex < modelsNumber; ++modelIndex)

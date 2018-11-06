@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <nfd.h>
 #include <random>
+#include "../../build/ModelGeometricParameters.h"
 
 bool showDemoWindow = false;
 bool showAnotherWindow = false;
@@ -23,7 +24,7 @@ const glm::vec4& GetClearColor()
 	return clearColor;
 }
 
-void DrawImguiMenus(ImGuiIO& io, Scene& scene)
+void DrawImguiMenus(ImGuiIO& io, Scene& scene, ModelGeometricParameters& param)
 {
 	// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
 	if (showDemoWindow)
@@ -51,6 +52,19 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 		ImGui::Text("counter = %d", counter);
 
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+		
+		ImGui::SliderFloat("X rotation", &param.rot_x, 0.0f, 360.0f);
+		ImGui::SliderFloat("Y rotation", &param.rot_y, 0.0f, 360.0f);
+		ImGui::SliderFloat("Z rotation", &param.rot_z, 0.0f, 360.0f);
+		
+		ImGui::SliderFloat("X translation", &param.trans_x, 0.0f, 1000.0f);
+		ImGui::SliderFloat("Y translation", &param.trans_y, 0.0f, 1000.0f);
+		ImGui::SliderFloat("Z translation", &param.trans_z, 0.0f, 1000.0f);
+
+		ImGui::SliderFloat("X scaling", &param.scale_x, 1.0f, 1000.0f);
+		ImGui::SliderFloat("Y scaling", &param.scale_y, 1.0f, 1000.0f);
+		ImGui::SliderFloat("Z scaling", &param.scale_z, 1.0f, 1000.0f);
+
 		ImGui::End();
 	}
 

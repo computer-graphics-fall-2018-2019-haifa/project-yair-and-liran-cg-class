@@ -13,13 +13,14 @@
 #include "Scene.h"
 #include "Camera.h"
 #include "ImguiMenus.h"
+#include "../../build/ModelGeometricParameters.h"
 
 // Function declarations
 static void GlfwErrorCallback(int error, const char* description);
 GLFWwindow* SetupGlfwWindow(int w, int h, const char* window_name);
 ImGuiIO& SetupDearImgui(GLFWwindow* window);
 void StartFrame();
-void RenderFrame(GLFWwindow* window, Scene& scene, Renderer& renderer, ImGuiIO& io);
+void RenderFrame(GLFWwindow* window, Scene& scene, Renderer& renderer, ImGuiIO& io, ModelGeometricParameters& param);
 void Cleanup(GLFWwindow* window);
 void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 
@@ -56,18 +57,20 @@ int main(int argc, char **argv)
 
 	// Register a mouse scroll-wheel callback
 	glfwSetScrollCallback(window, ScrollCallback);
-
+	ModelGeometricParameters param;
 	// This is the main game loop..
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
 		StartFrame();
 
-		// Here we build the menus for the next frame. Feel free to pass more arguments to this function call
-		DrawImguiMenus(io, scene);
+		
 
+		// Here we build the menus for the next frame. Feel free to pass more arguments to this function call
+		DrawImguiMenus(io, scene, param);
+		
 		// Render the next frame
-		RenderFrame(window, scene, renderer, io);
+		RenderFrame(window, scene, renderer, io, param);
     }
 
 	// If we're here, then we're done. Cleanup memory.
@@ -124,7 +127,7 @@ void StartFrame()
 	ImGui::NewFrame();
 }
 
-void RenderFrame(GLFWwindow* window, Scene& scene, Renderer& renderer, ImGuiIO& io)
+void RenderFrame(GLFWwindow* window, Scene& scene, Renderer& renderer, ImGuiIO& io, ModelGeometricParameters& param)
 {
 	// Render the menus
 	ImGui::Render();
@@ -139,7 +142,7 @@ void RenderFrame(GLFWwindow* window, Scene& scene, Renderer& renderer, ImGuiIO& 
 	renderer.ClearColorBuffer(GetClearColor());
 
 	// Render the scene
-	renderer.Render(scene);
+	renderer.Render(scene, param);
 
 	// Swap buffers
 	renderer.SwapBuffers();
