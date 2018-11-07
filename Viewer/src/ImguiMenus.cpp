@@ -12,7 +12,7 @@
 #include <stdlib.h>
 #include <nfd.h>
 #include <random>
-#include "../../build/ModelGeometricParameters.h"
+#include "ModelGeometricParameters.h"
 
 bool showDemoWindow = false;
 bool showAnotherWindow = false;

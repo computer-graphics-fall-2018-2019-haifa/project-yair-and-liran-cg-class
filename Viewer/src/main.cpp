@@ -13,7 +13,7 @@
 #include "Scene.h"
 #include "Camera.h"
 #include "ImguiMenus.h"
-#include "../../build/ModelGeometricParameters.h"
+#include "ModelGeometricParameters.h"
 
 // Function declarations
 static void GlfwErrorCallback(int error, const char* description);
