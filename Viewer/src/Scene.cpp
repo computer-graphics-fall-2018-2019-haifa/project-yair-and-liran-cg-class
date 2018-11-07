@@ -61,3 +61,8 @@ MeshModel Scene::GetModelByIndex(int index)
 {
 	return *models[index];
 }
+
+Camera Scene::GetCameraByIndex(int cameraIndex)
+{
+	return cameras[cameraIndex];
+}

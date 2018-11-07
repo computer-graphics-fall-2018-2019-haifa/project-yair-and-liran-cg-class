@@ -51,6 +51,12 @@ int main(int argc, char **argv)
 	// Create the renderer and the scene
 	Renderer renderer = Renderer(frameBufferWidth, frameBufferHeight);
 	Scene scene = Scene();
+	//Camera(const glm::vec4& eye, const glm::vec4& at, const glm::vec4& up)
+	glm::vec4 eye = glm::vec4(0, 0, 0, 1);
+	glm::vec4 at = glm::vec4(500, 500, 500, 1);
+	glm::vec4 up = glm::vec4(-1, -1, -1, 0);
+	Camera cam = Camera(eye, at, up);
+	scene.AddCamera(cam);
 
 	// Setup ImGui
 	ImGuiIO& io = SetupDearImgui(window);

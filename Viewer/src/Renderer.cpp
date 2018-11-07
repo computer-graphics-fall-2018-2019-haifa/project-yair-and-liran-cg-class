@@ -141,24 +141,29 @@ void Renderer::Render(Scene& scene, ModelGeometricParameters& param)
 
 	double degToRad = double(M_PI) / double(180);
 
+	scene.SetActiveCameraIndex(0);
+	Camera cam = scene.GetCameraByIndex(0);
+
+	//cam.SetCameraLookAt()
+
 	glm::mat4x4 rotataionXmatrix
-	{   1,				0,						0 ,                            0,
-		0 ,       glm::cos(param.rot_x* degToRad),                 -1 * glm::sin(param.rot_x* degToRad) ,            0,
-		0,        glm::sin(param.rot_x* degToRad) ,                glm::cos(param.rot_x* degToRad),                  0,
-		0 ,             0 ,                     0 ,                            1 };
+	{	1	,				0					,					0						,	0,
+		0	,	glm::cos(param.rot_x* degToRad)	,	-1 * glm::sin(param.rot_x* degToRad)	,	0,
+		0	,	glm::sin(param.rot_x* degToRad)	,	glm::cos(param.rot_x* degToRad)			,	0,
+		0	,				0					,					0						,	1 };
 
 	glm::mat4x4 rotataionYmatrix
-	{ glm::cos(param.rot_y* degToRad),	         0,				 glm::sin(param.rot_y* degToRad),				  0,
-		0 ,		             1,			         0,		                  0 ,
-		-1 * glm::sin(param.rot_y* degToRad),   0,              glm::cos(param.rot_y* degToRad),                0,
-		0 ,                  0,		     	     0,						  1 };
+	{ glm::cos(param.rot_y* degToRad)			,	0	,	glm::sin(param.rot_y* degToRad)	,	0,
+					0							,	1	,				0					,	0,
+		-1 * glm::sin(param.rot_y* degToRad)	,	0	,	glm::cos(param.rot_y* degToRad)	,	0,
+		0										,	0	,				0					,	1 };
 
 
 	glm::mat4x4 rotataionZmatrix
-	{   glm::cos(param.rot_z* degToRad),       -1 * glm::sin(param.rot_z* degToRad),        0 ,                      0,
-		glm::sin(param.rot_z* degToRad) ,       glm::cos(param.rot_z* degToRad),            0 ,                      0,
-		0 ,                      0 ,                  1,                       0,
-		0 ,                      0 ,                  0 ,                      1 };
+	{ glm::cos(param.rot_z* degToRad)	,	-1 * glm::sin(param.rot_z* degToRad)	,	0	,	0,
+		glm::sin(param.rot_z* degToRad)	,	glm::cos(param.rot_z* degToRad)			,	0	,	0,
+					0					,				0							,	1	,	0,
+					0					,				0							,	0	,	1 };
 	
 	glm::mat4x4 worldTransformation = rotataionXmatrix * rotataionYmatrix * rotataionZmatrix * transpose(translationMatrix)*scaleMatrix;
 
