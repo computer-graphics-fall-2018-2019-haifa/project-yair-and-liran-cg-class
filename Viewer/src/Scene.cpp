@@ -57,7 +57,7 @@ const int Scene::GetActiveModelIndex() const
 	return activeModelIndex;
 }
 
-MeshModel Scene::GetModelByIndex(int index)
+MeshModel& Scene::GetModelByIndex(int index)
 {
 	return *models[index];
 }

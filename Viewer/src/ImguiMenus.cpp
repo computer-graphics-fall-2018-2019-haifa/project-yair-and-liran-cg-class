@@ -53,9 +53,9 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene, ModelGeometricParameters& param)
 
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 		
-		ImGui::SliderFloat("X rotation", &param.rot_x, 0.0f, 360.0f);
-		ImGui::SliderFloat("Y rotation", &param.rot_y, 0.0f, 360.0f);
-		ImGui::SliderFloat("Z rotation", &param.rot_z, 0.0f, 360.0f);
+		ImGui::SliderFloat("X rotation", &param.rot_x, -360.0f, 360.0f);
+		ImGui::SliderFloat("Y rotation", &param.rot_y, -360.0f, 360.0f);
+		ImGui::SliderFloat("Z rotation", &param.rot_z, -360.0f, 360.0f);
 		
 		ImGui::SliderFloat("X translation", &param.trans_x, 0.0f, 1000.0f);
 		ImGui::SliderFloat("Y translation", &param.trans_y, 0.0f, 1000.0f);

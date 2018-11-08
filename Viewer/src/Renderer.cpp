@@ -7,7 +7,7 @@
 #include <vector>
 #include <cmath>
 #include "glad/glad.h"
-#include <glm/common.hpp>
+#include "TransformationMatrices.h"
 
 #define M_PI           3.14159265358979323846  /* pi */
 #define INDEX(width,x,y,c) ((x)+(y)*(width))*3+(c)
@@ -26,6 +26,50 @@ Renderer::~Renderer()
 	{
 		delete[] colorBuffer;
 	}
+}
+
+TransformationMatrices Renderer::getTransofrmationsFromParam(ModelGeometricParameters& param)
+{
+	glm::mat4x4 scaleMatrix
+	{ param.scale_x,  0 ,  0 ,  0,
+		0 ,  param.scale_y,  0 ,  0,
+		0 ,  0 ,  param.scale_z,  0,
+		0 ,  0 ,  0 ,  1 };
+
+	glm::mat4x4 translationMatrix
+	{ 1,  0 ,  0 ,  param.trans_x,
+		0 ,  1,  0 ,  param.trans_y,
+		0 ,  0 ,  1,  param.trans_z,
+		0 ,  0 ,  0 ,  1 };
+
+	double degToRad = double(M_PI) / double(180);
+
+	glm::mat4x4 rotataionXmatrix
+	{ 1	,				0					,					0						,	0,
+		0	,	glm::cos(param.rot_x* degToRad)	,	-1 * glm::sin(param.rot_x* degToRad)	,	0,
+		0	,	glm::sin(param.rot_x* degToRad)	,	glm::cos(param.rot_x* degToRad)			,	0,
+		0	,				0					,					0						,	1 };
+
+	glm::mat4x4 rotataionYmatrix
+	{ glm::cos(param.rot_y* degToRad)			,	0	,	glm::sin(param.rot_y* degToRad)	,	0,
+		0							,	1	,				0					,	0,
+		-1 * glm::sin(param.rot_y* degToRad)	,	0	,	glm::cos(param.rot_y* degToRad)	,	0,
+		0										,	0	,				0					,	1 };
+
+
+	glm::mat4x4 rotataionZmatrix
+	{ glm::cos(param.rot_z* degToRad)	,	-1 * glm::sin(param.rot_z* degToRad)	,	0	,	0,
+		glm::sin(param.rot_z* degToRad)	,	glm::cos(param.rot_z* degToRad)			,	0	,	0,
+		0					,				0							,	1	,	0,
+		0					,				0							,	0	,	1 };
+
+	TransformationMatrices tm;
+	tm.scaleMatrix = scaleMatrix;
+	tm.rotataionXmatrix = rotataionXmatrix;
+	tm.rotataionYmatrix = rotataionYmatrix;
+	tm.rotataionZmatrix = rotataionZmatrix;
+	tm.translationMatrix = translationMatrix;
+	return tm;
 }
 
 void Renderer::putPixel(int i, int j, const glm::vec3& color)
@@ -126,79 +170,66 @@ void Renderer::BersenhamAlg(GLfloat p1, GLfloat q1, GLfloat p2, GLfloat q2, bool
 	}
 }
 
+void Renderer::renderFaces(std::vector<Face> faces, std::vector<glm::vec4> finalVertices)
+{
+	for (int faceIndex = 0; faceIndex < faces.size(); ++faceIndex)
+	{
+		Face face = faces[faceIndex];
+		int indexArr1[] = { 0,1,2 };
+		int indexArr2[] = { 1,2,0 };
+		for (int i = 0; i < 3; ++i)
+		{
+			int v1Index = indexArr1[i];
+			int v2Index = indexArr2[i];
+			int vertexIndex1 = face.GetVertexIndex(v1Index);
+			int vertexIndex2 = face.GetVertexIndex(v2Index);
+			glm::vec4 v1 = finalVertices[vertexIndex1 - 1];
+			glm::vec4 v2 = finalVertices[vertexIndex2 - 1];
+			DrawLineBersenhamAlg(v1[0], v1[1], v2[0], v2[1]);
+		}
+	}
+}
+
+std::vector<glm::vec4> Renderer::getFinalVertexesFromWortldTrans(glm::mat4x4 worldTransformation, std::vector<glm::vec3> vertices, std::vector<glm::vec4> finalVertices)
+{
+	for (int vertexIndex = 0; vertexIndex < vertices.size(); ++vertexIndex)
+	{
+		glm::vec3 vertex = vertices[vertexIndex];
+		glm::vec4 augmentedVertex(vertex[0], vertex[1], vertex[2], 1);
+		glm::vec4 finalVertex = worldTransformation * augmentedVertex;
+		finalVertices.push_back(finalVertex);
+	}
+	return finalVertices;
+}
+
 void Renderer::Render(Scene& scene, ModelGeometricParameters& param)
 {
-	glm::mat4x4 scaleMatrix
-	{ param.scale_x,  0 ,  0 ,  0,
-		0 ,  param.scale_y,  0 ,  0,
-		0 ,  0 ,  param.scale_z,  0,
-		0 ,  0 ,  0 ,  1 };
-	glm::mat4x4 translationMatrix
-	{ 1,  0 ,  0 ,  param.trans_x,
-		0 ,  1,  0 ,  param.trans_y,
-		0 ,  0 ,  1,  param.trans_z,
-		0 ,  0 ,  0 ,  1 };
-
-	double degToRad = double(M_PI) / double(180);
-
 	scene.SetActiveCameraIndex(0);
 	Camera cam = scene.GetCameraByIndex(0);
+	float left = -500, right = 500, bottom = 500, top = 500, near_ = 10, far_ = 1000;
+	cam.SetOrthographicProjection(left, right, bottom, top, near_, far_);
 
-	//cam.SetCameraLookAt()
+	TransformationMatrices tm = getTransofrmationsFromParam(param);	
 
-	glm::mat4x4 rotataionXmatrix
-	{	1	,				0					,					0						,	0,
-		0	,	glm::cos(param.rot_x* degToRad)	,	-1 * glm::sin(param.rot_x* degToRad)	,	0,
-		0	,	glm::sin(param.rot_x* degToRad)	,	glm::cos(param.rot_x* degToRad)			,	0,
-		0	,				0					,					0						,	1 };
-
-	glm::mat4x4 rotataionYmatrix
-	{ glm::cos(param.rot_y* degToRad)			,	0	,	glm::sin(param.rot_y* degToRad)	,	0,
-					0							,	1	,				0					,	0,
-		-1 * glm::sin(param.rot_y* degToRad)	,	0	,	glm::cos(param.rot_y* degToRad)	,	0,
-		0										,	0	,				0					,	1 };
+	glm::mat4x4 worldTransformation = 
+		cam.GetProjectionTransformation() *
+		cam.GetViewTransformation() *
+		tm.rotataionXmatrix * 
+		tm.rotataionYmatrix * 
+		tm.rotataionZmatrix * 
+		transpose(tm.translationMatrix) * 
+		tm.scaleMatrix;
 
 
-	glm::mat4x4 rotataionZmatrix
-	{ glm::cos(param.rot_z* degToRad)	,	-1 * glm::sin(param.rot_z* degToRad)	,	0	,	0,
-		glm::sin(param.rot_z* degToRad)	,	glm::cos(param.rot_z* degToRad)			,	0	,	0,
-					0					,				0							,	1	,	0,
-					0					,				0							,	0	,	1 };
-	
-	glm::mat4x4 worldTransformation = rotataionXmatrix * rotataionYmatrix * rotataionZmatrix * transpose(translationMatrix)*scaleMatrix;
 
 	int modelsNumber = scene.GetModelCount();
 	for (int modelIndex = 0; modelIndex < modelsNumber; ++modelIndex)
 	{
-
 		MeshModel modelPtr = scene.GetModelByIndex(modelIndex);
 		std::vector<glm::vec3> vertices = modelPtr.GetVertices();
+		std::vector<glm::vec4> finalVertices = getFinalVertexesFromWortldTrans(worldTransformation, vertices, finalVertices);
 		std::vector<Face> faces = modelPtr.GetFaces();
-		std::vector<glm::vec4> finalVertices;
-		for (int vertexIndex = 0; vertexIndex < vertices.size(); ++vertexIndex)
-		{
-			glm::vec3 vertex = vertices[vertexIndex];
-			glm::vec4 augmentedVertex(vertex[0], vertex[1], vertex[2], 1);
-			glm::vec4 finalVertex = worldTransformation * augmentedVertex;
-			finalVertices.push_back(finalVertex);
-		}
-
-		for (int faceIndex = 0; faceIndex < faces.size(); ++faceIndex)
-		{
-			Face face = faces[faceIndex];
-			int indexArr1[] = { 0,1,2 };
-			int indexArr2[] = { 1,2,0 };
-			for (int i = 0; i < 3; ++i)
-			{
-				int v1Index = indexArr1[i];
-				int v2Index = indexArr2[i];
-				int vertexIndex1 = face.GetVertexIndex(v1Index);
-				int vertexIndex2 = face.GetVertexIndex(v2Index);
-				glm::vec4 v1 = finalVertices[vertexIndex1 - 1];
-				glm::vec4 v2 = finalVertices[vertexIndex2 - 1];
-				DrawLineBersenhamAlg(v1[0], v1[1], v2[0], v2[1]);
-			}
-		}
+		renderFaces(faces, finalVertices);
 	}
 
 }

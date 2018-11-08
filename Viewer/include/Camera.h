@@ -25,8 +25,10 @@ public:
 	void SetCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const glm::vec3& up);
 
 	void SetOrthographicProjection(
-		const float height,
-		const float aspectRatio,
+		const float left,
+		const float right,
+		const float bottom,
+		const float top,
 		const float near,
 		const float far);
 
@@ -39,4 +41,7 @@ public:
 	void SetZoom(const float zoom);
 
 	// Add more methods/functionality as needed...
+
+	glm::mat4x4 GetProjectionTransformation();
+	glm::mat4x4 GetViewTransformation();
 };
