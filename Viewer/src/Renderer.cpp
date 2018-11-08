@@ -8,6 +8,8 @@
 #include <cmath>
 #include "glad/glad.h"
 #include "TransformationMatrices.h"
+#include <glm/common.hpp>
+#include <vector>
 
 #define M_PI           3.14159265358979323846  /* pi */
 #define INDEX(width,x,y,c) ((x)+(y)*(width))*3+(c)
@@ -190,8 +192,9 @@ void Renderer::renderFaces(std::vector<Face> faces, std::vector<glm::vec4> final
 	}
 }
 
-std::vector<glm::vec4> Renderer::getFinalVertexesFromWortldTrans(glm::mat4x4 worldTransformation, std::vector<glm::vec3> vertices, std::vector<glm::vec4> finalVertices)
+std::vector<glm::vec4> Renderer::getFinalVertexesFromWortldTrans(glm::mat4x4 worldTransformation, std::vector<glm::vec3> vertices)
 {
+	std::vector<glm::vec4> finalVertices;
 	for (int vertexIndex = 0; vertexIndex < vertices.size(); ++vertexIndex)
 	{
 		glm::vec3 vertex = vertices[vertexIndex];
@@ -220,18 +223,15 @@ void Renderer::Render(Scene& scene, ModelGeometricParameters& param)
 		transpose(tm.translationMatrix) * 
 		tm.scaleMatrix;
 
-
-
 	int modelsNumber = scene.GetModelCount();
 	for (int modelIndex = 0; modelIndex < modelsNumber; ++modelIndex)
 	{
 		MeshModel modelPtr = scene.GetModelByIndex(modelIndex);
 		std::vector<glm::vec3> vertices = modelPtr.GetVertices();
-		std::vector<glm::vec4> finalVertices = getFinalVertexesFromWortldTrans(worldTransformation, vertices, finalVertices);
+		std::vector<glm::vec4> finalVertices = getFinalVertexesFromWortldTrans(worldTransformation, vertices);
 		std::vector<Face> faces = modelPtr.GetFaces();
 		renderFaces(faces, finalVertices);
 	}
-
 }
 
 //##############################

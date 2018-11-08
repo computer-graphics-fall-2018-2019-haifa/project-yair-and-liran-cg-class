@@ -44,7 +44,7 @@ public:
 
 	void BersenhamAlg(GLfloat p1, GLfloat q1, GLfloat p2, GLfloat q2, bool isXYchanged, glm::vec3 color);
 	void renderFaces(std::vector<Face> faces, std::vector<glm::vec4> finalVertices);
-	std::vector<glm::vec4> getFinalVertexesFromWortldTrans(glm::mat4x4 worldTransformation, std::vector<glm::vec3> vertices, std::vector<glm::vec4> finalVertices);
+	std::vector<glm::vec4> getFinalVertexesFromWortldTrans(glm::mat4x4 worldTransformation, std::vector<glm::vec3> vertices);
 
 	// Add more methods/functionality as needed...
 };
