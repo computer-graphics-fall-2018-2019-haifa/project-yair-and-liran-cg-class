@@ -66,3 +66,13 @@ Camera Scene::GetCameraByIndex(int cameraIndex)
 {
 	return cameras[cameraIndex];
 }
+
+std::vector<std::string> Scene::getModelNames()
+{
+	std::vector<std::string> names;
+	for (int i = 0; i < models.size(); ++i)
+	{
+		names.push_back(models[i]->GetName());
+	}
+	return names;
+}

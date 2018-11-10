@@ -205,44 +205,6 @@ std::vector<glm::vec4> Renderer::getFinalVertexesFromWortldTrans(glm::mat4x4 wor
 	return finalVertices;
 }
 
-void Renderer::Render(Scene& scene, ModelGeometricParameters& param)
-{
-	scene.SetActiveCameraIndex(0);
-	Camera cam = scene.GetCameraByIndex(0);
-	float left = -100, right = 100, bottom = -100, top = 100, near_ = 0, far_ = 100;
-	cam.SetOrthographicProjection(left, right, bottom, top, near_, far_);
-
-	TransformationMatrices tm = getTransofrmationsFromParam(param);
-
-	glm::mat4x4 worldTransformation =
-
-		//cam.GetViewTransformation() *
-		cam.GetProjectionTransformation() *
-		tm.scaleMatrix *
-		transpose(tm.translationMatrix) *
-		tm.rotataionXmatrix *
-		tm.rotataionYmatrix *
-		tm.rotataionZmatrix;
-
-	int modelsNumber = scene.GetModelCount();
-	for (int modelIndex = 0; modelIndex < modelsNumber; ++modelIndex)
-	{
-		MeshModel modelPtr = scene.GetModelByIndex(modelIndex);
-		std::vector<glm::vec3> vertices = modelPtr.GetVertices();
-		std::vector<glm::vec4> finalVertices = getFinalVertexesFromWortldTrans(worldTransformation, vertices);
-		std::vector<Face> faces = modelPtr.GetFaces();
-		renderFaces(faces, finalVertices);
-	}
-
-}
-
-//##############################
-//##OpenGL stuff. Don't touch.##
-//##############################
-
-// Basic tutorial on how opengl works:
-// http://www.opengl-tutorial.org/beginners-tutorials/tutorial-2-the-first-triangle/
-// don't linger here for now, we will have a few tutorials about opengl later.
 void Renderer::initOpenGLRendering()
 {
 	// Creates a unique identifier for an opengl texture.
@@ -351,77 +313,39 @@ void Renderer::SwapBuffers()
 
 
 
-/*
- *	glm::vec3 color = glm::vec3(0, 0, 5);
-	DrawLineBersenhamAlg(int(viewportWidth / 2), int(viewportHeight / 2), int(viewportWidth / 2) + 50, int(viewportHeight / 2) + 50, color);
-	DrawLineBersenhamAlg(int(viewportWidth / 2), int(viewportHeight / 2), int(viewportWidth / 2) + 50, int(viewportHeight / 2) + 150, color);
-	DrawLineBersenhamAlg(int(viewportWidth / 2), int(viewportHeight / 2), int(viewportWidth / 2) + 50, int(viewportHeight / 2) - 50, color);
-	DrawLineBersenhamAlg(int(viewportWidth / 2), int(viewportHeight / 2), int(viewportWidth / 2) + 50, int(viewportHeight / 2) - 150, color);
-
-	DrawLineBersenhamAlg(int(viewportWidth / 2), int(viewportHeight / 2), int(viewportWidth / 2) - 50, int(viewportHeight / 2) + 50, color);
-	DrawLineBersenhamAlg(int(viewportWidth / 2), int(viewportHeight / 2), int(viewportWidth / 2) - 50, int(viewportHeight / 2) + 150, color);
-	DrawLineBersenhamAlg(int(viewportWidth / 2), int(viewportHeight / 2), int(viewportWidth / 2) - 50, int(viewportHeight / 2) - 50, color);
-	DrawLineBersenhamAlg(int(viewportWidth / 2), int(viewportHeight / 2), int(viewportWidth / 2) - 50, int(viewportHeight / 2) - 150, color);
 
 
-	DrawLineBersenhamAlg(int(viewportWidth / 2), int(viewportHeight / 2), int(viewportWidth / 2) - 50, int(viewportHeight / 2), color);
-	DrawLineBersenhamAlg(int(viewportWidth / 2), int(viewportHeight / 2), int(viewportWidth / 2) + 50, int(viewportHeight / 2), color);
 
-	DrawLineBersenhamAlg(int(viewportWidth / 2), int(viewportHeight / 2), int(viewportWidth / 2), int(viewportHeight / 2) - 50, color);
-	DrawLineBersenhamAlg(int(viewportWidth / 2), int(viewportHeight / 2), int(viewportWidth / 2), int(viewportHeight / 2) + 50, color);
 
- *
- *
- */
+void Renderer::Render(Scene& scene, ModelGeometricParameters& param)
+{
+	scene.SetActiveCameraIndex(0);
+	Camera cam = scene.GetCameraByIndex(0);
+	float left = -100, right = 100, bottom = -100, top = 100, near_ = 0, far_ = 100;
+	cam.SetOrthographicProjection(left, right, bottom, top, near_, far_);
 
- /*
-  *std::vector<glm::vec3> vertices;
-	 vertices.push_back(glm::vec3(0, 0, 0));
-	 vertices.push_back(glm::vec3(0, 0, 1));
-	 vertices.push_back(glm::vec3(0, 1, 0));
-	 vertices.push_back(glm::vec3(4, 0, 0));
-	 vertices.push_back(glm::vec3(4, 0, 5));
-	 vertices.push_back(glm::vec3(4, 5, 0));
-	 std::vector<glm::vec4> finalVertices;
-	 for (int vertexIndex = 0; vertexIndex < vertices.size(); ++vertexIndex)
-	 {
-		 glm::vec3 vertex = vertices[vertexIndex];
-		 glm::vec4 augmentedVertex(vertex[0], vertex[1], vertex[2], 1);
-		 glm::vec4 finalVertex = worldTransformation * augmentedVertex;
-		 finalVertices.push_back(finalVertex);
-	 }
-	 int indexArr1[] = { 0,1,2,3,4,5 };
-	 int indexArr2[] = { 1,2,0,4,5,3 };
-	 for (int i = 0; i < 6; ++i)
-	 {
-		 int v1Index = indexArr1[i];
-		 int v2Index = indexArr2[i];
-		 glm::vec3 v1 = finalVertices[v1Index];
-		 glm::vec3 v2 = finalVertices[v2Index];
-		 DrawLineBersenhamAlg(v1[0], v2[0], v1[1], v2[1]);
-	 }
-  *
-  *
-  */
-  /*
-  // Draw a chess board in the middle of the screen
-  for (int i = 100; i < viewportWidth - 100; i++)
-  {
-  //putPixel(i, int(viewportHeight/2), glm::vec3(1, 1, 0));
-  for (int j = 100; j < viewportHeight - 100; j++)
-  {
-  int mod_i = i / 50;
-  int mod_j = j / 50;
+	TransformationMatrices tm = getTransofrmationsFromParam(param);
 
-  int odd = (mod_i + mod_j) % 2;
-  if (odd)
-  {
-  putPixel(i, j, glm::vec3(0, 1, 0));
-  }
-  else
-  {
-  putPixel(i, j, glm::vec3(1, 0, 0));
-  }
-  }
-  }
-  */
+	glm::mat4x4 worldTransformation =
+
+		//cam.GetViewTransformation() *
+		cam.GetProjectionTransformation() *
+		tm.scaleMatrix *
+		transpose(tm.translationMatrix) *
+		tm.rotataionXmatrix *
+		tm.rotataionYmatrix *
+		tm.rotataionZmatrix;
+
+	int modelsNumber = scene.GetModelCount();
+	for (int modelIndex = 0; modelIndex < modelsNumber; ++modelIndex)
+	{
+		MeshModel modelPtr = scene.GetModelByIndex(modelIndex);
+		std::vector<glm::vec3> vertices = modelPtr.GetVertices();
+		std::vector<glm::vec4> finalVertices = getFinalVertexesFromWortldTrans(worldTransformation, vertices);
+		std::vector<Face> faces = modelPtr.GetFaces();
+		renderFaces(faces, finalVertices);
+	}
+
+}
+
+

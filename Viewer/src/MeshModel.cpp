@@ -65,4 +65,9 @@ std::vector<Face> MeshModel::GetFaces()
 	return faces;
 }
 
+std::string MeshModel::GetName()
+{
+	return modelName;
+}
+
 

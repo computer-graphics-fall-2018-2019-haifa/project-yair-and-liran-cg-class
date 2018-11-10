@@ -18,9 +18,10 @@ private:
 	std::vector<Camera> cameras;
 
 	int activeCameraIndex;
-	int activeModelIndex;
+	
 
 public:
+	int activeModelIndex;
 	Scene();
 
 	void AddModel(const std::shared_ptr<MeshModel>& model);
@@ -38,5 +39,6 @@ public:
 
 	MeshModel& GetModelByIndex(int index);
 	Camera GetCameraByIndex(int cameraIndex);
+	std::vector<std::string> getModelNames();
 	// Add more methods as needed...
 };
