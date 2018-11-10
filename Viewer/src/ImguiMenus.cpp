@@ -57,13 +57,13 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene, ModelGeometricParameters& param)
 		ImGui::SliderFloat("Y rotation", &param.rot_y, -360.0f, 360.0f);
 		ImGui::SliderFloat("Z rotation", &param.rot_z, -360.0f, 360.0f);
 		
-		ImGui::SliderFloat("X translation", &param.trans_x, 0.0f, 1000.0f);
-		ImGui::SliderFloat("Y translation", &param.trans_y, 0.0f, 1000.0f);
-		ImGui::SliderFloat("Z translation", &param.trans_z, 0.0f, 1000.0f);
+		ImGui::SliderFloat("X translation", &param.trans_x, -10.0f, 10.0f);
+		ImGui::SliderFloat("Y translation", &param.trans_y, -10.0f, 10.0f);
+		ImGui::SliderFloat("Z translation", &param.trans_z, -10.0f, 10.0f);
 
-		ImGui::SliderFloat("X scaling", &param.scale_x, 1.0f, 1000.0f);
-		ImGui::SliderFloat("Y scaling", &param.scale_y, 1.0f, 1000.0f);
-		ImGui::SliderFloat("Z scaling", &param.scale_z, 1.0f, 1000.0f);
+		ImGui::SliderFloat("X scaling", &param.scale_x, 1.0f, 100.0f);
+		ImGui::SliderFloat("Y scaling", &param.scale_y, 1.0f, 100.0f);
+		ImGui::SliderFloat("Z scaling", &param.scale_z, 1.0f, 100.0f);
 
 		ImGui::End();
 	}

@@ -123,7 +123,7 @@ void Renderer::SetViewport(int viewportWidth, int viewportHeight, int viewportX,
 
 void Renderer::DrawLineBersenhamAlg(GLfloat p1, GLfloat q1, GLfloat p2, GLfloat q2, glm::vec3 color = glm::vec3(0, 0, 5))
 {
-	GLfloat a = fabs(q2 - q1)/(p2 - p1);
+	GLfloat a = fabs(q2 - q1) / (p2 - p1);
 
 	if (fabs(a) <= 1)
 	{
@@ -187,7 +187,7 @@ void Renderer::renderFaces(std::vector<Face> faces, std::vector<glm::vec4> final
 			int vertexIndex2 = face.GetVertexIndex(v2Index);
 			glm::vec4 v1 = finalVertices[vertexIndex1 - 1];
 			glm::vec4 v2 = finalVertices[vertexIndex2 - 1];
-			DrawLineBersenhamAlg(v1[0], v1[1], v2[0], v2[1]);
+			DrawLineBersenhamAlg((v1[0] + 1) * viewportWidth / 2, (v1[1] + 1) * viewportHeight / 2, (v2[0] + 1) * viewportWidth / 2, (v2[1] + 1) * viewportHeight / 2);
 		}
 	}
 }
@@ -209,19 +209,20 @@ void Renderer::Render(Scene& scene, ModelGeometricParameters& param)
 {
 	scene.SetActiveCameraIndex(0);
 	Camera cam = scene.GetCameraByIndex(0);
-	float left = -500, right = 500, bottom = 500, top = 500, near_ = 10, far_ = 1000;
+	float left = -100, right = 100, bottom = -100, top = 100, near_ = 0, far_ = 100;
 	cam.SetOrthographicProjection(left, right, bottom, top, near_, far_);
 
-	TransformationMatrices tm = getTransofrmationsFromParam(param);	
+	TransformationMatrices tm = getTransofrmationsFromParam(param);
 
-	glm::mat4x4 worldTransformation = 
+	glm::mat4x4 worldTransformation =
+
+		//cam.GetViewTransformation() *
 		cam.GetProjectionTransformation() *
-		cam.GetViewTransformation() *
-		tm.rotataionXmatrix * 
-		tm.rotataionYmatrix * 
-		tm.rotataionZmatrix * 
-		transpose(tm.translationMatrix) * 
-		tm.scaleMatrix;
+		tm.scaleMatrix *
+		transpose(tm.translationMatrix) *
+		tm.rotataionXmatrix *
+		tm.rotataionYmatrix *
+		tm.rotataionZmatrix;
 
 	int modelsNumber = scene.GetModelCount();
 	for (int modelIndex = 0; modelIndex < modelsNumber; ++modelIndex)
@@ -232,6 +233,7 @@ void Renderer::Render(Scene& scene, ModelGeometricParameters& param)
 		std::vector<Face> faces = modelPtr.GetFaces();
 		renderFaces(faces, finalVertices);
 	}
+
 }
 
 //##############################

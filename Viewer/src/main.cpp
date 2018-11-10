@@ -52,9 +52,9 @@ int main(int argc, char **argv)
 	Renderer renderer = Renderer(frameBufferWidth, frameBufferHeight);
 	Scene scene = Scene();
 	//Camera(const glm::vec4& eye, const glm::vec4& at, const glm::vec4& up)
-	glm::vec4 eye = glm::vec4(0, 0, 0, 1);
-	glm::vec4 at = glm::vec4(500, 500, 500, 1);
-	glm::vec4 up = glm::vec4(-1, 1, -1, 0);
+	glm::vec3 eye = glm::vec3(0, 0, 0);
+	glm::vec3 at = glm::vec3(0, 500, 0);
+	glm::vec3 up = glm::vec3(1, 0, 0);
 	Camera cam = Camera(eye, at, up);
 	scene.AddCamera(cam);
 
@@ -69,8 +69,6 @@ int main(int argc, char **argv)
     {
         glfwPollEvents();
 		StartFrame();
-
-		
 
 		// Here we build the menus for the next frame. Feel free to pass more arguments to this function call
 		DrawImguiMenus(io, scene, param);
