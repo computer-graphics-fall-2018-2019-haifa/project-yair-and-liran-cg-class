@@ -146,7 +146,7 @@ void RenderFrame(GLFWwindow* window, Scene& scene, Renderer& renderer, ImGuiIO& 
 	renderer.ClearColorBuffer(GetClearColor());
 
 	// Render the scene
-	renderer.Render(scene, param);
+	renderer.Render(scene);
 
 	// Swap buffers
 	renderer.SwapBuffers();

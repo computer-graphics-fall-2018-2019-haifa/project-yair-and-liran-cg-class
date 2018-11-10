@@ -3,6 +3,8 @@
 #include <string>
 #include <memory>
 #include "Face.h"
+#include "TransformationMatrices.h"
+#include "ModelGeometricParameters.h"
 
 /*
  * MeshModel class.
@@ -18,8 +20,12 @@ private:
 	glm::mat4x4 worldTransform{};
 	glm::vec4 color{};
 	std::string modelName;
+	
 
 public:
+	TransformationMatrices tm;
+	ModelGeometricParameters param;
+
 	MeshModel(std::vector<Face>& faces, std::vector<glm::vec3>& vertices, std::vector<glm::vec3>& normals, std::string& modelName);
 	MeshModel(MeshModel& meshModel);
 	virtual ~MeshModel();
@@ -35,6 +41,7 @@ public:
 	std::vector<Face> GetFaces();
 
 	std::string GetName();
-	
+	void SetProjectionTransformation();
+
 	// Add more methods/functionality as needed...
 };

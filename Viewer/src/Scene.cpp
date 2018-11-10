@@ -57,9 +57,9 @@ const int Scene::GetActiveModelIndex() const
 	return activeModelIndex;
 }
 
-MeshModel& Scene::GetModelByIndex(int index)
+std::shared_ptr<MeshModel> Scene::GetModelByIndex(int index)
 {
-	return *models[index];
+	return models[index];
 }
 
 Camera Scene::GetCameraByIndex(int cameraIndex)
@@ -75,4 +75,9 @@ std::vector<std::string> Scene::getModelNames()
 		names.push_back(models[i]->GetName());
 	}
 	return names;
+}
+
+std::shared_ptr<MeshModel> Scene::GetActiveModel()
+{
+	return models[activeModelIndex];
 }

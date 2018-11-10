@@ -317,32 +317,31 @@ void Renderer::SwapBuffers()
 
 
 
-void Renderer::Render(Scene& scene, ModelGeometricParameters& param)
+void Renderer::Render(Scene& scene)
 {
 	scene.SetActiveCameraIndex(0);
 	Camera cam = scene.GetCameraByIndex(0);
 	float left = -100, right = 100, bottom = -100, top = 100, near_ = 0, far_ = 100;
 	cam.SetOrthographicProjection(left, right, bottom, top, near_, far_);
 
-	TransformationMatrices tm = getTransofrmationsFromParam(param);
-
-	glm::mat4x4 worldTransformation =
-
-		//cam.GetViewTransformation() *
-		cam.GetProjectionTransformation() *
-		tm.scaleMatrix *
-		transpose(tm.translationMatrix) *
-		tm.rotataionXmatrix *
-		tm.rotataionYmatrix *
-		tm.rotataionZmatrix;
-
 	int modelsNumber = scene.GetModelCount();
 	for (int modelIndex = 0; modelIndex < modelsNumber; ++modelIndex)
 	{
-		MeshModel modelPtr = scene.GetModelByIndex(modelIndex);
-		std::vector<glm::vec3> vertices = modelPtr.GetVertices();
+		std::shared_ptr<MeshModel> currentModel = scene.GetModelByIndex(modelIndex);
+		currentModel->SetProjectionTransformation();
+		glm::mat4x4 worldTransformation =
+
+			//cam.GetViewTransformation() *
+			cam.GetProjectionTransformation() *
+			currentModel->tm.scaleMatrix *
+			transpose(currentModel->tm.translationMatrix) *
+			currentModel->tm.rotataionXmatrix *
+			currentModel->tm.rotataionYmatrix *
+			currentModel->tm.rotataionZmatrix;
+
+		std::vector<glm::vec3> vertices = currentModel->GetVertices();
 		std::vector<glm::vec4> finalVertices = getFinalVertexesFromWortldTrans(worldTransformation, vertices);
-		std::vector<Face> faces = modelPtr.GetFaces();
+		std::vector<Face> faces = currentModel->GetFaces();
 		renderFaces(faces, finalVertices);
 	}
 

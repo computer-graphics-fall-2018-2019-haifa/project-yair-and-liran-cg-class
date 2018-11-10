@@ -36,7 +36,7 @@ public:
 	~Renderer();
 
 	TransformationMatrices getTransofrmationsFromParam(ModelGeometricParameters& param);
-	void Render(Scene& scene, ModelGeometricParameters& param);
+	void Render(Scene& scene);
 	void SwapBuffers();
 	void ClearColorBuffer(const glm::vec3& color);
 	void SetViewport(int viewportWidth, int viewportHeight, int viewportX = 0, int viewportY = 0);
