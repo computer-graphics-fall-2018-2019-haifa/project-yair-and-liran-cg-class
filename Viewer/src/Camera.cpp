@@ -26,8 +26,12 @@ void Camera::SetCameraLookAt()
 		tm->rotataionYmatrix *
 		tm->rotataionZmatrix*
 		glm::vec4(up[0], up[1], up[2], 1);
-
-	glm::vec3 z = glm::normalize(_eye - at);
+	glm::vec3 _at = tm->translationMatrix *
+		tm->rotataionXmatrix *
+		tm->rotataionYmatrix *
+		tm->rotataionZmatrix*
+		glm::vec4(at[0], at[1], at[2], 1);
+	glm::vec3 z = glm::normalize(_eye - _at);
 	glm::vec3 x = glm::normalize(glm::cross(_up, z));
 	glm::vec3 y = glm::normalize(glm::cross(z, x));
 
@@ -43,7 +47,7 @@ void Camera::SetCameraLookAt()
 		0	,	0	,	0	,	1			}; 
 
 
-	viewTransformation =  C*glm::transpose(_translationMatrix);
+	viewTransformation = C*glm::transpose(_translationMatrix);
 }
 
 void Camera::SetOrthographicProjection(const float left, const float right, const float bottom, const float top,
