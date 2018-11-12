@@ -30,50 +30,6 @@ Renderer::~Renderer()
 	}
 }
 
-TransformationMatrices Renderer::getTransofrmationsFromParam(ModelGeometricParameters& param)
-{
-	glm::mat4x4 scaleMatrix
-	{ param.scale_x,  0 ,  0 ,  0,
-		0 ,  param.scale_y,  0 ,  0,
-		0 ,  0 ,  param.scale_z,  0,
-		0 ,  0 ,  0 ,  1 };
-
-	glm::mat4x4 translationMatrix
-	{ 1,  0 ,  0 ,  param.trans_x,
-		0 ,  1,  0 ,  param.trans_y,
-		0 ,  0 ,  1,  param.trans_z,
-		0 ,  0 ,  0 ,  1 };
-
-	double degToRad = double(M_PI) / double(180);
-
-	glm::mat4x4 rotataionXmatrix
-	{ 1	,				0					,					0						,	0,
-		0	,	glm::cos(param.rot_x* degToRad)	,	-1 * glm::sin(param.rot_x* degToRad)	,	0,
-		0	,	glm::sin(param.rot_x* degToRad)	,	glm::cos(param.rot_x* degToRad)			,	0,
-		0	,				0					,					0						,	1 };
-
-	glm::mat4x4 rotataionYmatrix
-	{ glm::cos(param.rot_y* degToRad)			,	0	,	glm::sin(param.rot_y* degToRad)	,	0,
-		0							,	1	,				0					,	0,
-		-1 * glm::sin(param.rot_y* degToRad)	,	0	,	glm::cos(param.rot_y* degToRad)	,	0,
-		0										,	0	,				0					,	1 };
-
-
-	glm::mat4x4 rotataionZmatrix
-	{ glm::cos(param.rot_z* degToRad)	,	-1 * glm::sin(param.rot_z* degToRad)	,	0	,	0,
-		glm::sin(param.rot_z* degToRad)	,	glm::cos(param.rot_z* degToRad)			,	0	,	0,
-		0					,				0							,	1	,	0,
-		0					,				0							,	0	,	1 };
-
-	TransformationMatrices tm;
-	tm.scaleMatrix = scaleMatrix;
-	tm.rotataionXmatrix = rotataionXmatrix;
-	tm.rotataionYmatrix = rotataionYmatrix;
-	tm.rotataionZmatrix = rotataionZmatrix;
-	tm.translationMatrix = translationMatrix;
-	return tm;
-}
-
 void Renderer::putPixel(int i, int j, const glm::vec3& color)
 {
 	if (i < 0) return; if (i >= viewportWidth) return;
@@ -172,7 +128,7 @@ void Renderer::BersenhamAlg(GLfloat p1, GLfloat q1, GLfloat p2, GLfloat q2, bool
 	}
 }
 
-void Renderer::renderFaces(std::vector<Face> faces, std::vector<glm::vec4> finalVertices)
+void Renderer::renderFaces(std::vector<Face> faces, std::vector<glm::vec4> finalVertices, glm::mat4x4 cameraNormalizationMatrix)
 {
 	for (int faceIndex = 0; faceIndex < faces.size(); ++faceIndex)
 	{
@@ -187,6 +143,8 @@ void Renderer::renderFaces(std::vector<Face> faces, std::vector<glm::vec4> final
 			int vertexIndex2 = face.GetVertexIndex(v2Index);
 			glm::vec4 v1 = finalVertices[vertexIndex1 - 1];
 			glm::vec4 v2 = finalVertices[vertexIndex2 - 1];
+			v1 = cameraNormalizationMatrix * v1;
+			v2 = cameraNormalizationMatrix * v2;
 			DrawLineBersenhamAlg((v1[0] + 1) * viewportWidth / 2, (v1[1] + 1) * viewportHeight / 2, (v2[0] + 1) * viewportWidth / 2, (v2[1] + 1) * viewportHeight / 2);
 		}
 	}
@@ -312,37 +270,63 @@ void Renderer::SwapBuffers()
 }
 
 
-
-
-
-
+std::vector<Face> Renderer::getClipedFaces(std::vector<Face> faces, std::vector<glm::vec4> vertices, float left, float right, float bottom, float top, float near_, float far_)
+{
+	std::vector<Face> facesFiltered;
+	for (int faceIndex = 0; faceIndex < faces.size(); ++faceIndex)
+	{
+		Face face = faces[faceIndex];
+		int indexArr1[] = { 0,1,2 };
+		int indexArr2[] = { 1,2,0 };
+		for (int i = 0; i < 3; ++i)
+		{
+			int v1Index = indexArr1[i];
+			int v2Index = indexArr2[i];
+			int vertexIndex1 = face.GetVertexIndex(v1Index);
+			int vertexIndex2 = face.GetVertexIndex(v2Index);
+			glm::vec4 v1 = vertices[vertexIndex1 - 1];
+			glm::vec4 v2 = vertices[vertexIndex2 - 1];
+			if (v1[0] < left || v2[0] < left ||
+				v1[0] > right || v2[0] > right ||
+				v1[1] > top || v2[1] > top ||
+				v1[1] < bottom || v2[1] < bottom ||
+				v1[2] < near_ || v2[2] < near_ ||
+				v1[2] > far_ || v2[2] > far_)
+				continue;
+			facesFiltered.push_back(face);
+		}
+	}
+	return facesFiltered;
+}
 
 void Renderer::Render(Scene& scene)
 {
-	scene.SetActiveCameraIndex(0);
-	Camera cam = scene.GetCameraByIndex(0);
-	float left = -100, right = 100, bottom = -100, top = 100, near_ = 0, far_ = 100;
-	cam.SetOrthographicProjection(left, right, bottom, top, near_, far_);
+	Camera* cam = scene.GetActiveCamera();
+	double widthSideLength = viewportWidth/2;
+	double heightSideLength = viewportHeight/2;
+	float	left = cam->eye[0] - widthSideLength,
+		right = cam->eye[0] + widthSideLength,
+		bottom = cam->eye[1] - heightSideLength,
+		top = cam->eye[1] + heightSideLength,
+		near_ = cam->eye[2],
+		far_ = cam->eye[2] + 200;
+	glm::mat4x4 cameraViewingTransform = cam->GetViewTransformation();
+	glm::mat4x4 cameraNormalizationMatrix = cam->GetProjectionTransformation(left, right, bottom, top, near_, far_);
 
 	int modelsNumber = scene.GetModelCount();
 	for (int modelIndex = 0; modelIndex < modelsNumber; ++modelIndex)
 	{
-		std::shared_ptr<MeshModel> currentModel = scene.GetModelByIndex(modelIndex);
-		currentModel->SetProjectionTransformation();
-		glm::mat4x4 worldTransformation =
-
-			//cam.GetViewTransformation() *
-			cam.GetProjectionTransformation() *
-			currentModel->tm.scaleMatrix *
-			transpose(currentModel->tm.translationMatrix) *
-			currentModel->tm.rotataionXmatrix *
-			currentModel->tm.rotataionYmatrix *
-			currentModel->tm.rotataionZmatrix;
+		MeshModel* currentModel = scene.GetModelByIndex(modelIndex);
+		glm::mat4x4 cameraViewingTransformInverse = glm::inverse(cameraViewingTransform);
+		glm::mat4x4 vertexTransformationMatrix =
+			currentModel->GetWorldTransformation() *
+			cameraViewingTransformInverse;
 
 		std::vector<glm::vec3> vertices = currentModel->GetVertices();
-		std::vector<glm::vec4> finalVertices = getFinalVertexesFromWortldTrans(worldTransformation, vertices);
+		std::vector<glm::vec4> finalVertices = getFinalVertexesFromWortldTrans(vertexTransformationMatrix, vertices);
 		std::vector<Face> faces = currentModel->GetFaces();
-		renderFaces(faces, finalVertices);
+		//std::vector<Face> facesFiltered = getClipedFaces(faces, finalVertices, left, right, bottom, top, near_, far_);
+		renderFaces(faces, finalVertices, cameraNormalizationMatrix);
 	}
 
 }

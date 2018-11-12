@@ -24,7 +24,7 @@ const glm::vec4& GetClearColor()
 	return clearColor;
 }
 
-void DrawImguiMenus(ImGuiIO& io, Scene& scene, ModelGeometricParameters& param)
+void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 {
 	// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
 	if (showDemoWindow)
@@ -34,6 +34,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene, ModelGeometricParameters& param)
 
 	// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
 	{
+		
 		ImGui::Begin("Computer Graphic ass. 1");                         
 		std::vector<std::string> modelNames = scene.getModelNames();
 		int modelsNumber = modelNames.size();
@@ -45,22 +46,33 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene, ModelGeometricParameters& param)
 				items[i] = const_cast<char*>(modelNames[i].c_str());
 			}
 
-			ImGui::Combo("combo", &scene.activeModelIndex, items, modelsNumber); 
+			ImGui::Combo("Select Model", &scene.activeModelIndex, items, modelsNumber); 
 
+			/** Active model parameters ***/
+			MeshModel* activeModel = scene.GetActiveModel();
+			ImGui::Text("Model parameters");
+			ImGui::SliderFloat("Model X rotation", &(activeModel->param->rot_x), -360.0f, 360.0f);
+			ImGui::SliderFloat("Model Y rotation", &(activeModel->param->rot_y), -360.0f, 360.0f);
+			ImGui::SliderFloat("Model Z rotation", &(activeModel->param->rot_z), -360.0f, 360.0f);
 
-			std::shared_ptr<MeshModel> activeModel = scene.GetActiveModel();
-			ImGui::SliderFloat("X rotation", &activeModel->param.rot_x, -360.0f, 360.0f);
-			ImGui::SliderFloat("Y rotation", &activeModel->param.rot_y, -360.0f, 360.0f);
-			ImGui::SliderFloat("Z rotation", &activeModel->param.rot_z, -360.0f, 360.0f);
+			ImGui::SliderFloat("Model X translation", &(activeModel->param->trans_x), -100.0f, 100.0f);
+			ImGui::SliderFloat("Model Y translation", &(activeModel->param->trans_y), -100.0f, 100.0f);
+			ImGui::SliderFloat("Model Z translation", &(activeModel->param->trans_z), -100.0f, 100.0f);
 
-			ImGui::SliderFloat("X translation", &activeModel->param.trans_x, -10.0f, 10.0f);
-			ImGui::SliderFloat("Y translation", &activeModel->param.trans_y, -10.0f, 10.0f);
-			ImGui::SliderFloat("Z translation", &activeModel->param.trans_z, -10.0f, 10.0f);
+			ImGui::SliderFloat("Model X scaling", &(activeModel->param->scale_x), 0.1f, 100.0f);
+			ImGui::SliderFloat("Model Y scaling", &(activeModel->param->scale_y), 0.1f, 100.0f);
+			ImGui::SliderFloat("Model Z scaling", &(activeModel->param->scale_z), 0.1f, 100.0f);
+			
+			/** Active camera parameters ***/
+			Camera* activeCamera = scene.GetActiveCamera();
+			ImGui::Text("Camera parameters");
+			ImGui::SliderFloat("Camera X rotation", &(activeCamera->param->rot_x), -360.0f, 360.0f);
+			ImGui::SliderFloat("Camera Y rotation", &(activeCamera->param->rot_y), -360.0f, 360.0f);
+			ImGui::SliderFloat("Camera Z rotation", &(activeCamera->param->rot_z), -360.0f, 360.0f);
 
-			ImGui::SliderFloat("X scaling", &(activeModel->param.scale_x), 1.0f, 100.0f);
-			ImGui::SliderFloat("Y scaling", &(activeModel->param.scale_y), 1.0f, 100.0f);
-			ImGui::SliderFloat("Z scaling", &(activeModel->param.scale_z), 1.0f, 100.0f);
-
+			ImGui::SliderFloat("Camera X translation", &(activeCamera->param->trans_x), -100.0f, 100.0f);
+			ImGui::SliderFloat("Camera Y translation", &(activeCamera->param->trans_y), -100.0f, 100.0f);
+			ImGui::SliderFloat("Camera Z translation", &(activeCamera->param->trans_z), -100.0f, 100.0f);
 		}
 		ImGui::End();
 	}
@@ -89,7 +101,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene, ModelGeometricParameters& param)
 					nfdchar_t *outPath = NULL;
 					nfdresult_t result = NFD_OpenDialog("obj;png,jpg", NULL, &outPath);
 					if (result == NFD_OKAY) {
-						scene.AddModel(std::make_shared<MeshModel>(Utils::LoadMeshModel(outPath)));
+						scene.AddModel(Utils::LoadMeshModel(outPath));
 						free(outPath);
 					}
 					else if (result == NFD_CANCEL) {

@@ -20,7 +20,7 @@ static void GlfwErrorCallback(int error, const char* description);
 GLFWwindow* SetupGlfwWindow(int w, int h, const char* window_name);
 ImGuiIO& SetupDearImgui(GLFWwindow* window);
 void StartFrame();
-void RenderFrame(GLFWwindow* window, Scene& scene, Renderer& renderer, ImGuiIO& io, ModelGeometricParameters& param);
+void RenderFrame(GLFWwindow* window, Scene& scene, Renderer& renderer, ImGuiIO& io);
 void Cleanup(GLFWwindow* window);
 void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 
@@ -53,9 +53,9 @@ int main(int argc, char **argv)
 	Scene scene = Scene();
 	//Camera(const glm::vec4& eye, const glm::vec4& at, const glm::vec4& up)
 	glm::vec3 eye = glm::vec3(0, 0, 0);
-	glm::vec3 at = glm::vec3(0, 500, 0);
-	glm::vec3 up = glm::vec3(1, 0, 0);
-	Camera cam = Camera(eye, at, up);
+	glm::vec3 at = glm::vec3(0, 0, -1);
+	glm::vec3 up = glm::vec3(0, 1, 0);
+	Camera* cam = new Camera(eye, at, up);
 	scene.AddCamera(cam);
 
 	// Setup ImGui
@@ -63,7 +63,7 @@ int main(int argc, char **argv)
 
 	// Register a mouse scroll-wheel callback
 	glfwSetScrollCallback(window, ScrollCallback);
-	ModelGeometricParameters param;
+
 	// This is the main game loop..
     while (!glfwWindowShouldClose(window))
     {
@@ -71,10 +71,10 @@ int main(int argc, char **argv)
 		StartFrame();
 
 		// Here we build the menus for the next frame. Feel free to pass more arguments to this function call
-		DrawImguiMenus(io, scene, param);
+		DrawImguiMenus(io, scene);
 		
 		// Render the next frame
-		RenderFrame(window, scene, renderer, io, param);
+		RenderFrame(window, scene, renderer, io);
     }
 
 	// If we're here, then we're done. Cleanup memory.
@@ -131,7 +131,7 @@ void StartFrame()
 	ImGui::NewFrame();
 }
 
-void RenderFrame(GLFWwindow* window, Scene& scene, Renderer& renderer, ImGuiIO& io, ModelGeometricParameters& param)
+void RenderFrame(GLFWwindow* window, Scene& scene, Renderer& renderer, ImGuiIO& io)
 {
 	// Render the menus
 	ImGui::Render();

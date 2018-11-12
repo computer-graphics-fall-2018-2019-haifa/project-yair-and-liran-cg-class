@@ -23,15 +23,15 @@ private:
 	
 
 public:
-	TransformationMatrices tm;
-	ModelGeometricParameters param;
+	TransformationMatrices* tm;
+	ModelGeometricParameters* param;
 
 	MeshModel(std::vector<Face>& faces, std::vector<glm::vec3>& vertices, std::vector<glm::vec3>& normals, std::string& modelName);
-	MeshModel(MeshModel& meshModel);
+	MeshModel(std::string _modelName);
 	virtual ~MeshModel();
 
 	void SetWorldTransformation(const glm::mat4x4& worldTransform);
-	const glm::mat4x4& GetWorldTransformation() const;
+	glm::mat4x4& GetWorldTransformation();
 
 	const glm::vec4& GetColor() const;
 	void SetColor(const glm::vec4& color);
@@ -41,7 +41,6 @@ public:
 	std::vector<Face> GetFaces();
 
 	std::string GetName();
-	void SetProjectionTransformation();
+	void SetTransofrmationMatrices();
 
-	// Add more methods/functionality as needed...
 };

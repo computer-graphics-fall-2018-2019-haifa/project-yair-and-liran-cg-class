@@ -36,6 +36,7 @@ public:
 	~Renderer();
 
 	TransformationMatrices getTransofrmationsFromParam(ModelGeometricParameters& param);
+	std::vector<Face> getClipedFaces(std::vector<Face> faces, std::vector<glm::vec4> vertices, float left, float right, float bottom, float top, float near_, float far_);
 	void Render(Scene& scene);
 	void SwapBuffers();
 	void ClearColorBuffer(const glm::vec3& color);
@@ -43,7 +44,7 @@ public:
 	void DrawLineBersenhamAlg(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2, glm::vec3 color);
 
 	void BersenhamAlg(GLfloat p1, GLfloat q1, GLfloat p2, GLfloat q2, bool isXYchanged, glm::vec3 color);
-	void renderFaces(std::vector<Face> faces, std::vector<glm::vec4> finalVertices);
+	void renderFaces(std::vector<Face> faces, std::vector<glm::vec4> finalVertices, glm::mat4x4 cameraProjTransform);
 	std::vector<glm::vec4> getFinalVertexesFromWortldTrans(glm::mat4x4 worldTransformation, std::vector<glm::vec3> vertices);
 
 	// Add more methods/functionality as needed...

@@ -9,7 +9,7 @@ Scene::Scene() :
 
 }
 
-void Scene::AddModel(const std::shared_ptr<MeshModel>& model)
+void Scene::AddModel(MeshModel* model)
 {
 	models.push_back(model);
 }
@@ -19,7 +19,7 @@ const int Scene::GetModelCount() const
 	return models.size();
 }
 
-void Scene::AddCamera(const Camera& camera)
+void Scene::AddCamera(Camera* camera)
 {
 	cameras.push_back(camera);
 }
@@ -57,12 +57,12 @@ const int Scene::GetActiveModelIndex() const
 	return activeModelIndex;
 }
 
-std::shared_ptr<MeshModel> Scene::GetModelByIndex(int index)
+MeshModel* Scene::GetModelByIndex(int index)
 {
 	return models[index];
 }
 
-Camera Scene::GetCameraByIndex(int cameraIndex)
+Camera* Scene::GetCameraByIndex(int cameraIndex)
 {
 	return cameras[cameraIndex];
 }
@@ -77,7 +77,12 @@ std::vector<std::string> Scene::getModelNames()
 	return names;
 }
 
-std::shared_ptr<MeshModel> Scene::GetActiveModel()
+MeshModel* Scene::GetActiveModel()
 {
 	return models[activeModelIndex];
+}
+
+Camera* Scene::GetActiveCamera()
+{
+	return cameras[activeCameraIndex];
 }
