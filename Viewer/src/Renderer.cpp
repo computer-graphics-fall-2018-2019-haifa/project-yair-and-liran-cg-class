@@ -325,7 +325,6 @@ void Renderer::Render(Scene& scene)
 		std::vector<glm::vec3> vertices = currentModel->GetVertices();
 		std::vector<glm::vec4> finalVertices = getFinalVertexesFromWortldTrans(vertexTransformationMatrix, vertices);
 		std::vector<Face> faces = currentModel->GetFaces();
-		//std::vector<Face> facesFiltered = getClipedFaces(faces, finalVertices, left, right, bottom, top, near_, far_);
 		renderFaces(faces, finalVertices, cameraNormalizationMatrix);
 	}
 
