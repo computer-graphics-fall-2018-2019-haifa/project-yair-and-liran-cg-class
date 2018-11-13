@@ -34,10 +34,12 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 
 	// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
 	{
-		
+		bool isAddCmaera = false;
 		ImGui::Begin("Computer Graphic ass. 1");                         
 		std::vector<std::string> modelNames = scene.getModelNames();
+		std::vector<std::string> cameraNames = scene.GetCameraNames();
 		int modelsNumber = modelNames.size();
+		int cameraCount = scene.GetCameraCount();
 		if (modelsNumber > 0)
 		{
 			char** items = new char*[modelsNumber];
@@ -45,8 +47,16 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 			{
 				items[i] = const_cast<char*>(modelNames[i].c_str());
 			}
+			char** cameras = new char*[cameraCount];
+			for (int i=0 ; i< cameraCount ;++i)
+			{
+				cameras[i] = const_cast<char*>(cameraNames[i].c_str());
+			}
+
+			scene.isAddCamera = ImGui::Button("AddCamera", ImVec2(70, 30));
 
 			ImGui::Combo("Select Model", &scene.activeModelIndex, items, modelsNumber); 
+			ImGui::Combo("Select Camera", &scene.activeCameraIndex, cameras, cameraCount);
 
 			/** Active model parameters ***/
 			MeshModel* activeModel = scene.GetActiveModel();

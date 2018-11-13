@@ -33,6 +33,7 @@ void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 
 int main(int argc, char **argv)
 {
+	int camerasNumber = 0;
 	// Create GLFW window
 	int windowWidth = 1280, windowHeight = 720;
 	GLFWwindow* window = SetupGlfwWindow(windowWidth, windowHeight, "Mesh Viewer");
@@ -55,7 +56,7 @@ int main(int argc, char **argv)
 	glm::vec3 eye = glm::vec3(0, 0, 0);
 	glm::vec3 at = glm::vec3(0, 0, -1);
 	glm::vec3 up = glm::vec3(0, 1, 0);
-	Camera* cam = new Camera(eye, at, up);
+	Camera* cam = new Camera(eye, at, up, camerasNumber++);
 	scene.AddCamera(cam);
 
 	// Setup ImGui
@@ -72,6 +73,12 @@ int main(int argc, char **argv)
 
 		// Here we build the menus for the next frame. Feel free to pass more arguments to this function call
 		DrawImguiMenus(io, scene);
+
+		if(scene.isAddCamera)
+		{
+			Camera* cam = new Camera(eye, at, up, camerasNumber++);
+			scene.AddCamera(cam);
+		}
 		
 		// Render the next frame
 		RenderFrame(window, scene, renderer, io);

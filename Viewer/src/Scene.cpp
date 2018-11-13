@@ -77,6 +77,16 @@ std::vector<std::string> Scene::getModelNames()
 	return names;
 }
 
+std::vector<std::string> Scene::GetCameraNames()
+{
+	std::vector<std::string> names;
+	for (int i=0; i< GetCameraCount() ; ++i)
+	{
+		names.push_back(cameras[i]->GetName());
+	}
+	return names;
+}
+
 MeshModel* Scene::GetActiveModel()
 {
 	return models[activeModelIndex];

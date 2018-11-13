@@ -19,6 +19,7 @@ private:
 public:
 	int activeCameraIndex;
 	int activeModelIndex;
+	bool isAddCamera = false;
 	Scene();
 
 	void AddModel(MeshModel* model);
@@ -37,6 +38,7 @@ public:
 	MeshModel* GetModelByIndex(int index);
 	Camera* GetCameraByIndex(int cameraIndex);
 	std::vector<std::string> getModelNames();
+	std::vector<std::string> GetCameraNames();
 	MeshModel* GetActiveModel();
 	Camera* GetActiveCamera();
 	// Add more methods as needed...
