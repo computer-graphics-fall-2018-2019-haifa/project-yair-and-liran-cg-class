@@ -1,5 +1,6 @@
 #ifndef _TRANSFORM_MAT_
 # define _TRANSFORM_MAT_
+#include <glm/mat4x4.hpp>
 
 class TransformationMatrices
 {

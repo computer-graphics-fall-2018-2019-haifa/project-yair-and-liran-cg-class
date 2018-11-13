@@ -11,7 +11,7 @@ MeshModel::MeshModel(std::vector<Face>& faces, std::vector<glm::vec3>& vertices,
 	modelName(modelName),
 	worldTransform(glm::mat4x4(1)),
 	tm(new TransformationMatrices()),
-	param(new ModelGeometricParameters())
+	param(new ModelGeometricParameters()), boundingBox(vertices)
 {
 	this->faces = faces;
 	this->vertices = vertices;
@@ -20,37 +20,14 @@ MeshModel::MeshModel(std::vector<Face>& faces, std::vector<glm::vec3>& vertices,
 }
 
 MeshModel::MeshModel(std::string _modelName) : modelName(_modelName), worldTransform(glm::mat4x4(1)), tm(new TransformationMatrices()),
-param(new ModelGeometricParameters()) {}
+                                               param(new ModelGeometricParameters()), boundingBox(std::vector<glm::vec3>())
+{
+}
 
 MeshModel::~MeshModel()
 {
 	delete tm;
 	delete param;
-}
-
-void MeshModel::CalcBoundry()
-{
-	float minX=0,maxX=10000,minY=0,maxY= 10000,minZ=0,MaxZ= 10000;
-
-	for(int i=0 ; i< vertices.size() ; ++i)
-	{
-		//if (vertices[i][0] < minX)
-		//	minX = vertices[i][0];
-		//if (vertices[i][0] > maxX)
-		//	maxX = vertices[i][0];
-		//if (vertices[i][1] < minY)
-		//	minY = vertices[i][1];
-		//if (vertices[i][1] > maxY)
-		//	maxY = vertices[i][1];
-		//if (vertices[i][2] < minZ)
-		//	minZ = vertices[i][2];
-		//if (vertices[i][2] > maxZ)
-		//	maxZ = vertices[i][2];
-
-	}
-
-
-
 }
 
 void MeshModel::SetWorldTransformation(const glm::mat4x4& worldTransform)

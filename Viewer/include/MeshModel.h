@@ -5,6 +5,7 @@
 #include "Face.h"
 #include "TransformationMatrices.h"
 #include "ModelGeometricParameters.h"
+#include "BoundingBox.h"
 
 /*
  * MeshModel class.
@@ -25,6 +26,7 @@ private:
 public:
 	TransformationMatrices* tm;
 	ModelGeometricParameters* param;
+	BoundingBox boundingBox;
 
 	MeshModel(std::vector<Face>& faces, std::vector<glm::vec3>& vertices, std::vector<glm::vec3>& normals, std::string& modelName);
 	MeshModel(std::string _modelName);
