@@ -17,10 +17,6 @@
 bool showDemoWindow = false;
 bool showAnotherWindow = false;
 
-bool isTranslation = true;
-bool isRotation = false;
-bool isScaling = false;
-
 glm::vec4 clearColor = glm::vec4(0.8f, 0.8f, 0.8f, 1.00f);
 
 const glm::vec4& GetClearColor()
@@ -62,11 +58,6 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 			ImGui::Combo("Select Model", &scene.activeModelIndex, items, modelsNumber); 
 			ImGui::Combo("Select Camera", &scene.activeCameraIndex, cameras, cameraCount);
 
-
-			//ImGui::RadioButton("ModelRotation", &isTranslation);
-			//ImGui::RadioButton("ModelTranslation", &isRotation);
-			//ImGui::RadioButton("ModelScaling", &isScaling);
-
 			static int e = 0;
 			ImGui::RadioButton("ModelRotation", &e, 0); ImGui::SameLine();
 			ImGui::RadioButton("ModelTranslation", &e, 1); ImGui::SameLine();
@@ -97,8 +88,8 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 			Camera* activeCamera = scene.GetActiveCamera();
 			ImGui::Text("Camera parameters");
 			static int c = 0;
-			ImGui::RadioButton("ModelRotation", &c, 0); ImGui::SameLine();
-			ImGui::RadioButton("ModelTranslation", &c, 1); 
+			ImGui::RadioButton("CmaeraRotation", &c, 0); ImGui::SameLine();
+			ImGui::RadioButton("CmaeraTranslation", &c, 1); 
 			if (c == 0)
 			{
 				ImGui::SliderFloat("Camera X rotation", &(activeCamera->param->rot_x), -360.0f, 360.0f);

@@ -41,9 +41,9 @@ void Camera::SetCameraLookAt()
 	glm::vec4 t(0, 0, 0, 1);
 	glm::mat4 C = glm::mat4(x4, y4, z4, t);
 	glm::mat4x4 _translationMatrix
-	{	1	,	0	,	0	,	-1 * _eye[0],
-		0	,	1	,	0	,	-1 * _eye[1],
-		0	,	0	,	1	,	-1 * _eye[2],
+	{	1	,	0	,	0	,	_eye[0],
+		0	,	1	,	0	,	_eye[1],
+		0	,	0	,	1	,	_eye[2],
 		0	,	0	,	0	,	1			}; 
 
 

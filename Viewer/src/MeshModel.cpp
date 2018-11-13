@@ -28,6 +28,31 @@ MeshModel::~MeshModel()
 	delete param;
 }
 
+void MeshModel::CalcBoundry()
+{
+	float minX=0,maxX=10000,minY=0,maxY= 10000,minZ=0,MaxZ= 10000;
+
+	for(int i=0 ; i< vertices.size() ; ++i)
+	{
+		//if (vertices[i][0] < minX)
+		//	minX = vertices[i][0];
+		//if (vertices[i][0] > maxX)
+		//	maxX = vertices[i][0];
+		//if (vertices[i][1] < minY)
+		//	minY = vertices[i][1];
+		//if (vertices[i][1] > maxY)
+		//	maxY = vertices[i][1];
+		//if (vertices[i][2] < minZ)
+		//	minZ = vertices[i][2];
+		//if (vertices[i][2] > maxZ)
+		//	maxZ = vertices[i][2];
+
+	}
+
+
+
+}
+
 void MeshModel::SetWorldTransformation(const glm::mat4x4& worldTransform)
 {
 	this->worldTransform = worldTransform;
