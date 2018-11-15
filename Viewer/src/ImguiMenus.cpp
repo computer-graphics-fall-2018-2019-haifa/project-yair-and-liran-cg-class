@@ -55,6 +55,8 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 
 			scene.isAddCamera = ImGui::Button("AddCamera", ImVec2(70, 30));
 
+			ImGui::Checkbox("Prespective Projection", &scene.isPrespective);
+
 			ImGui::Combo("Select Model", &scene.activeModelIndex, items, modelsNumber); 
 			ImGui::Combo("Select Camera", &scene.activeCameraIndex, cameras, cameraCount);
 
@@ -74,9 +76,9 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 				ImGui::SliderFloat("Model Z rotation", &(activeModel->param->rot_z), -360.0f, 360.0f);
 			}
 			else if (e==1) {
-				ImGui::SliderFloat("Model X translation", &(activeModel->param->trans_x), -1000.0f, 1000.0f);
-				ImGui::SliderFloat("Model Y translation", &(activeModel->param->trans_y), -1000.0f, 1000.0f);
-				ImGui::SliderFloat("Model Z translation", &(activeModel->param->trans_z), -1000.0f, 1000.0f);
+				ImGui::SliderFloat("Model X translation", &(activeModel->param->trans_x), -100.0f, 100.0f);
+				ImGui::SliderFloat("Model Y translation", &(activeModel->param->trans_y), -100.0f, 100.0f);
+				ImGui::SliderFloat("Model Z translation", &(activeModel->param->trans_z), -100.0f, 100.0f);
 			}
 			else if (e==2)
 			{
@@ -98,9 +100,9 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 			}
 			else if (c == 1)
 			{
-				ImGui::SliderFloat("Camera X translation", &(activeCamera->param->trans_x), -1000.0f, 1000.0f);
-				ImGui::SliderFloat("Camera Y translation", &(activeCamera->param->trans_y), -1000.0f, 1000.0f);
-				ImGui::SliderFloat("Camera Z translation", &(activeCamera->param->trans_z), -1000.0f, 1000.0f);
+				ImGui::SliderFloat("Camera X translation", &(activeCamera->param->trans_x), -100.0f, 100.0f);
+				ImGui::SliderFloat("Camera Y translation", &(activeCamera->param->trans_y), -100.0f, 100.0f);
+				ImGui::SliderFloat("Camera Z translation", &(activeCamera->param->trans_z), -100.0f, 100.0f);
 			}
 		}
 		ImGui::End();

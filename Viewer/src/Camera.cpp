@@ -62,13 +62,16 @@ void Camera::SetOrthographicProjection(const float left, const float right, cons
 	projectionTransformation = C;
 }
 
-void Camera::SetPerspectiveProjection(
-	const float fovy,
-	const float aspectRatio,
-	const float near,
-	const float far)
+void Camera::SetPerspectiveProjection(const float left, const float right, const float bottom, const float top,
+	const float near, const float far)
 {
-
+	glm::mat4x4 C
+	{ (2.0 * near) / (right - left)		,	0								,		(right + left) / (right - left)		,	0,
+		0								,	(2.0 * near) / (top - bottom)	,		 (top + bottom) / (top - bottom)	,	0,
+		0								,	0								,		-1 * (far + near) / (far - near)	,	-1*((2 * far * near) / (far - near)),
+		0								,	0								,	-1										,	0,
+	};
+	projectionTransformation = C;
 }
 
 void Camera::SetZoom(const float zoom)
@@ -76,10 +79,18 @@ void Camera::SetZoom(const float zoom)
 
 }
 
-glm::mat4x4 Camera::GetProjectionTransformation(const float left, const float right, const float bottom, const float top,
-	const float near, const float far)
+glm::mat4x4 Camera::GetProjectionTransformation(int viewPortWidthMiddle, int viewPortHeightMiddle, bool isOrth)
 {
-	SetOrthographicProjection(left, right, bottom, top, near, far);
+	float	left = eye[0] - viewPortWidthMiddle,
+		right = eye[0] + viewPortWidthMiddle,
+		bottom = eye[1] - viewPortHeightMiddle,
+		top = eye[1] + viewPortHeightMiddle,
+		near_ = eye[2] + 1,
+		far_ = eye[2] + 200;
+	if (isOrth)
+		SetOrthographicProjection(left, right, bottom, top, near_, far_);
+	else
+		SetPerspectiveProjection(left, right, bottom, top, near_, far_);
 	return projectionTransformation;
 }
 

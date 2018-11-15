@@ -33,17 +33,13 @@ public:
 		const float near,
 		const float far);
 
-	void SetPerspectiveProjection(
-		const float fovy,
-		const float aspect,
-		const float near,
-		const float far);
+	void SetPerspectiveProjection(const float left, const float right, const float bottom, const float top,
+		const float near, const float far);
 
 	void SetZoom(const float zoom);
 
 	// Add more methods/functionality as needed...
 
-	glm::mat4x4 GetProjectionTransformation(const float left, const float right, const float bottom, const float top,
-		const float near, const float far);
+	glm::mat4x4 GetProjectionTransformation(int viewPortWidthMiddle, int viewPortHeightMiddle, bool isOrth);
 	glm::mat4x4 GetViewTransformation();
 };

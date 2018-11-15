@@ -334,18 +334,10 @@ void Renderer::renderBoundingBox(BoundingBox& boundingBox, glm::mat4x4& vertexTr
 void Renderer::Render(Scene& scene)
 {
 	Camera* cam = scene.GetActiveCamera();
-	double widthSideLength = viewportWidth / 2;
-	double heightSideLength = viewportHeight / 2;
-	float	left = cam->eye[0] - widthSideLength,
-		right = cam->eye[0] + widthSideLength,
-		bottom = cam->eye[1] - heightSideLength,
-		top = cam->eye[1] + heightSideLength,
-		near_ = cam->eye[2],
-		far_ = cam->eye[2] + 200;
 	glm::mat4x4 cameraViewingTransform = cam->GetViewTransformation();
-	glm::mat4x4 cameraNormalizationMatrix = cam->GetProjectionTransformation(left, right, bottom, top, near_, far_);
-
+	glm::mat4x4 cameraNormalizationMatrix = cam->GetProjectionTransformation(viewportWidth / 2, viewportHeight /2  ,scene.isPrespective);
 	int modelsNumber = scene.GetModelCount();
+	int activeModelIndex = scene.GetActiveModelIndex();
 	for (int modelIndex = 0; modelIndex < modelsNumber; ++modelIndex)
 	{
 		MeshModel* currentModel = scene.GetModelByIndex(modelIndex);
@@ -357,10 +349,10 @@ void Renderer::Render(Scene& scene)
 
 		std::vector<glm::vec3> vertices = currentModel->GetVertices();
 		std::vector<glm::vec4> finalModelVertexes = getFinalVertexesFromWortldTrans(vertexTransformationMatrix, vertices);
-		//std::vector<glm::vec4> finalBoundingBoxVertexes = getFinalBoundingBoxFromWortldTrans(vertexTransformationMatrix, currentModel->boundingBox);
 		std::vector<Face> faces = currentModel->GetFaces();
 		renderFaces(faces, finalModelVertexes);
-		renderBoundingBox(currentModel->boundingBox, vertexTransformationMatrix);
+		if (modelIndex == activeModelIndex)
+			renderBoundingBox(currentModel->boundingBox, vertexTransformationMatrix);
 	}
 
 }

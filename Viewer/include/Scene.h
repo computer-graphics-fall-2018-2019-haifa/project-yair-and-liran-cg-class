@@ -16,7 +16,9 @@ class Scene {
 private:
 	std::vector<MeshModel*> models;
 	std::vector<Camera*> cameras;
+	
 public:
+	bool isPrespective = false;
 	int activeCameraIndex;
 	int activeModelIndex;
 	bool isAddCamera = false;
