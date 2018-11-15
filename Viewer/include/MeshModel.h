@@ -1,4 +1,6 @@
-#pragma once
+#ifndef __MESHMODEL__
+#define __MESHMODEL__
+
 #include <glm/glm.hpp>
 #include <string>
 #include <memory>
@@ -31,14 +33,13 @@ public:
 	MeshModel(std::vector<Face>& faces, std::vector<glm::vec3>& vertices, std::vector<glm::vec3>& normals, std::string& modelName);
 	MeshModel(std::string _modelName);
 	virtual ~MeshModel();
-	void CalcBoundry();
-	void SetWorldTransformation(const glm::mat4x4& worldTransform);
+	void SetWorldTransformation(glm::mat4x4& worldTransform);
 	glm::mat4x4& GetWorldTransformation();
 
-	const glm::vec4& GetColor() const;
-	void SetColor(const glm::vec4& color);
+	glm::vec4& GetColor();
+	void SetColor(glm::vec4& color);
 
-	const std::string& GetModelName();
+	std::string& GetModelName();
 	std::vector<glm::vec3> GetVertices();
 	std::vector<Face> GetFaces();
 
@@ -46,3 +47,5 @@ public:
 	void SetTransofrmationMatrices();
 
 };
+
+#endif

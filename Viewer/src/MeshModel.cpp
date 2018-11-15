@@ -1,9 +1,7 @@
 #include "MeshModel.h"
-#include "Utils.h"
+//#include "Utils.h"
 #include <vector>
 #include <string>
-#include <iostream>
-#include <fstream>
 #include <sstream>
 #define M_PI           3.14159265358979323846  /* pi */
 
@@ -11,7 +9,8 @@ MeshModel::MeshModel(std::vector<Face>& faces, std::vector<glm::vec3>& vertices,
 	modelName(modelName),
 	worldTransform(glm::mat4x4(1)),
 	tm(new TransformationMatrices()),
-	param(new ModelGeometricParameters()), boundingBox(vertices)
+	param(new ModelGeometricParameters()), 
+	boundingBox(vertices)
 {
 	this->faces = faces;
 	this->vertices = vertices;
@@ -19,8 +18,12 @@ MeshModel::MeshModel(std::vector<Face>& faces, std::vector<glm::vec3>& vertices,
 	this->modelName = modelName;
 }
 
-MeshModel::MeshModel(std::string _modelName) : modelName(_modelName), worldTransform(glm::mat4x4(1)), tm(new TransformationMatrices()),
-                                               param(new ModelGeometricParameters()), boundingBox(std::vector<glm::vec3>())
+MeshModel::MeshModel(std::string _modelName) : 
+	modelName(_modelName), 
+	worldTransform(glm::mat4x4(1)),	
+	tm(new TransformationMatrices()),
+	param(new ModelGeometricParameters()), 
+	boundingBox(std::vector<glm::vec3>())
 {
 }
 
@@ -30,7 +33,7 @@ MeshModel::~MeshModel()
 	delete param;
 }
 
-void MeshModel::SetWorldTransformation(const glm::mat4x4& worldTransform)
+void MeshModel::SetWorldTransformation(glm::mat4x4& worldTransform)
 {
 	this->worldTransform = worldTransform;
 }
@@ -40,26 +43,26 @@ glm::mat4x4& MeshModel::GetWorldTransformation()
 	this->SetTransofrmationMatrices();
 
 	worldTransform =
-		tm->scaleMatrix *
 		tm->translationMatrix *
 		tm->rotataionXmatrix *
 		tm->rotataionYmatrix *
-		tm->rotataionZmatrix;
+		tm->rotataionZmatrix *
+		tm->scaleMatrix;
 
 	return worldTransform;
 }
 
-void MeshModel::SetColor(const glm::vec4& color)
+void MeshModel::SetColor(glm::vec4& color)
 {
 	this->color = color;
 }
 
-const glm::vec4& MeshModel::GetColor() const
+glm::vec4& MeshModel::GetColor() 
 {
 	return color;
 }
 
-const std::string& MeshModel::GetModelName()
+std::string& MeshModel::GetModelName()
 {
 	return modelName;
 }

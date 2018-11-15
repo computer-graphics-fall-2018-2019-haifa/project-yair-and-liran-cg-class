@@ -7,7 +7,7 @@
 #include <vector>
 #include <cmath>
 #include "glad/glad.h"
-#include "TransformationMatrices.h"
+#include <vector>
 #include <glm/common.hpp>
 #include <vector>
 
@@ -77,7 +77,7 @@ void Renderer::SetViewport(int viewportWidth, int viewportHeight, int viewportX,
 	createOpenGLBuffer();
 }
 
-void Renderer::DrawLineBersenhamAlg(GLfloat p1, GLfloat q1, GLfloat p2, GLfloat q2, glm::vec3 color = glm::vec3(0, 0, 5))
+void Renderer::DrawLineBersenhamAlg(GLfloat p1, GLfloat q1, GLfloat p2, GLfloat q2, glm::vec3& color = glm::vec3(1, 1, 1))
 {
 	GLfloat a = fabs(q2 - q1) / (p2 - p1);
 
@@ -103,7 +103,7 @@ void Renderer::DrawLineBersenhamAlg(GLfloat p1, GLfloat q1, GLfloat p2, GLfloat 
 	}
 }
 
-void Renderer::BersenhamAlg(GLfloat p1, GLfloat q1, GLfloat p2, GLfloat q2, bool isXYchanged, glm::vec3 color = glm::vec3(0, 0, 5))
+void Renderer::BersenhamAlg(GLfloat p1, GLfloat q1, GLfloat p2, GLfloat q2, bool isXYchanged, glm::vec3& color = glm::vec3(1, 1, 1))
 {
 	GLfloat x = p1, y = q1;
 	GLfloat dp = p2 - p1;
@@ -128,12 +128,12 @@ void Renderer::BersenhamAlg(GLfloat p1, GLfloat q1, GLfloat p2, GLfloat q2, bool
 	}
 }
 
-void Renderer::Draw2Vertexes(glm::vec4 v1, glm::vec4 v2)
+void Renderer::Draw2Vertexes(glm::vec4& v1, glm::vec4& v2, glm::vec3& color = glm::vec3(0, 0, 0))
 {
-	DrawLineBersenhamAlg((v1[0]) * viewportWidth / 2, (v1[1]) * viewportHeight / 2, (v2[0]) * viewportWidth / 2, (v2[1]) * viewportHeight / 2);
+	DrawLineBersenhamAlg((v1[0]) * viewportWidth / 2, (v1[1]) * viewportHeight / 2, (v2[0]) * viewportWidth / 2, (v2[1]) * viewportHeight / 2, color);
 }
 
-void Renderer::renderFaces(std::vector<Face> faces, std::vector<glm::vec4> finalVertices, glm::mat4x4 cameraNormalizationMatrix)
+void Renderer::renderFaces(std::vector<Face>& faces, std::vector<glm::vec4>& finalVertices)
 {
 	for (int faceIndex = 0; faceIndex < faces.size(); ++faceIndex)
 	{
@@ -148,14 +148,12 @@ void Renderer::renderFaces(std::vector<Face> faces, std::vector<glm::vec4> final
 			int vertexIndex2 = face.GetVertexIndex(v2Index);
 			glm::vec4 v1 = finalVertices[vertexIndex1 - 1];
 			glm::vec4 v2 = finalVertices[vertexIndex2 - 1];
-			v1 = cameraNormalizationMatrix * v1;
-			v2 = cameraNormalizationMatrix * v2;
 			Draw2Vertexes(v1, v2);
 		}
 	}
 }
 
-std::vector<glm::vec4> Renderer::getFinalVertexesFromWortldTrans(glm::mat4x4 worldTransformation, std::vector<glm::vec3> vertices)
+std::vector<glm::vec4> Renderer::getFinalVertexesFromWortldTrans(glm::mat4x4& worldTransformation, std::vector<glm::vec3>& vertices)
 {
 	std::vector<glm::vec4> finalVertices;
 	for (int vertexIndex = 0; vertexIndex < vertices.size(); ++vertexIndex)
@@ -304,18 +302,40 @@ std::vector<Face> Renderer::getClipedFaces(std::vector<Face> faces, std::vector<
 	return facesFiltered;
 }
 
-void Renderer::renderBoundingBox(const BoundingBox& bounding_box)
+void Renderer::renderBoundingBox(BoundingBox& boundingBox, glm::mat4x4& vertexTransformationMatrix, glm::vec3& color = glm::vec3(0, 0, 0))
 {
-	glm::vec3 color = glm::vec3(0, 0, 0);
-	Draw2Vertexes(glm::vec4 v1, glm::vec4 v2)
-	BersenhamAlg(bounding_box.minX, bounding_box.minY, p2, q2, false, color);
+	std::vector<glm::vec4> finalVertexes = boundingBox.GetFinalVertexes(vertexTransformationMatrix);
+
+	//bottom edges
+	Draw2Vertexes(finalVertexes[0], finalVertexes[1], color);
+	Draw2Vertexes(finalVertexes[1], finalVertexes[2], color);
+	Draw2Vertexes(finalVertexes[2], finalVertexes[3], color);
+	Draw2Vertexes(finalVertexes[3], finalVertexes[0], color);
+
+	//support edges
+	Draw2Vertexes(finalVertexes[0], finalVertexes[4], color);
+	Draw2Vertexes(finalVertexes[1], finalVertexes[5], color);
+	Draw2Vertexes(finalVertexes[2], finalVertexes[6], color);
+	Draw2Vertexes(finalVertexes[3], finalVertexes[7], color);
+
+	//top edges
+	Draw2Vertexes(finalVertexes[4], finalVertexes[5], color);
+	Draw2Vertexes(finalVertexes[5], finalVertexes[6], color);
+	Draw2Vertexes(finalVertexes[6], finalVertexes[7], color);
+	Draw2Vertexes(finalVertexes[7], finalVertexes[4], color);
+
+	std::vector<glm::vec4> CoordinateSystemVertexes = boundingBox.TransformCoordinateSystem(vertexTransformationMatrix);
+	//draw coordinate system -[0]= o, [1] = x, [2] = y, [3] = z
+	Draw2Vertexes(CoordinateSystemVertexes[0], CoordinateSystemVertexes[1], glm::vec3(0, 0, 5));
+	Draw2Vertexes(CoordinateSystemVertexes[0], CoordinateSystemVertexes[2], glm::vec3(0, 5, 0));
+	Draw2Vertexes(CoordinateSystemVertexes[0], CoordinateSystemVertexes[3], glm::vec3(5, 0, 0));
 }
 
 void Renderer::Render(Scene& scene)
 {
 	Camera* cam = scene.GetActiveCamera();
-	double widthSideLength = viewportWidth/2;
-	double heightSideLength = viewportHeight/2;
+	double widthSideLength = viewportWidth / 2;
+	double heightSideLength = viewportHeight / 2;
 	float	left = cam->eye[0] - widthSideLength,
 		right = cam->eye[0] + widthSideLength,
 		bottom = cam->eye[1] - heightSideLength,
@@ -331,14 +351,16 @@ void Renderer::Render(Scene& scene)
 		MeshModel* currentModel = scene.GetModelByIndex(modelIndex);
 		glm::mat4x4 cameraViewingTransformInverse = glm::inverse(cameraViewingTransform);
 		glm::mat4x4 vertexTransformationMatrix =
+			cameraNormalizationMatrix *
 			currentModel->GetWorldTransformation() *
 			cameraViewingTransformInverse;
 
 		std::vector<glm::vec3> vertices = currentModel->GetVertices();
-		std::vector<glm::vec4> finalVertices = getFinalVertexesFromWortldTrans(vertexTransformationMatrix, vertices);
+		std::vector<glm::vec4> finalModelVertexes = getFinalVertexesFromWortldTrans(vertexTransformationMatrix, vertices);
+		//std::vector<glm::vec4> finalBoundingBoxVertexes = getFinalBoundingBoxFromWortldTrans(vertexTransformationMatrix, currentModel->boundingBox);
 		std::vector<Face> faces = currentModel->GetFaces();
-		renderFaces(faces, finalVertices, cameraNormalizationMatrix);
-		renderBoundingBox(currentModel->boundingBox);
+		renderFaces(faces, finalModelVertexes);
+		renderBoundingBox(currentModel->boundingBox, vertexTransformationMatrix);
 	}
 
 }
