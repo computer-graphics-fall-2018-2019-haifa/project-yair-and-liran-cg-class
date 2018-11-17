@@ -161,7 +161,7 @@ void Renderer::renderFaces(std::vector<Face>& faces, std::vector<glm::vec4>& fin
 			glm::vec3 v1 = finalVertices[v1Index - 1];
 			glm::vec3 v2 = finalVertices[v2Index - 1];
 			glm::vec3 mean = (v0 + v1 + v2) / GLfloat(3);
-			glm::vec3 direction = glm::cross(glm::normalize(v0 - v1), glm::normalize(v1 - v2));
+			glm::vec3 direction = glm::normalize(glm::cross((v0 - v2), (v0 - v1)));
 			glm::vec3 to = mean + (direction * scaleNormalLength);
 			Draw2Vertexes(glm::vec4(mean[0], mean[1], mean[2], 1), glm::vec4(to[0], to[1], to[2], 1), normalsColor);
 		}
