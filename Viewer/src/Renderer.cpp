@@ -407,7 +407,7 @@ void Renderer::Render(Scene& scene)
 		glm::mat4x4 vertexTransformationMatrix =
 			cameraNormalizationMatrix *
 			cameraViewingTransformInverse *
-			currentCamera->GetWorldTransformation() *
+			currentCamera->GetWorldTransformation() * 
 			scene.GetCameraScalingMatrix();
 
 		std::vector<glm::vec3> vertices = currentCamera->GetVertices();

@@ -33,7 +33,7 @@ void Camera::SetCameraLookAt()
 		glm::vec4(at[0], at[1], at[2], 1);
 	glm::vec3 z = glm::normalize(_eye - _at);
 	glm::vec3 x = glm::normalize(glm::cross(_up, z));
-	glm::vec3 y = glm::normalize(glm::cross(z, x));
+	glm::vec3 y = glm::normalize(glm::cross(x,z));
 
 	glm::vec4 z4(z[0], z[1], z[2], 0);
 	glm::vec4 x4(x[0], x[1], x[2], 0);
