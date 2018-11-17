@@ -1,6 +1,7 @@
 #include "Scene.h"
 #include "MeshModel.h"
 #include <string>
+#include "Utils.h"
 
 Scene::Scene() :
 	activeCameraIndex(0),
@@ -19,9 +20,13 @@ const int Scene::GetModelCount() const
 	return models.size();
 }
 
-void Scene::AddCamera(Camera* camera)
+void Scene::AddNewCamera(glm::vec3 eye, glm::vec3 at, glm::vec3 up)
 {
+	std::string cameraPath = "C:\\computer_graphics\\project-yair-and-liran-cg-class\\Data\\obj_examples\\camera.obj";
+	MeshModel* meshPtr = Utils::LoadMeshModel(cameraPath);
+	Camera* camera = new Camera(eye, at, up, cameras.size(), meshPtr);
 	cameras.push_back(camera);
+
 }
 
 const int Scene::GetCameraCount() const
@@ -80,7 +85,7 @@ std::vector<std::string> Scene::getModelNames()
 std::vector<std::string> Scene::GetCameraNames()
 {
 	std::vector<std::string> names;
-	for (int i=0; i< GetCameraCount() ; ++i)
+	for (int i = 0; i < GetCameraCount(); ++i)
 	{
 		names.push_back(cameras[i]->GetName());
 	}
@@ -95,4 +100,14 @@ MeshModel* Scene::GetActiveModel()
 Camera* Scene::GetActiveCamera()
 {
 	return cameras[activeCameraIndex];
+}
+
+glm::mat4x4 Scene::GetCameraScalingMatrix()
+{
+	glm::mat4x4 C
+	{ camScale,  0 ,  0 ,  0,
+		0 ,  camScale,  0 ,  0,
+		0 ,  0 ,  camScale,  0,
+		0 ,  0 ,  0 ,  1 };
+	return C;
 }

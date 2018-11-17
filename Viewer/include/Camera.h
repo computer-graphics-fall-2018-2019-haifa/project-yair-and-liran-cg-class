@@ -20,7 +20,7 @@ private:
 
 public:
 	glm::vec3 eye, at, up;
-	Camera(const glm::vec3& eye, const glm::vec3& at, const glm::vec3& up, int index = 0);
+	Camera(const glm::vec3& eye, const glm::vec3& at, const glm::vec3& up, int index = 0, MeshModel* meshPtr = nullptr);
 	~Camera();
 
 	void SetCameraLookAt();

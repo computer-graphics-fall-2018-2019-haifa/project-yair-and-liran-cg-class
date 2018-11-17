@@ -5,8 +5,8 @@
 #include <iostream>
 
 
-Camera::Camera(const glm::vec3& eye, const glm::vec3& at, const glm::vec3& up, int index) :
-	zoom(1.0), MeshModel("Camera " + std::to_string(index))
+Camera::Camera(const glm::vec3& eye, const glm::vec3& at, const glm::vec3& up, int index, MeshModel* meshPtr) :
+	zoom(1.0), MeshModel(meshPtr->faces, meshPtr->vertices, meshPtr->faceNormals, "Camera " + std::to_string(index))
 {
 	this->eye = eye;
 	this->at = at;

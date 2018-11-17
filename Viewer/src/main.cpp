@@ -14,6 +14,7 @@
 #include "Camera.h"
 #include "ImguiMenus.h"
 #include "ModelGeometricParameters.h"
+#include "Utils.h"
 
 // Function declarations
 static void GlfwErrorCallback(int error, const char* description);
@@ -33,7 +34,6 @@ void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 
 int main(int argc, char **argv)
 {
-	int camerasNumber = 0;
 	// Create GLFW window
 	int windowWidth = 1280, windowHeight = 720;
 	GLFWwindow* window = SetupGlfwWindow(windowWidth, windowHeight, "Mesh Viewer");
@@ -53,11 +53,8 @@ int main(int argc, char **argv)
 	Renderer renderer = Renderer(frameBufferWidth, frameBufferHeight);
 	Scene scene = Scene();
 	//Camera(const glm::vec4& eye, const glm::vec4& at, const glm::vec4& up)
-	glm::vec3 eye = glm::vec3(0, 0, 0);
-	glm::vec3 at = glm::vec3(0, 0, -1);
-	glm::vec3 up = glm::vec3(0, 1, 0);
-	Camera* cam = new Camera(eye, at, up, camerasNumber++);
-	scene.AddCamera(cam);
+
+	scene.AddNewCamera();
 
 	// Setup ImGui
 	ImGuiIO& io = SetupDearImgui(window);
@@ -76,8 +73,7 @@ int main(int argc, char **argv)
 
 		if(scene.isAddCamera)
 		{
-			Camera* cam = new Camera(eye, at, up, camerasNumber++);
-			scene.AddCamera(cam);
+			scene.AddNewCamera();
 		}
 		
 		// Render the next frame

@@ -374,7 +374,7 @@ void Renderer::Render(Scene& scene)
 		cameraViewingTransformInverse;
 	RenderGrid(gridTransformationMatrix, glm::vec3(scene.gridColor));
 
-
+	// render models objects
 	for (int modelIndex = 0; modelIndex < modelsNumber; ++modelIndex)
 	{
 		MeshModel* currentModel = scene.GetModelByIndex(modelIndex);
@@ -387,15 +387,33 @@ void Renderer::Render(Scene& scene)
 		std::vector<glm::vec4> finalModelVertexes = getFinalVertexesFromWortldTrans(vertexTransformationMatrix, vertices);
 		std::vector<Face> faces = currentModel->GetFaces();
 		bool isActiveModel = modelIndex == activeModelIndex;
-		renderFaces(faces, 
-			finalModelVertexes, 
-			isActiveModel, 
-			scene.scaleNormalLength, 
-			scene.isShowNormals, 
-			glm::vec3(scene.modelColor), 
+		renderFaces(faces,
+			finalModelVertexes,
+			isActiveModel,
+			scene.scaleNormalLength,
+			scene.isShowNormals,
+			glm::vec3(scene.modelColor),
 			glm::vec3(scene.normalsColor));
 		if (isActiveModel)
 			renderBoundingBox(currentModel->boundingBox, vertexTransformationMatrix, glm::vec3(scene.boundingBoxColor));
+	}
+
+	//render cameras objects
+	for (int cameraIndex = 0; cameraIndex < scene.cameras.size(); ++cameraIndex)
+	{
+		if (cameraIndex == scene.activeCameraIndex)
+			continue;
+		MeshModel* currentCamera = scene.cameras[cameraIndex];
+		glm::mat4x4 vertexTransformationMatrix =
+			cameraNormalizationMatrix *
+			cameraViewingTransformInverse *
+			currentCamera->GetWorldTransformation() *
+			scene.GetCameraScalingMatrix();
+
+		std::vector<glm::vec3> vertices = currentCamera->GetVertices();
+		std::vector<glm::vec4> finalModelVertexes = getFinalVertexesFromWortldTrans(vertexTransformationMatrix, vertices);
+		std::vector<Face> faces = currentCamera->GetFaces();
+		renderFaces(faces, finalModelVertexes);
 	}
 
 }

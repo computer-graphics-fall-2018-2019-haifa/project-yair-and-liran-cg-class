@@ -16,7 +16,7 @@
  */
 class MeshModel
 {
-private:
+public:
 	std::vector<Face> faces;
 	std::vector<glm::vec3> vertices;
 	std::vector<glm::vec3> faceNormals;
@@ -26,7 +26,7 @@ private:
 	std::string modelName;
 	
 
-public:
+
 	TransformationMatrices* tm;
 	ModelGeometricParameters* param;
 	BoundingBox boundingBox;

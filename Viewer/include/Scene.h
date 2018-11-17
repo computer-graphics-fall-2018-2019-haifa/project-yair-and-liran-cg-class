@@ -15,13 +15,16 @@
 class Scene {
 private:
 	std::vector<MeshModel*> models;
-	std::vector<Camera*> cameras;
-	
+
+
+
 public:
+	std::vector<Camera*> cameras;
 	bool isPrespective = false;
 	int activeCameraIndex;
 	int activeModelIndex;
 	bool isAddCamera = false, isShowNormals = false;
+	float camScale = 1;
 	GLfloat scaleNormalLength = 0.1;
 	glm::vec4 modelColor = glm::vec4(100.8f, 0.8f, 0.8f, 1.00f);
 	glm::vec4 normalsColor = glm::vec4(1.8f, 100.8f, 1.8f, 1.00f);
@@ -32,7 +35,7 @@ public:
 	void AddModel(MeshModel* model);
 	const int GetModelCount() const;
 
-	void AddCamera(Camera* camera);
+	void AddNewCamera(glm::vec3 eye = glm::vec3(0, 0, 1), glm::vec3 at = glm::vec3(0, 0, -1), glm::vec3 up = glm::vec3(0, 1, 0));
 	const int GetCameraCount() const;
 
 	void SetActiveCameraIndex(int index);
@@ -48,5 +51,6 @@ public:
 	std::vector<std::string> GetCameraNames();
 	MeshModel* GetActiveModel();
 	Camera* GetActiveCamera();
+	glm::mat4x4 GetCameraScalingMatrix();
 	// Add more methods as needed...
 };
