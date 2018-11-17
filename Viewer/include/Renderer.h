@@ -34,6 +34,7 @@ public:
 	//TransformationMatrices getTransofrmationsFromParam(ModelGeometricParameters& param);
 	std::vector<Face> getClipedFaces(std::vector<Face> faces, std::vector<glm::vec4> vertices, float left, float right, float bottom, float top, float near_, float far_);
 	void renderBoundingBox(BoundingBox& bounding_box, glm::mat4x4& vertexTransformationMatrix, glm::vec3& color);
+	void RenderGrid(glm::mat4x4 rotateMatrix);
 	void Render(Scene& scene);
 	void SwapBuffers();
 	void ClearColorBuffer(const glm::vec3& color);

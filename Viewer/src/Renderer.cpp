@@ -13,6 +13,8 @@
 
 #define M_PI           3.14159265358979323846  /* pi */
 #define INDEX(width,x,y,c) ((x)+(y)*(width))*3+(c)
+#define GRID_LENGTH 1000
+#define GRID_DELTA 50
 
 Renderer::Renderer(int viewportWidth, int viewportHeight, int viewportX, int viewportY) :
 	colorBuffer(nullptr),
@@ -331,6 +333,20 @@ void Renderer::renderBoundingBox(BoundingBox& boundingBox, glm::mat4x4& vertexTr
 	Draw2Vertexes(CoordinateSystemVertexes[0], CoordinateSystemVertexes[3], glm::vec3(5, 0, 0));
 }
 
+void Renderer::RenderGrid(glm::mat4x4 rotateMatrix)
+{
+	for(int i=-GRID_LENGTH; i<=GRID_LENGTH ; i+=GRID_DELTA)
+	{
+		glm::vec4 x_near(-1 * GRID_LENGTH, 0, i,1);
+		glm::vec4 x_far(GRID_LENGTH, 0, i,1);
+		glm::vec4 z_near(i, 0, -1 * GRID_LENGTH,1);
+		glm::vec4 z_far(i, 0, GRID_LENGTH,1);
+
+		Draw2Vertexes(rotateMatrix*x_near, rotateMatrix*x_far, glm::vec3(0, 0, 5));
+		Draw2Vertexes(rotateMatrix*z_near, rotateMatrix*z_far, glm::vec3(0, 0, 5));
+	}
+}
+
 void Renderer::Render(Scene& scene)
 {
 	Camera* cam = scene.GetActiveCamera();
@@ -338,14 +354,22 @@ void Renderer::Render(Scene& scene)
 	glm::mat4x4 cameraNormalizationMatrix = cam->GetProjectionTransformation(viewportWidth / 2, viewportHeight /2  ,scene.isPrespective);
 	int modelsNumber = scene.GetModelCount();
 	int activeModelIndex = scene.GetActiveModelIndex();
+
+	glm::mat4x4 cameraViewingTransformInverse = glm::inverse(cameraViewingTransform);
+	glm::mat4x4 gridTransformationMatrix =
+		cameraNormalizationMatrix *
+		cameraViewingTransformInverse;
+	RenderGrid(gridTransformationMatrix);
+
+
 	for (int modelIndex = 0; modelIndex < modelsNumber; ++modelIndex)
 	{
 		MeshModel* currentModel = scene.GetModelByIndex(modelIndex);
-		glm::mat4x4 cameraViewingTransformInverse = glm::inverse(cameraViewingTransform);
+		//glm::mat4x4 cameraViewingTransformInverse = glm::inverse(cameraViewingTransform);
 		glm::mat4x4 vertexTransformationMatrix =
 			cameraNormalizationMatrix *
-			currentModel->GetWorldTransformation() *
-			cameraViewingTransformInverse;
+			cameraViewingTransformInverse * 
+			currentModel->GetWorldTransformation();
 
 		std::vector<glm::vec3> vertices = currentModel->GetVertices();
 		std::vector<glm::vec4> finalModelVertexes = getFinalVertexesFromWortldTrans(vertexTransformationMatrix, vertices);
