@@ -11,7 +11,7 @@
 
 /*
  * MeshModel class.
- * This class represents a mesh model (with faces and normals informations).
+ * This class represents a mesh model (with faces and faceNormals informations).
  * You can use Utils::LoadMeshModel to create instances of this class from .obj files.
  */
 class MeshModel
@@ -19,7 +19,8 @@ class MeshModel
 private:
 	std::vector<Face> faces;
 	std::vector<glm::vec3> vertices;
-	std::vector<glm::vec3> normals;
+	std::vector<glm::vec3> faceNormals;
+	std::vector<glm::vec3> vertexNormals;
 	glm::mat4x4 worldTransform{};
 	glm::vec4 color{};
 	std::string modelName;
@@ -45,7 +46,7 @@ public:
 
 	std::string GetName();
 	void SetTransofrmationMatrices();
-
+	std::vector<glm::vec3> GetFaceNormals(std::vector<Face>& faces, std::vector<glm::vec3>& vertices);
 };
 
 #endif

@@ -135,7 +135,7 @@ void Renderer::Draw2Vertexes(glm::vec4& v1, glm::vec4& v2, glm::vec3& color = gl
 	DrawLineBersenhamAlg((v1[0]) * viewportWidth / 2, (v1[1]) * viewportHeight / 2, (v2[0]) * viewportWidth / 2, (v2[1]) * viewportHeight / 2, color);
 }
 
-void Renderer::renderFaces(std::vector<Face>& faces, std::vector<glm::vec4>& finalVertices)
+void Renderer::renderFaces(std::vector<Face>& faces, std::vector<glm::vec4>& finalVertices, bool isActiveModel, GLfloat scaleNormalLength, bool isShowNormals, glm::vec3& modelColor, glm::vec3& normalsColor)
 {
 	for (int faceIndex = 0; faceIndex < faces.size(); ++faceIndex)
 	{
@@ -150,7 +150,20 @@ void Renderer::renderFaces(std::vector<Face>& faces, std::vector<glm::vec4>& fin
 			int vertexIndex2 = face.GetVertexIndex(v2Index);
 			glm::vec4 v1 = finalVertices[vertexIndex1 - 1];
 			glm::vec4 v2 = finalVertices[vertexIndex2 - 1];
-			Draw2Vertexes(v1, v2);
+			Draw2Vertexes(v1, v2, modelColor);
+		}
+		if (isShowNormals && isActiveModel)
+		{
+			int v0Index = face.GetVertexIndex(0);
+			int v1Index = face.GetVertexIndex(1);
+			int v2Index = face.GetVertexIndex(2);
+			glm::vec3 v0 = finalVertices[v0Index - 1];
+			glm::vec3 v1 = finalVertices[v1Index - 1];
+			glm::vec3 v2 = finalVertices[v2Index - 1];
+			glm::vec3 mean = (v0 + v1 + v2) / GLfloat(3);
+			glm::vec3 direction = glm::cross(glm::normalize(v0 - v1), glm::normalize(v1 - v2));
+			glm::vec3 to = mean + (direction * scaleNormalLength);
+			Draw2Vertexes(glm::vec4(mean[0], mean[1], mean[2], 1), glm::vec4(to[0], to[1], to[2], 1), normalsColor);
 		}
 	}
 }
@@ -333,17 +346,17 @@ void Renderer::renderBoundingBox(BoundingBox& boundingBox, glm::mat4x4& vertexTr
 	Draw2Vertexes(CoordinateSystemVertexes[0], CoordinateSystemVertexes[3], glm::vec3(5, 0, 0));
 }
 
-void Renderer::RenderGrid(glm::mat4x4 rotateMatrix)
+void Renderer::RenderGrid(glm::mat4x4 rotateMatrix, glm::vec3& color)
 {
-	for(int i=-GRID_LENGTH; i<=GRID_LENGTH ; i+=GRID_DELTA)
+	for (int i = -GRID_LENGTH; i <= GRID_LENGTH; i += GRID_DELTA)
 	{
-		glm::vec4 x_near(-1 * GRID_LENGTH, 0, i,1);
-		glm::vec4 x_far(GRID_LENGTH, 0, i,1);
-		glm::vec4 z_near(i, 0, -1 * GRID_LENGTH,1);
-		glm::vec4 z_far(i, 0, GRID_LENGTH,1);
+		glm::vec4 x_near(-1 * GRID_LENGTH, 0, i, 1);
+		glm::vec4 x_far(GRID_LENGTH, 0, i, 1);
+		glm::vec4 z_near(i, 0, -1 * GRID_LENGTH, 1);
+		glm::vec4 z_far(i, 0, GRID_LENGTH, 1);
 
-		Draw2Vertexes(rotateMatrix*x_near, rotateMatrix*x_far, glm::vec3(0, 0, 5));
-		Draw2Vertexes(rotateMatrix*z_near, rotateMatrix*z_far, glm::vec3(0, 0, 5));
+		Draw2Vertexes(rotateMatrix*x_near, rotateMatrix*x_far, color);
+		Draw2Vertexes(rotateMatrix*z_near, rotateMatrix*z_far, color);
 	}
 }
 
@@ -351,7 +364,7 @@ void Renderer::Render(Scene& scene)
 {
 	Camera* cam = scene.GetActiveCamera();
 	glm::mat4x4 cameraViewingTransform = cam->GetViewTransformation();
-	glm::mat4x4 cameraNormalizationMatrix = cam->GetProjectionTransformation(viewportWidth / 2, viewportHeight /2  ,scene.isPrespective);
+	glm::mat4x4 cameraNormalizationMatrix = cam->GetProjectionTransformation(viewportWidth / 2, viewportHeight / 2, scene.isPrespective);
 	int modelsNumber = scene.GetModelCount();
 	int activeModelIndex = scene.GetActiveModelIndex();
 
@@ -359,24 +372,30 @@ void Renderer::Render(Scene& scene)
 	glm::mat4x4 gridTransformationMatrix =
 		cameraNormalizationMatrix *
 		cameraViewingTransformInverse;
-	RenderGrid(gridTransformationMatrix);
+	RenderGrid(gridTransformationMatrix, glm::vec3(scene.gridColor));
 
 
 	for (int modelIndex = 0; modelIndex < modelsNumber; ++modelIndex)
 	{
 		MeshModel* currentModel = scene.GetModelByIndex(modelIndex);
-		//glm::mat4x4 cameraViewingTransformInverse = glm::inverse(cameraViewingTransform);
 		glm::mat4x4 vertexTransformationMatrix =
 			cameraNormalizationMatrix *
-			cameraViewingTransformInverse * 
+			cameraViewingTransformInverse *
 			currentModel->GetWorldTransformation();
 
 		std::vector<glm::vec3> vertices = currentModel->GetVertices();
 		std::vector<glm::vec4> finalModelVertexes = getFinalVertexesFromWortldTrans(vertexTransformationMatrix, vertices);
 		std::vector<Face> faces = currentModel->GetFaces();
-		renderFaces(faces, finalModelVertexes);
-		if (modelIndex == activeModelIndex)
-			renderBoundingBox(currentModel->boundingBox, vertexTransformationMatrix);
+		bool isActiveModel = modelIndex == activeModelIndex;
+		renderFaces(faces, 
+			finalModelVertexes, 
+			isActiveModel, 
+			scene.scaleNormalLength, 
+			scene.isShowNormals, 
+			glm::vec3(scene.modelColor), 
+			glm::vec3(scene.normalsColor));
+		if (isActiveModel)
+			renderBoundingBox(currentModel->boundingBox, vertexTransformationMatrix, glm::vec3(scene.boundingBoxColor));
 	}
 
 }

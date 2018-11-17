@@ -104,6 +104,12 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 				ImGui::SliderFloat("Camera Y translation", &(activeCamera->param->trans_y), -1000.0f, 1000.0f);
 				ImGui::SliderFloat("Camera Z translation", &(activeCamera->param->trans_z), -1000.0f, 1000.0f);
 			}
+			ImGui::Checkbox("Show normals", &scene.isShowNormals);
+			ImGui::SliderFloat("Normal scaling", &(scene.scaleNormalLength),0.001,2);
+			ImGui::ColorEdit3("Model color", (float*)&(scene.modelColor)); 
+			ImGui::ColorEdit3("Grid color", (float*)&(scene.gridColor)); 
+			ImGui::ColorEdit3("Normals color", (float*)&(scene.normalsColor)); 
+			ImGui::ColorEdit3("Bounding Box color", (float*)&(scene.boundingBoxColor)); 
 		}
 		ImGui::End();
 	}

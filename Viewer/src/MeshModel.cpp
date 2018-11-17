@@ -14,7 +14,7 @@ MeshModel::MeshModel(std::vector<Face>& faces, std::vector<glm::vec3>& vertices,
 {
 	this->faces = faces;
 	this->vertices = vertices;
-	this->normals = normals;
+	this->faceNormals = normals; // GetFaceNormals(faces, vertices);
 	this->modelName = modelName;
 }
 
@@ -122,6 +122,26 @@ void MeshModel::SetTransofrmationMatrices()
 	tm->rotataionYmatrix = _rotataionYmatrix;
 	tm->rotataionZmatrix = _rotataionZmatrix;
 	tm->translationMatrix = glm::transpose(_translationMatrix);
+}
+
+std::vector<glm::vec3> MeshModel::GetFaceNormals(std::vector<Face>& faces, std::vector<glm::vec3>& vertices)
+{
+	std::vector<glm::vec3> faceNormals;
+	for (int i = 0; i < faces.size(); ++i)
+	{
+		Face face = faces[i];
+		int v0Index = face.GetVertexIndex(0);
+		int v1Index = face.GetVertexIndex(1);
+		int v2Index = face.GetVertexIndex(2);
+		glm::vec3 v0 = vertices[v0Index];
+		glm::vec3 v1 = vertices[v1Index];
+		glm::vec3 v2 = vertices[v2Index];
+		glm::vec3 sum3 = v0 + v1 + v2;
+		glm::vec3 mean(sum3[0] / 3, sum3[1] / 3, sum3[2] / 3);
+		glm::vec3 direction = glm::cross(glm::normalize(v0-v1), glm::normalize(v0-v2));
+		glm::vec3 to = mean + direction;
+	}
+	return faceNormals;
 }
 
 

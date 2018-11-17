@@ -21,7 +21,12 @@ public:
 	bool isPrespective = false;
 	int activeCameraIndex;
 	int activeModelIndex;
-	bool isAddCamera = false;
+	bool isAddCamera = false, isShowNormals = false;
+	GLfloat scaleNormalLength = 0.1;
+	glm::vec4 modelColor = glm::vec4(100.8f, 0.8f, 0.8f, 1.00f);
+	glm::vec4 normalsColor = glm::vec4(1.8f, 100.8f, 1.8f, 1.00f);
+	glm::vec4 gridColor = glm::vec4(2.8f, 2.8f, 120.8f, 1.00f);
+	glm::vec4 boundingBoxColor = glm::vec4(3.8f, 120.8f, 120.8f, 1.00f);
 	Scene();
 
 	void AddModel(MeshModel* model);
