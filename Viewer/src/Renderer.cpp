@@ -406,9 +406,9 @@ void Renderer::Render(Scene& scene)
 		MeshModel* currentCamera = scene.cameras[cameraIndex];
 		glm::mat4x4 vertexTransformationMatrix =
 			cameraNormalizationMatrix *
+			//scene.GetCameraScalingMatrix() *
 			cameraViewingTransformInverse *
-			currentCamera->GetWorldTransformation() * 
-			scene.GetCameraScalingMatrix();
+			currentCamera->GetWorldTransformation();
 
 		std::vector<glm::vec3> vertices = currentCamera->GetVertices();
 		std::vector<glm::vec4> finalModelVertexes = getFinalVertexesFromWortldTrans(vertexTransformationMatrix, vertices);

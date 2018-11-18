@@ -24,7 +24,7 @@ public:
 	int activeCameraIndex;
 	int activeModelIndex;
 	bool isAddCamera = false, isShowNormals = false;
-	float camScale = 1;
+	float camScale = 1, zoom = 0;
 	GLfloat scaleNormalLength = 0.1;
 	glm::vec4 modelColor = glm::vec4(100.8f, 0.8f, 0.8f, 1.00f);
 	glm::vec4 normalsColor = glm::vec4(1.8f, 100.8f, 1.8f, 1.00f);

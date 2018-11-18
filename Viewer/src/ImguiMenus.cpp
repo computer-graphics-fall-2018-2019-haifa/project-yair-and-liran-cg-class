@@ -92,6 +92,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 			static int c = 0;
 			ImGui::RadioButton("CmaeraRotation", &c, 0); ImGui::SameLine();
 			ImGui::RadioButton("CmaeraTranslation", &c, 1); 
+			ImGui::RadioButton("CmaeraScaling", &c, 2);
 			if (c == 0)
 			{
 				ImGui::SliderFloat("Camera X rotation", &(activeCamera->param->rot_x), -360.0f, 360.0f);
@@ -104,9 +105,15 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 				ImGui::SliderFloat("Camera Y translation", &(activeCamera->param->trans_y), -1000.0f, 1000.0f);
 				ImGui::SliderFloat("Camera Z translation", &(activeCamera->param->trans_z), -1000.0f, 1000.0f);
 			}
-			ImGui::SliderFloat("Cameras scale", &(scene.camScale), 1.0f, 100.0f);
+			/*else if (c == 2)
+			{
+				ImGui::SliderFloat("Camera X scaling", &(activeCamera->param->scale_x), 0.1f, 100.0f);
+				ImGui::SliderFloat("Camera Y scaling", &(activeCamera->param->scale_y), 0.1f, 100.0f);
+				ImGui::SliderFloat("Camera Z scaling", &(activeCamera->param->scale_z), 0.1f, 100.0f);
+			}*/
 			ImGui::Checkbox("Show normals", &scene.isShowNormals);
 			ImGui::SliderFloat("Normal scaling", &(scene.scaleNormalLength),0.001,2);
+			ImGui::SliderFloat("Zoom", &(scene.zoom),0,10);
 			ImGui::ColorEdit3("Model color", (float*)&(scene.modelColor)); 
 			ImGui::ColorEdit3("Grid color", (float*)&(scene.gridColor)); 
 			ImGui::ColorEdit3("Normals color", (float*)&(scene.normalsColor)); 
