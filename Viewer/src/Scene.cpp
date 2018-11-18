@@ -24,6 +24,17 @@ void Scene::AddNewCamera(glm::vec3 eye, glm::vec3 at, glm::vec3 up)
 {
 	std::string cameraPath = "..\\Data\\camera.obj";
 	MeshModel* meshPtr = Utils::LoadMeshModel(cameraPath);
+	glm::mat4x4 _rotataionYmatrix
+	{ glm::cos(1.57)			,	0	,	glm::sin(1.57)	,	0,
+		0							,	1	,				0					,	0,
+		-1 * glm::sin(1.57)	,	0	,	glm::cos(1.57)	,	0,
+		0										,	0	,				0					,	1 };
+
+	for(int i=0 ; i<meshPtr->vertices.size() ; i++)
+	{
+		glm::vec4 tmp = _rotataionYmatrix * glm::vec4(meshPtr->vertices[i][0], meshPtr->vertices[i][1], meshPtr->vertices[i][2], 1);
+		meshPtr->vertices[i] = glm::vec3(tmp[0], tmp[1], tmp[2]);
+	}
 	Camera* camera = new Camera(eye, at, up, cameras.size(), meshPtr);
 	camera->param->scale_x = 20;
 	camera->param->scale_y = 20;

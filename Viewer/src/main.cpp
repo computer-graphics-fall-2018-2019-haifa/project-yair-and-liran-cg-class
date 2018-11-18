@@ -80,7 +80,7 @@ int main(int argc, char **argv)
 
 		if(scene.isAddCamera)
 		{
-			scene.AddNewCamera();
+			scene.AddNewCamera(eye, at, up);
 		}
 		
 		// Render the next frame
