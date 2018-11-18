@@ -18,6 +18,7 @@
 #include "Utils.h"
 
 // Function declarations
+void GetDesktopResolution(int& horizontal, int& vertical);
 static void GlfwErrorCallback(int error, const char* description);
 GLFWwindow* SetupGlfwWindow(int w, int h, const char* window_name);
 ImGuiIO& SetupDearImgui(GLFWwindow* window);
@@ -37,6 +38,7 @@ int main(int argc, char **argv)
 {
 	// Create GLFW window
 	int windowWidth = 1280, windowHeight = 720;
+	GetDesktopResolution(windowWidth, windowHeight);
 	GLFWwindow* window = SetupGlfwWindow(windowWidth, windowHeight, "Mesh Viewer");
 	if (!window)
 	{
@@ -68,6 +70,8 @@ int main(int argc, char **argv)
 	// This is the main game loop..
     while (!glfwWindowShouldClose(window))
     {
+		//renderer.SetViewport(1920, 1080);
+
         glfwPollEvents();
 		StartFrame();
 
@@ -159,6 +163,21 @@ void RenderFrame(GLFWwindow* window, Scene& scene, Renderer& renderer, ImGuiIO& 
 
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 	glfwSwapBuffers(window);
+}
+
+// Get the horizontal and vertical screen sizes in pixel
+void GetDesktopResolution(int& horizontal, int& vertical)
+{
+	RECT desktop;
+	// Get a handle to the desktop window
+	const HWND hDesktop = GetDesktopWindow();
+	// Get the size of screen to the variable desktop
+	GetWindowRect(hDesktop, &desktop);
+	// The top left corner will have coordinates (0,0)
+	// and the bottom right corner will have coordinates
+	// (horizontal, vertical)
+	horizontal = desktop.right;
+	vertical = desktop.bottom;
 }
 
 void Cleanup(GLFWwindow* window)
