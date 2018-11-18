@@ -366,6 +366,7 @@ void Renderer::RenderGrid(glm::mat4x4 rotateMatrix, glm::vec3& color)
 
 void Renderer::Render(Scene& scene)
 {
+	ClearColorBuffer(scene.beackgroundColor);
 	this->scene = &scene;
 	Camera* cam = scene.GetActiveCamera();
 	glm::mat4x4 cameraViewingTransform = cam->GetViewTransformation();

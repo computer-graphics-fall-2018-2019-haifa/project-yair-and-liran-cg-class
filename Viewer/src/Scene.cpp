@@ -22,12 +22,12 @@ const int Scene::GetModelCount() const
 
 void Scene::AddNewCamera(glm::vec3 eye, glm::vec3 at, glm::vec3 up)
 {
-	std::string cameraPath = "C:\\computer_graphics\\project-yair-and-liran-cg-class\\Data\\obj_examples\\camera.obj";
+	std::string cameraPath = "..\\Data\\camera.obj";
 	MeshModel* meshPtr = Utils::LoadMeshModel(cameraPath);
 	Camera* camera = new Camera(eye, at, up, cameras.size(), meshPtr);
-	camera->param->scale_x = 300;
-	camera->param->scale_y = 300;
-	camera->param->scale_z = 300;
+	camera->param->scale_x = 20;
+	camera->param->scale_y = 20;
+	camera->param->scale_z = 20;
 	cameras.push_back(camera);
 
 }

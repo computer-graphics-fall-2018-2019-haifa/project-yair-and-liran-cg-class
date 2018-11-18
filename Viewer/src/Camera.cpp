@@ -85,8 +85,8 @@ glm::mat4x4 Camera::GetProjectionTransformation(int viewPortWidthMiddle, int vie
 		right = eye[0] + viewPortWidthMiddle,
 		bottom = eye[1] - viewPortHeightMiddle,
 		top = eye[1] + viewPortHeightMiddle,
-		near_ = eye[2] + 11 - distance,
-		far_ = eye[2] + 200;
+		near_ = 11-distance,
+		far_ = 200;
 	if (isPrespective)
 		SetPerspectiveProjection(left, right, bottom, top, near_, far_);
 	else

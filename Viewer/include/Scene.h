@@ -26,10 +26,11 @@ public:
 	bool isAddCamera = false, isShowNormals = false;
 	float camScale = 1, zoom = 1;
 	GLfloat scaleNormalLength = 0.1;
-	glm::vec4 modelColor = glm::vec4(100.8f, 0.8f, 0.8f, 1.00f);
-	glm::vec4 normalsColor = glm::vec4(1.8f, 100.8f, 1.8f, 1.00f);
-	glm::vec4 gridColor = glm::vec4(2.8f, 2.8f, 120.8f, 1.00f);
-	glm::vec4 boundingBoxColor = glm::vec4(3.8f, 120.8f, 120.8f, 1.00f);
+	glm::vec4 modelColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.00f);
+	glm::vec4 normalsColor = glm::vec4(0.0f, 1.0f, 0.0f, 1.00f);
+	glm::vec4 gridColor = glm::vec4(0.125f, 0.125f, 0.25f, 1.00f);
+	glm::vec4 boundingBoxColor = glm::vec4(1.0f, 0.0f, 0.0f, 1.00f);
+	glm::vec4 beackgroundColor = glm::vec4(0.137f, 0.535f, 0.7f, 1.00f);
 
 	Scene();
 
