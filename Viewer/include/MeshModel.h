@@ -8,6 +8,7 @@
 #include "TransformationMatrices.h"
 #include "ModelGeometricParameters.h"
 #include "BoundingBox.h"
+#include <map>
 
 /*
  * MeshModel class.
@@ -20,7 +21,7 @@ public:
 	std::vector<Face> faces;
 	std::vector<glm::vec3> vertices;
 	std::vector<glm::vec3> faceNormals;
-	std::vector<glm::vec3> vertexNormals;
+	std::map<int, glm::vec3> indexesTovertexNormals;
 	glm::mat4x4 worldTransform{};
 	glm::vec4 color{};
 	std::string modelName;
@@ -31,6 +32,7 @@ public:
 	ModelGeometricParameters* param;
 	BoundingBox boundingBox;
 
+	void CalculateVertexNormals();
 	MeshModel(std::vector<Face>& faces, std::vector<glm::vec3>& vertices, std::vector<glm::vec3>& normals, std::string& modelName);
 	MeshModel(std::string _modelName);
 	virtual ~MeshModel();
