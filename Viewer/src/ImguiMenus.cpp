@@ -105,7 +105,8 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 				ImGui::SliderFloat("Camera Z translation", &(activeCamera->param->trans_z), -1000.0f, 1000.0f);
 			}
 
-			ImGui::Checkbox("Show normals", &scene.isShowNormals);
+			ImGui::Checkbox("Show Face normals", &scene.isShowFaceNormals); ImGui::SameLine();
+			ImGui::Checkbox("Show Vertex normals", &scene.isShowVertexNormals);
 			ImGui::SliderFloat("Normal scaling", &(scene.scaleNormalLength),0.001,2);
 			ImGui::SliderFloat("Zoom", &(scene.zoom),1,10);
 			ImGui::SliderFloat("Distance", &(activeCamera->distance),0,10);

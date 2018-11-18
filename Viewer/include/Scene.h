@@ -23,7 +23,7 @@ public:
 	bool isPrespective = false;
 	int activeCameraIndex;
 	int activeModelIndex;
-	bool isAddCamera = false, isShowNormals = false;
+	bool isAddCamera = false, isShowFaceNormals = false, isShowVertexNormals = false;
 	float camScale = 1, zoom = 1;
 	GLfloat scaleNormalLength = 0.1;
 	glm::vec4 modelColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.00f);

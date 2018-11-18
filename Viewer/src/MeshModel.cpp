@@ -3,7 +3,11 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#include <map>
+#include "glad/glad.h"
 #define M_PI           3.14159265358979323846  /* pi */
+
+
 
 MeshModel::MeshModel(std::vector<Face>& faces, std::vector<glm::vec3>& vertices, std::vector<glm::vec3>& normals, std::string& modelName) :
 	modelName(modelName),
@@ -16,6 +20,7 @@ MeshModel::MeshModel(std::vector<Face>& faces, std::vector<glm::vec3>& vertices,
 	this->vertices = vertices;
 	this->faceNormals = normals; // GetFaceNormals(faces, vertices);
 	this->modelName = modelName;
+	//CalculateVertexNormals();
 }
 
 MeshModel::MeshModel(std::string _modelName) : 
@@ -144,4 +149,43 @@ std::vector<glm::vec3> MeshModel::GetFaceNormals(std::vector<Face>& faces, std::
 	return faceNormals;
 }
 
+void MeshModel::CalculateVertexNormals()
+{
+	/*
+	std::map<int, std::vector<int>> vertexIndexesToFacesindexes;
+	for (int i = 0; i < this->faces.size(); ++i)
+	{
+		Face face = faces[i];
+		for (int j = 0; j < face.vertexIndices.size(); ++j)
+		{
+			int vertexIndex = face.vertexIndices[j];
+			vertexIndexesToFacesindexes[vertexIndex].push_back(i);
+		}
+	}
+	for (std::map<int, std::vector<int>>::iterator it = vertexIndexesToFacesindexes.begin(); it != vertexIndexesToFacesindexes.end(); ++it) {
+		glm::vec3 vertexNormal;
+		for (int i = 0; i < it->second.size(); ++i)
+		{
+			Face face = faces[i];
 
+		}
+
+		indexesTovertexNormals[it->first] = vertexNormal;
+	}
+
+
+
+
+	for (std::map<int, std::vector<glm::vec3>>::iterator it = indexesToFacesNormals.begin(); it != indexesToFacesNormals.end(); ++it) {
+		std::vector<glm::vec3> vertexes = it->second;
+		GLfloat vertexesNum = vertexes.size();
+		glm::vec3 temp(0,0,0);
+		for (int i = 0; i < vertexes.size(); ++i)
+		{
+			temp = temp + vertexes[i];
+		}
+		temp = glm::normalize(temp / vertexesNum);
+		indexesTovertexNormals.insert(std::make_pair(it->first,temp));
+	}
+	*/
+}

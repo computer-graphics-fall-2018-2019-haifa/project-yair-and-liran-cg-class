@@ -132,15 +132,25 @@ void Renderer::BersenhamAlg(GLfloat p1, GLfloat q1, GLfloat p2, GLfloat q2, bool
 
 void Renderer::Draw2Vertexes(glm::vec4& v1, glm::vec4& v2, glm::vec3& color = glm::vec3(0, 0, 0))
 {
-	DrawLineBersenhamAlg((v1[0]+1) * (viewportWidth / 2) * scene->zoom,
-		(v1[1]+1) * (viewportHeight / 2) * scene->zoom,
-		(v2[0]+1) * (viewportWidth / 2) * scene->zoom,
-		(v2[1]+1) * (viewportHeight / 2) * scene->zoom,
+	DrawLineBersenhamAlg((v1[0] + 1) * (viewportWidth / 2) * scene->zoom,
+		(v1[1] + 1) * (viewportHeight / 2) * scene->zoom,
+		(v2[0] + 1) * (viewportWidth / 2) * scene->zoom,
+		(v2[1] + 1) * (viewportHeight / 2) * scene->zoom,
 		color);
 }
 
-void Renderer::renderFaces(std::vector<Face>& faces, std::vector<glm::vec4>& finalVertices, bool isActiveModel, GLfloat scaleNormalLength, bool isShowNormals, glm::vec3& modelColor, glm::vec3& normalsColor)
+void Renderer::renderFaces(std::vector<Face>& faces,
+	std::vector<glm::vec4>& finalVertices,
+	bool isActiveModel,
+	GLfloat scaleNormalLength,
+	bool isShowFaceNormals,
+	bool isShowVertexNormals,
+	glm::vec3& modelColor,
+	glm::vec3& normalsColor,
+	std::map<int, glm::vec3>& indexesTovertexNormals)
 {
+	std::map<int, std::vector<glm::vec3>> vertexIndexesTonormals;
+
 	for (int faceIndex = 0; faceIndex < faces.size(); ++faceIndex)
 	{
 		Face face = faces[faceIndex];
@@ -156,7 +166,7 @@ void Renderer::renderFaces(std::vector<Face>& faces, std::vector<glm::vec4>& fin
 			glm::vec4 v2 = finalVertices[vertexIndex2 - 1];
 			Draw2Vertexes(v1, v2, modelColor);
 		}
-		if (isShowNormals && isActiveModel)
+		if (isActiveModel && (isShowFaceNormals || isShowVertexNormals))
 		{
 			int v0Index = face.GetVertexIndex(0);
 			int v1Index = face.GetVertexIndex(1);
@@ -167,7 +177,25 @@ void Renderer::renderFaces(std::vector<Face>& faces, std::vector<glm::vec4>& fin
 			glm::vec3 mean = (v0 + v1 + v2) / GLfloat(3);
 			glm::vec3 direction = glm::normalize(glm::cross((v0 - v2), (v0 - v1)));
 			glm::vec3 to = mean + (direction * scaleNormalLength);
-			Draw2Vertexes(glm::vec4(mean[0], mean[1], mean[2], 1), glm::vec4(to[0], to[1], to[2], 1), normalsColor);
+			if (isShowFaceNormals)
+				Draw2Vertexes(glm::vec4(mean[0], mean[1], mean[2], 1), glm::vec4(to[0], to[1], to[2], 1), normalsColor);
+			vertexIndexesTonormals[v0Index - 1].push_back(direction);
+			vertexIndexesTonormals[v1Index - 1].push_back(direction);
+			vertexIndexesTonormals[v2Index - 1].push_back(direction);
+		}
+	}
+	if (isShowVertexNormals) {
+		for (std::map<int, std::vector<glm::vec3>>::iterator it = vertexIndexesTonormals.begin(); it != vertexIndexesTonormals.end(); ++it) {
+			glm::vec4 startVec = finalVertices[it->first];
+			std::vector<glm::vec3> direcrtions = it->second;
+			glm::vec3 direcrtion(0, 0, 0);
+			for (int j = 0; j < direcrtions.size(); ++j)
+			{
+				direcrtion = direcrtion + direcrtions[j];
+			}
+			direcrtion = glm::normalize(direcrtion / GLfloat(direcrtions.size()));
+			glm::vec4 endVec = startVec + (glm::vec4(direcrtion[0], direcrtion[1], direcrtion[2], 1)* scaleNormalLength);
+			Draw2Vertexes(startVec, endVec, normalsColor);
 		}
 	}
 }
@@ -397,9 +425,11 @@ void Renderer::Render(Scene& scene)
 			finalModelVertexes,
 			isActiveModel,
 			scene.scaleNormalLength,
-			scene.isShowNormals,
+			scene.isShowFaceNormals,
+			scene.isShowVertexNormals,
 			glm::vec3(scene.modelColor),
-			glm::vec3(scene.normalsColor));
+			glm::vec3(scene.normalsColor),
+			currentModel->indexesTovertexNormals);
 		if (isActiveModel)
 			renderBoundingBox(currentModel->boundingBox, vertexTransformationMatrix, glm::vec3(scene.boundingBoxColor));
 	}

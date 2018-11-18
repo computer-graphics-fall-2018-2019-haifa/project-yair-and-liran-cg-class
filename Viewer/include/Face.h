@@ -7,11 +7,12 @@
 class Face
 {
 private:
+
+
+public:
 	std::vector<int> vertexIndices;
 	std::vector<int> normalIndices;
 	std::vector<int> textureIndices;
-
-public:
 	Face(std::istream& issLine);
 	virtual ~Face();
 	const int Face::GetVertexIndex(int index);
