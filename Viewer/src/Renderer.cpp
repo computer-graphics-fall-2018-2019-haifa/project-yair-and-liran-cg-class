@@ -132,7 +132,11 @@ void Renderer::BersenhamAlg(GLfloat p1, GLfloat q1, GLfloat p2, GLfloat q2, bool
 
 void Renderer::Draw2Vertexes(glm::vec4& v1, glm::vec4& v2, glm::vec3& color = glm::vec3(0, 0, 0))
 {
-	DrawLineBersenhamAlg((v1[0]) * viewportWidth / 2, (v1[1]) * viewportHeight / 2, (v2[0]) * viewportWidth / 2, (v2[1]) * viewportHeight / 2, color);
+	DrawLineBersenhamAlg((v1[0]+1) * (viewportWidth / 2) * scene->zoom,
+		(v1[1]+1) * (viewportHeight / 2) * scene->zoom,
+		(v2[0]+1) * (viewportWidth / 2) * scene->zoom,
+		(v2[1]+1) * (viewportHeight / 2) * scene->zoom,
+		color);
 }
 
 void Renderer::renderFaces(std::vector<Face>& faces, std::vector<glm::vec4>& finalVertices, bool isActiveModel, GLfloat scaleNormalLength, bool isShowNormals, glm::vec3& modelColor, glm::vec3& normalsColor)
@@ -362,6 +366,7 @@ void Renderer::RenderGrid(glm::mat4x4 rotateMatrix, glm::vec3& color)
 
 void Renderer::Render(Scene& scene)
 {
+	this->scene = &scene;
 	Camera* cam = scene.GetActiveCamera();
 	glm::mat4x4 cameraViewingTransform = cam->GetViewTransformation();
 	glm::mat4x4 cameraNormalizationMatrix = cam->GetProjectionTransformation(viewportWidth / 2, viewportHeight / 2, scene.isPrespective);

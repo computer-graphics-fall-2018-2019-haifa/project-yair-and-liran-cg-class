@@ -17,6 +17,7 @@ private:
 	int viewportHeight;
 	int viewportX;
 	int viewportY;
+	Scene* scene;
 
 	void putPixel(int x, int y, const glm::vec3& color);
 	void createBuffers(int viewportWidth, int viewportHeight);

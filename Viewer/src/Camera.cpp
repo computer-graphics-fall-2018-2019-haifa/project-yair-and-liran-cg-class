@@ -6,7 +6,7 @@
 
 
 Camera::Camera(const glm::vec3& eye, const glm::vec3& at, const glm::vec3& up, int index, MeshModel* meshPtr) :
-	zoom(1.0), MeshModel(meshPtr->faces, meshPtr->vertices, meshPtr->faceNormals, "Camera " + std::to_string(index))
+	MeshModel(meshPtr->faces, meshPtr->vertices, meshPtr->faceNormals, "Camera " + std::to_string(index))
 {
 	this->eye = eye;
 	this->at = at;
@@ -79,18 +79,18 @@ void Camera::SetZoom(const float zoom)
 
 }
 
-glm::mat4x4 Camera::GetProjectionTransformation(int viewPortWidthMiddle, int viewPortHeightMiddle, bool isOrth)
+glm::mat4x4 Camera::GetProjectionTransformation(int viewPortWidthMiddle, int viewPortHeightMiddle, bool isPrespective)
 {
 	float	left = eye[0] - viewPortWidthMiddle,
 		right = eye[0] + viewPortWidthMiddle,
 		bottom = eye[1] - viewPortHeightMiddle,
 		top = eye[1] + viewPortHeightMiddle,
-		near_ = eye[2] + 1,
+		near_ = eye[2] + 11 - distance,
 		far_ = eye[2] + 200;
-	if (isOrth)
-		SetOrthographicProjection(left, right, bottom, top, near_, far_);
-	else
+	if (isPrespective)
 		SetPerspectiveProjection(left, right, bottom, top, near_, far_);
+	else
+		SetOrthographicProjection(left, right, bottom, top, near_, far_);
 	return projectionTransformation;
 }
 

@@ -16,9 +16,9 @@ class Camera : public MeshModel
 private:
 	glm::mat4x4 viewTransformation;
 	glm::mat4x4 projectionTransformation;
-	float zoom;
 
 public:
+	float distance = 10;
 	glm::vec3 eye, at, up;
 	Camera(const glm::vec3& eye, const glm::vec3& at, const glm::vec3& up, int index = 0, MeshModel* meshPtr = nullptr);
 	~Camera();
