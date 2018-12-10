@@ -72,6 +72,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 
 				ImGui::Checkbox("Show Face normals", &scene.isShowFaceNormals); ImGui::SameLine();
 				ImGui::Checkbox("Show Vertex normals", &scene.isShowVertexNormals);
+				ImGui::Checkbox("Show Bounding Box", &scene.isShowBoundingBox);
 				ImGui::SliderFloat("Normal scaling", &(scene.scaleNormalLength), 0.001, 2);
 
 
@@ -122,8 +123,6 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 				ImGui::SliderFloat("Zoom", &(scene.zoom), 1, 10);
 				ImGui::SliderFloat("Distance", &(activeCamera->distance), 0, 10);
 			}
-
-
 		}
 		ImGui::End();
 	}

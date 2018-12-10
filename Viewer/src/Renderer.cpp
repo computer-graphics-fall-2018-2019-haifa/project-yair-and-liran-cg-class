@@ -430,7 +430,7 @@ void Renderer::Render(Scene& scene)
 			glm::vec3(scene.modelColor),
 			glm::vec3(scene.normalsColor),
 			currentModel->indexesTovertexNormals);
-		if (isActiveModel)
+		if (isActiveModel && scene.isShowBoundingBox)
 			renderBoundingBox(currentModel->boundingBox, vertexTransformationMatrix, glm::vec3(scene.boundingBoxColor));
 	}
 
