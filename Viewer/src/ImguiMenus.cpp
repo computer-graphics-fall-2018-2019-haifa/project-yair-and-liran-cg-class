@@ -55,7 +55,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 
 
 
-			ImGui::ColorEdit3("Model color", (float*)&(scene.modelColor));
+			ImGui::ColorEdit3("Model color", (float*)&(scene.edgesColor));
 			ImGui::ColorEdit3("Grid color", (float*)&(scene.gridColor));
 			ImGui::ColorEdit3("Normals color", (float*)&(scene.normalsColor));
 			ImGui::ColorEdit3("Bounding Box color", (float*)&(scene.boundingBoxColor));

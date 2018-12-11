@@ -10,6 +10,7 @@
 #include <vector>
 #include <glm/common.hpp>
 #include <vector>
+#include <algorithm>
 
 #define M_PI           3.14159265358979323846  /* pi */
 #define INDEX(width,x,y,c) ((x)+(y)*(width))*3+(c)
@@ -130,7 +131,7 @@ void Renderer::BersenhamAlg(GLfloat p1, GLfloat q1, GLfloat p2, GLfloat q2, bool
 	}
 }
 
-void Renderer::Draw2Vertexes(glm::vec4& v1, glm::vec4& v2, glm::vec3& color = glm::vec3(0, 0, 0))
+void Renderer::DrawEdge(glm::vec4& v1, glm::vec4& v2, glm::vec3& color = glm::vec3(0, 0, 0))
 {
 	DrawLineBersenhamAlg((v1[0] + 1) * (viewportWidth / 2) * scene->zoom,
 		(v1[1] + 1) * (viewportHeight / 2) * scene->zoom,
@@ -139,13 +140,61 @@ void Renderer::Draw2Vertexes(glm::vec4& v1, glm::vec4& v2, glm::vec3& color = gl
 		color);
 }
 
+glm::vec2 Renderer::GetBarycentricCoors2D(std::vector<glm::vec4> vertices, glm::vec3 p)
+{
+	glm::vec2 u = vertices[1] - vertices[0];
+	glm::vec2 v = vertices[2] - vertices[0];
+	glm::vec2 w = glm::vec4(p.x, p.y, p.z, 1) - vertices[0];
+
+	double lambda1 = (w.y * v.x - v.y * w.x) / (u.y * v.x - u.x * v.y);
+	double lambda2 = (w.y - lambda1 * u.y) / v.y;
+
+	return glm::vec2(lambda1, lambda2);
+}
+
+void Renderer::FillTriangle(std::vector<glm::vec4> vertices, glm::vec4 faceColor)
+{
+	for (int i = 0; i < vertices.size(); ++i)
+	{
+		vertices[i].x = (vertices[i].x + 1) * (viewportWidth / 2) * scene->zoom;
+		vertices[i].y = (vertices[i].y + 1) * (viewportHeight / 2) * scene->zoom;
+	}
+
+	int min_x = std::min(vertices[0].x, std::min(vertices[1].x, vertices[2].x));
+	int max_x = std::max(vertices[0].x, std::max(vertices[1].x, vertices[2].x));
+	int min_y = std::min(vertices[0].y, std::min(vertices[1].y, vertices[2].y));
+	int max_y = std::max(vertices[0].y, std::max(vertices[1].y, vertices[2].y));
+	bool flag = false;
+	for (int x = min_x; x <= max_x; ++x)
+	{
+		for (int y = min_y; y <= max_y; ++y)
+		{
+			glm::vec3 p(x, y, 0);
+			glm::vec2 barycentricCoords = GetBarycentricCoors2D(vertices, p);
+
+			if (barycentricCoords[0] >= 0 && barycentricCoords[1] >= 0 && ((barycentricCoords[0] + barycentricCoords[1]) <= 1))
+			{
+				float lambda1 = 1 - barycentricCoords.x - barycentricCoords.y;
+				float lambda2 = barycentricCoords.x;
+				float lambda3 = barycentricCoords.y;
+
+				float z_reciprocal = lambda1 * (1 / vertices[0].z) + lambda2 * (1 / vertices[1].z) + lambda3 * (1 / vertices[2].z);
+				putPixel(x, y, faceColor);
+				flag = true;
+			}
+		}
+	}
+	if (!flag)
+		flag = true;
+}
+
 void Renderer::renderFaces(std::vector<Face>& faces,
 	std::vector<glm::vec4>& finalVertices,
 	bool isActiveModel,
 	GLfloat scaleNormalLength,
 	bool isShowFaceNormals,
 	bool isShowVertexNormals,
-	glm::vec3& modelColor,
+	glm::vec3& edgesColor,
 	glm::vec3& normalsColor,
 	std::map<int, glm::vec3>& indexesTovertexNormals)
 {
@@ -154,7 +203,7 @@ void Renderer::renderFaces(std::vector<Face>& faces,
 	for (int faceIndex = 0; faceIndex < faces.size(); ++faceIndex)
 	{
 		Face face = faces[faceIndex];
-		int indexArr1[] = { 0,1,2 };
+		/*int indexArr1[] = { 0,1,2 };
 		int indexArr2[] = { 1,2,0 };
 		for (int i = 0; i < 3; ++i)
 		{
@@ -164,8 +213,13 @@ void Renderer::renderFaces(std::vector<Face>& faces,
 			int vertexIndex2 = face.GetVertexIndex(v2Index);
 			glm::vec4 v1 = finalVertices[vertexIndex1 - 1];
 			glm::vec4 v2 = finalVertices[vertexIndex2 - 1];
-			Draw2Vertexes(v1, v2, modelColor);
-		}
+			DrawEdge(v1, v2, edgesColor);
+		}*/
+		std::vector<glm::vec4> faceVertexes;
+		faceVertexes.push_back(finalVertices[face.GetVertexIndex(0) - 1]);
+		faceVertexes.push_back(finalVertices[face.GetVertexIndex(1) - 1]);
+		faceVertexes.push_back(finalVertices[face.GetVertexIndex(2) - 1]);
+		FillTriangle(faceVertexes, glm::vec4(0.625f, 0.225f, 0.25f, 1.00f));
 		if (isActiveModel && (isShowFaceNormals || isShowVertexNormals))
 		{
 			int v0Index = face.GetVertexIndex(0);
@@ -178,7 +232,7 @@ void Renderer::renderFaces(std::vector<Face>& faces,
 			glm::vec3 direction = glm::normalize(glm::cross((v0 - v2), (v0 - v1)));
 			glm::vec3 to = mean + (direction * scaleNormalLength);
 			if (isShowFaceNormals)
-				Draw2Vertexes(glm::vec4(mean[0], mean[1], mean[2], 1), glm::vec4(to[0], to[1], to[2], 1), normalsColor);
+				DrawEdge(glm::vec4(mean[0], mean[1], mean[2], 1), glm::vec4(to[0], to[1], to[2], 1), normalsColor);
 			vertexIndexesTonormals[v0Index - 1].push_back(direction);
 			vertexIndexesTonormals[v1Index - 1].push_back(direction);
 			vertexIndexesTonormals[v2Index - 1].push_back(direction);
@@ -195,7 +249,7 @@ void Renderer::renderFaces(std::vector<Face>& faces,
 			}
 			direcrtion = glm::normalize(direcrtion / GLfloat(direcrtions.size()));
 			glm::vec4 endVec = startVec + (glm::vec4(direcrtion[0], direcrtion[1], direcrtion[2], 1)* scaleNormalLength);
-			Draw2Vertexes(startVec, endVec, normalsColor);
+			DrawEdge(startVec, endVec, normalsColor);
 		}
 	}
 }
@@ -319,7 +373,6 @@ void Renderer::SwapBuffers()
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
-
 std::vector<Face> Renderer::getClipedFaces(std::vector<Face> faces, std::vector<glm::vec4> vertices, float left, float right, float bottom, float top, float near_, float far_)
 {
 	std::vector<Face> facesFiltered;
@@ -354,28 +407,28 @@ void Renderer::renderBoundingBox(BoundingBox& boundingBox, glm::mat4x4& vertexTr
 	std::vector<glm::vec4> finalVertexes = boundingBox.GetFinalVertexes(vertexTransformationMatrix);
 
 	//bottom edges
-	Draw2Vertexes(finalVertexes[0], finalVertexes[1], color);
-	Draw2Vertexes(finalVertexes[1], finalVertexes[2], color);
-	Draw2Vertexes(finalVertexes[2], finalVertexes[3], color);
-	Draw2Vertexes(finalVertexes[3], finalVertexes[0], color);
+	DrawEdge(finalVertexes[0], finalVertexes[1], color);
+	DrawEdge(finalVertexes[1], finalVertexes[2], color);
+	DrawEdge(finalVertexes[2], finalVertexes[3], color);
+	DrawEdge(finalVertexes[3], finalVertexes[0], color);
 
 	//support edges
-	Draw2Vertexes(finalVertexes[0], finalVertexes[4], color);
-	Draw2Vertexes(finalVertexes[1], finalVertexes[5], color);
-	Draw2Vertexes(finalVertexes[2], finalVertexes[6], color);
-	Draw2Vertexes(finalVertexes[3], finalVertexes[7], color);
+	DrawEdge(finalVertexes[0], finalVertexes[4], color);
+	DrawEdge(finalVertexes[1], finalVertexes[5], color);
+	DrawEdge(finalVertexes[2], finalVertexes[6], color);
+	DrawEdge(finalVertexes[3], finalVertexes[7], color);
 
 	//top edges
-	Draw2Vertexes(finalVertexes[4], finalVertexes[5], color);
-	Draw2Vertexes(finalVertexes[5], finalVertexes[6], color);
-	Draw2Vertexes(finalVertexes[6], finalVertexes[7], color);
-	Draw2Vertexes(finalVertexes[7], finalVertexes[4], color);
+	DrawEdge(finalVertexes[4], finalVertexes[5], color);
+	DrawEdge(finalVertexes[5], finalVertexes[6], color);
+	DrawEdge(finalVertexes[6], finalVertexes[7], color);
+	DrawEdge(finalVertexes[7], finalVertexes[4], color);
 
 	std::vector<glm::vec4> CoordinateSystemVertexes = boundingBox.TransformCoordinateSystem(vertexTransformationMatrix);
 	//draw coordinate system -[0]= o, [1] = x, [2] = y, [3] = z
-	Draw2Vertexes(CoordinateSystemVertexes[0], CoordinateSystemVertexes[1], glm::vec3(0, 0, 5));
-	Draw2Vertexes(CoordinateSystemVertexes[0], CoordinateSystemVertexes[2], glm::vec3(0, 5, 0));
-	Draw2Vertexes(CoordinateSystemVertexes[0], CoordinateSystemVertexes[3], glm::vec3(5, 0, 0));
+	DrawEdge(CoordinateSystemVertexes[0], CoordinateSystemVertexes[1], glm::vec3(0, 0, 5));
+	DrawEdge(CoordinateSystemVertexes[0], CoordinateSystemVertexes[2], glm::vec3(0, 5, 0));
+	DrawEdge(CoordinateSystemVertexes[0], CoordinateSystemVertexes[3], glm::vec3(5, 0, 0));
 }
 
 void Renderer::RenderGrid(glm::mat4x4 rotateMatrix, glm::vec3& color)
@@ -387,8 +440,8 @@ void Renderer::RenderGrid(glm::mat4x4 rotateMatrix, glm::vec3& color)
 		glm::vec4 z_near(i, 0, -1 * GRID_LENGTH, 1);
 		glm::vec4 z_far(i, 0, GRID_LENGTH, 1);
 
-		Draw2Vertexes(rotateMatrix*x_near, rotateMatrix*x_far, color);
-		Draw2Vertexes(rotateMatrix*z_near, rotateMatrix*z_far, color);
+		DrawEdge(rotateMatrix*x_near, rotateMatrix*x_far, color);
+		DrawEdge(rotateMatrix*z_near, rotateMatrix*z_far, color);
 	}
 }
 
@@ -427,7 +480,7 @@ void Renderer::Render(Scene& scene)
 			scene.scaleNormalLength,
 			scene.isShowFaceNormals,
 			scene.isShowVertexNormals,
-			glm::vec3(scene.modelColor),
+			glm::vec3(scene.edgesColor),
 			glm::vec3(scene.normalsColor),
 			currentModel->indexesTovertexNormals);
 		if (isActiveModel && scene.isShowBoundingBox)

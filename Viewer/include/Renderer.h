@@ -43,8 +43,10 @@ public:
 	void DrawLineBersenhamAlg(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2, glm::vec3& color);
 
 	void BersenhamAlg(GLfloat p1, GLfloat q1, GLfloat p2, GLfloat q2, bool isXYchanged, glm::vec3& color);
-	void Draw2Vertexes(glm::vec4& v1, glm::vec4& v2, glm::vec3& color);
-	void renderFaces(std::vector<Face>& faces, std::vector<glm::vec4>& finalVertices, bool isActiveModel = false, GLfloat scaleNormalLength = 1, bool isShowFaceNormals = false, bool isShowVertexNormals= false, glm::vec3& modelColor = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3& normalsColor = glm::vec3(0.8f, 0.8f, 0.8f), std::map<int, glm::vec3>& indexesTovertexNormals = std::map<int, glm::vec3>());
+	void DrawEdge(glm::vec4& v1, glm::vec4& v2, glm::vec3& color);
+	glm::vec2 GetBarycentricCoors2D(std::vector<glm::vec4> vertices, glm::vec3 p);
+	void FillTriangle(std::vector<glm::vec4> vertices, glm::vec4 faceColor);
+	void renderFaces(std::vector<Face>& faces, std::vector<glm::vec4>& finalVertices, bool isActiveModel = false, GLfloat scaleNormalLength = 1, bool isShowFaceNormals = false, bool isShowVertexNormals= false, glm::vec3& edgesColor = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3& normalsColor = glm::vec3(0.8f, 0.8f, 0.8f), std::map<int, glm::vec3>& indexesTovertexNormals = std::map<int, glm::vec3>());
 	std::vector<glm::vec4> getFinalVertexesFromWortldTrans(glm::mat4x4& worldTransformation, std::vector<glm::vec3>& vertices);
 
 	// Add more methods/functionality as needed...
