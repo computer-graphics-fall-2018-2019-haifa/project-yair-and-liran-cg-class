@@ -27,6 +27,7 @@ public:
 	float camScale = 1, zoom = 1;
 	GLfloat scaleNormalLength = 0.1;
 	glm::vec4 edgesColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.00f);
+	glm::vec4 facesColor = glm::vec4(0.5f, 0.5f, 0.5f, 0.5f);
 	glm::vec4 normalsColor = glm::vec4(0.0f, 1.0f, 0.0f, 1.00f);
 	glm::vec4 gridColor = glm::vec4(0.125f, 0.125f, 0.25f, 1.00f);
 	glm::vec4 boundingBoxColor = glm::vec4(1.0f, 0.0f, 0.0f, 1.00f);

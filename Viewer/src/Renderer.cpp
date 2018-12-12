@@ -14,6 +14,7 @@
 
 #define M_PI           3.14159265358979323846  /* pi */
 #define INDEX(width,x,y,c) ((x)+(y)*(width))*3+(c)
+#define Z_INDEX(width,x,y) ((x)+(y)*(width))
 #define GRID_LENGTH 1000
 #define GRID_DELTA 50
 
@@ -33,13 +34,17 @@ Renderer::~Renderer()
 	}
 }
 
-void Renderer::putPixel(int i, int j, const glm::vec3& color)
+void Renderer::putPixel(int i, int j, const glm::vec3& color, float z, bool isBackground)
 {
 	if (i < 0) return; if (i >= viewportWidth) return;
 	if (j < 0) return; if (j >= viewportHeight) return;
-	colorBuffer[INDEX(viewportWidth, i, j, 0)] = color.x;
-	colorBuffer[INDEX(viewportWidth, i, j, 1)] = color.y;
-	colorBuffer[INDEX(viewportWidth, i, j, 2)] = color.z;
+	float currentZ = zBuffer[Z_INDEX(viewportWidth, i, j)];
+	if (z < currentZ || isBackground) {
+		colorBuffer[INDEX(viewportWidth, i, j, 0)] = color.x;
+		colorBuffer[INDEX(viewportWidth, i, j, 1)] = color.y;
+		colorBuffer[INDEX(viewportWidth, i, j, 2)] = color.z;
+		zBuffer[Z_INDEX(viewportWidth, i, j)] = z;
+	}
 }
 
 void Renderer::createBuffers(int viewportWidth, int viewportHeight)
@@ -48,7 +53,11 @@ void Renderer::createBuffers(int viewportWidth, int viewportHeight)
 	{
 		delete[] colorBuffer;
 	}
-
+	if (zBuffer)
+	{
+		delete[] zBuffer;
+	}
+	zBuffer = new float[viewportWidth * viewportHeight];
 	colorBuffer = new float[3 * viewportWidth * viewportHeight];
 	for (int x = 0; x < viewportWidth; x++)
 	{
@@ -65,7 +74,7 @@ void Renderer::ClearColorBuffer(const glm::vec3& color)
 	{
 		for (int j = 0; j < viewportHeight; j++)
 		{
-			putPixel(i, j, color);
+			putPixel(i, j, color, std::numeric_limits<float>::max(),true);
 		}
 	}
 }
@@ -152,7 +161,7 @@ glm::vec2 Renderer::GetBarycentricCoors2D(std::vector<glm::vec4> vertices, glm::
 	return glm::vec2(lambda1, lambda2);
 }
 
-void Renderer::FillTriangle(std::vector<glm::vec4> vertices, glm::vec4 faceColor)
+void Renderer::FillTriangle(std::vector<glm::vec4> vertices, glm::vec3 faceColor, glm::vec3 edgesColor)
 {
 	for (int i = 0; i < vertices.size(); ++i)
 	{
@@ -177,9 +186,13 @@ void Renderer::FillTriangle(std::vector<glm::vec4> vertices, glm::vec4 faceColor
 				float lambda1 = 1 - barycentricCoords.x - barycentricCoords.y;
 				float lambda2 = barycentricCoords.x;
 				float lambda3 = barycentricCoords.y;
-
-				float z_reciprocal = lambda1 * (1 / vertices[0].z) + lambda2 * (1 / vertices[1].z) + lambda3 * (1 / vertices[2].z);
-				putPixel(x, y, faceColor);
+				float zValue;
+				zValue = lambda1 * (1 / vertices[0].z) + lambda2 * (1 / vertices[1].z) + lambda3 * (1 / vertices[2].z);
+				float edgesTreshold = 0.04;
+				if (lambda1 < edgesTreshold || lambda2 < edgesTreshold || lambda3 < edgesTreshold)
+					putPixel(x, y, edgesColor, zValue);
+				else
+					putPixel(x, y, faceColor, zValue);
 				flag = true;
 			}
 		}
@@ -195,6 +208,7 @@ void Renderer::renderFaces(std::vector<Face>& faces,
 	bool isShowFaceNormals,
 	bool isShowVertexNormals,
 	glm::vec3& edgesColor,
+	glm::vec3& facesColor,
 	glm::vec3& normalsColor,
 	std::map<int, glm::vec3>& indexesTovertexNormals)
 {
@@ -219,7 +233,7 @@ void Renderer::renderFaces(std::vector<Face>& faces,
 		faceVertexes.push_back(finalVertices[face.GetVertexIndex(0) - 1]);
 		faceVertexes.push_back(finalVertices[face.GetVertexIndex(1) - 1]);
 		faceVertexes.push_back(finalVertices[face.GetVertexIndex(2) - 1]);
-		FillTriangle(faceVertexes, glm::vec4(0.625f, 0.225f, 0.25f, 1.00f));
+		FillTriangle(faceVertexes, facesColor, edgesColor);
 		if (isActiveModel && (isShowFaceNormals || isShowVertexNormals))
 		{
 			int v0Index = face.GetVertexIndex(0);
@@ -481,6 +495,7 @@ void Renderer::Render(Scene& scene)
 			scene.isShowFaceNormals,
 			scene.isShowVertexNormals,
 			glm::vec3(scene.edgesColor),
+			glm::vec3(scene.facesColor),
 			glm::vec3(scene.normalsColor),
 			currentModel->indexesTovertexNormals);
 		if (isActiveModel && scene.isShowBoundingBox)
