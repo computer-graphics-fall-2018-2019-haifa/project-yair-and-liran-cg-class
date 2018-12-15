@@ -1,12 +1,14 @@
 #include "ParallelLight.h"
 
-ParallelLight::ParallelLight(std::string _name, glm::vec3 _direction): Light(_name)
+ParallelLight::ParallelLight(std::string _name): Light(_name)
 {
-	this->Direction = _direction;
+	direction = glm::normalize(glm::vec3(0, 0, -50));
 }
 
 float ParallelLight::CalculateIllumination(glm::vec3 point, glm::vec3 normal)
 {
-	//TODO
-	return 0;
+	float dotProduct = direction.x*normal.x + direction.y*normal.y + direction.z*normal.z;
+	if (dotProduct < 0)
+		return 0;
+	return L * (direction.x*normal.x + direction.y*normal.y + direction.z*normal.z);
 }

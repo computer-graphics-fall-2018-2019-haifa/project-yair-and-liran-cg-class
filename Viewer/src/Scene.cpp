@@ -55,9 +55,9 @@ void Scene::AddNewCamera(glm::vec3 eye, glm::vec3 at, glm::vec3 up)
 
 }
 
-void Scene::AddNewParallelLight(glm::vec3 direction)
+void Scene::AddNewParallelLight()
 {
-	Light* light = new ParallelLight("parallel1", direction);
+	Light* light = new ParallelLight("parallel1");
 	lights.push_back(light);
 	if (lights.size() == 1)
 		SetActiveLightIndex(0);

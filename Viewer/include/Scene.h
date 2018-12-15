@@ -16,11 +16,11 @@
 class Scene {
 private:
 	std::vector<MeshModel*> models;
-	std::vector<Light*> lights;
 
 
 
 public:
+	std::vector<Light*> lights;
 	std::vector<Camera*> cameras;
 	bool isPrespective = false;
 	int activeCameraIndex;
@@ -45,7 +45,7 @@ public:
 	const int GetLightCount() const;
 
 	void AddNewCamera(glm::vec3 eye = glm::vec3(0, -500, 500), glm::vec3 at = glm::vec3(0, 0, 0), glm::vec3 up = glm::vec3(0, 1, 1));
-	void AddNewParallelLight(glm::vec3 direction);
+	void AddNewParallelLight();
 	void AddNewPointLight();
 	const int GetCameraCount() const;
 

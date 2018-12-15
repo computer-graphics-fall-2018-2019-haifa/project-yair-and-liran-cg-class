@@ -85,7 +85,7 @@ int main(int argc, char **argv)
 
 		if (scene.isAddParallelLight)
 		{
-			scene.AddNewParallelLight(glm::vec3(0, 0, 1));
+			scene.AddNewParallelLight();
 		}
 		if (scene.isAddPointLight)
 		{

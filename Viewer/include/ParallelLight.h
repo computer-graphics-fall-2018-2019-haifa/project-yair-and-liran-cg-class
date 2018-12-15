@@ -5,9 +5,8 @@
 class ParallelLight : public Light
 {
 public:
-	ParallelLight::ParallelLight(std::string _name, glm::vec3 _direction);
+	ParallelLight::ParallelLight(std::string _name);
 	float CalculateIllumination(glm::vec3 point, glm::vec3 normal);
-	glm::vec3 Direction;
 };
 
 #endif
