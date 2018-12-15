@@ -78,9 +78,18 @@ int main(int argc, char **argv)
 		// Here we build the menus for the next frame. Feel free to pass more arguments to this function call
 		DrawImguiMenus(io, scene);
 
-		if(scene.isAddCamera)
+		if (scene.isAddCamera)
 		{
 			scene.AddNewCamera(eye, at, up);
+		}
+
+		if (scene.isAddParallelLight)
+		{
+			scene.AddNewParallelLight(glm::vec3(0, 0, 1));
+		}
+		if (scene.isAddPointLight)
+		{
+			scene.AddNewPointLight();
 		}
 		
 		// Render the next frame

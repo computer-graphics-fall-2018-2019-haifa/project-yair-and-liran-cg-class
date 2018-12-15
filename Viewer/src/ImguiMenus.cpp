@@ -35,11 +35,15 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 	// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
 	{
 		bool isAddCmaera = false;
+		bool isAddLight = false;
 		ImGui::Begin("Computer Graphic ass. 1");
 		std::vector<std::string> modelNames = scene.getModelNames();
 		std::vector<std::string> cameraNames = scene.GetCameraNames();
+		std::vector<std::string> lightNames = scene.getLightNames();
 		int modelsNumber = modelNames.size();
+		int lightsNumber = lightNames.size();
 		int cameraCount = scene.GetCameraCount();
+		int lightCount = scene.GetLightCount();
 		if (modelsNumber > 0)
 		{
 			char** items = new char*[modelsNumber];
@@ -53,7 +57,14 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 				cameras[i] = const_cast<char*>(cameraNames[i].c_str());
 			}
 
-
+			char** lightItems = new char*[lightsNumber];
+			if (lightCount > 0)
+			{
+				for (int i = 0; i < lightsNumber; ++i)
+				{
+					lightItems[i] = const_cast<char*>(lightNames[i].c_str());
+				}
+			}
 
 			ImGui::ColorEdit3("Edges color", (float*)&(scene.edgesColor));
 			ImGui::ColorEdit3("Faces color", (float*)&(scene.facesColor));
@@ -64,6 +75,11 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 
 			ImGui::Combo("Select Model", &scene.activeModelIndex, items, modelsNumber);
 			ImGui::Combo("Select Camera", &scene.activeCameraIndex, cameras, cameraCount);
+			if (lightCount > 0)
+			{
+				ImGui::Combo("Select Light", &scene.activeLightIndex, lightItems, lightCount);
+			}
+
 			if (ImGui::CollapsingHeader("Model"))
 			{
 				static int e = 2;
@@ -123,6 +139,50 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 				}
 				ImGui::SliderFloat("Zoom", &(scene.zoom), 1, 10);
 				ImGui::SliderFloat("Distance", &(activeCamera->distance), 0, 10);
+			}
+
+
+
+			if (ImGui::CollapsingHeader("Light"))
+			{
+				scene.isAddLight = ImGui::Button("AddLight", ImVec2(70, 30));
+				scene.isAddParallelLight = false;
+				scene.isAddPointLight = false;
+				static int lightOption = 0;
+				ImGui::RadioButton("Parallel Light", &lightOption, 0); ImGui::SameLine();
+				ImGui::RadioButton("Point Light", &lightOption, 1);
+				static int c = 0;
+				ImGui::RadioButton("LightRotation", &c, 0); ImGui::SameLine();
+				ImGui::RadioButton("LightTranslation", &c, 1);
+				if(scene.isAddLight)
+				{
+					if(lightOption==0)
+						scene.isAddParallelLight = scene.isAddLight;
+					else if(lightOption==1)
+						scene.isAddPointLight = scene.isAddLight;
+				}
+				if (lightCount > 0)
+				{
+					/** Active camera parameters ***/
+					Light* activeLight = scene.GetActiveLight();
+					ImGui::Text("Light parameters");
+
+					if (c == 0)
+					{
+						ImGui::SliderFloat("Light X rotation", &(activeLight->param->rot_x), -360.0f, 360.0f);
+						ImGui::SliderFloat("Light Y rotation", &(activeLight->param->rot_y), -360.0f, 360.0f);
+						ImGui::SliderFloat("Light Z rotation", &(activeLight->param->rot_z), -360.0f, 360.0f);
+						//scene.isAddParallelLight = scene.isAddLight;
+
+					}
+					else if (c == 1)
+					{
+						ImGui::SliderFloat("Light X translation", &(activeLight->param->trans_x), -1000.0f, 1000.0f);
+						ImGui::SliderFloat("Light Y translation", &(activeLight->param->trans_y), -1000.0f, 1000.0f);
+						ImGui::SliderFloat("Light Z translation", &(activeLight->param->trans_z), -1000.0f, 1000.0f);
+						//scene.isAddPointLight = scene.isAddLight;
+					}
+				}
 			}
 		}
 		ImGui::End();
