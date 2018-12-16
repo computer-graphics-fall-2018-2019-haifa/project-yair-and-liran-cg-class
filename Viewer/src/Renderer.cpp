@@ -77,6 +77,15 @@ void Renderer::ClearColorBuffer(const glm::vec3& color)
 			putPixel(i, j, color, std::numeric_limits<float>::max(),true);
 		}
 	}
+	if (zBuffer)
+	{
+		delete[] zBuffer;
+	}
+	zBuffer = new float[viewportWidth * viewportHeight];
+	for(int i=0;i< viewportWidth * viewportHeight;i++)
+	{
+		zBuffer[i] = 10000000;
+	}
 }
 
 void Renderer::SetViewport(int viewportWidth, int viewportHeight, int viewportX, int viewportY)
@@ -161,7 +170,7 @@ glm::vec2 Renderer::GetBarycentricCoors2D(std::vector<glm::vec4> vertices, glm::
 	return glm::vec2(lambda1, lambda2);
 }
 
-void Renderer::FillTriangle(std::vector<glm::vec4> vertices, glm::vec3 faceColor, glm::vec3 edgesColor, std::vector<Light*> lights)
+void Renderer::FillTriangle(std::vector<glm::vec4> vertices, glm::vec3 faceColor, glm::vec3 edgesColor, std::vector<Light*> lights, glm::mat4x4 vertexTransformationMatrix)
 {
 	glm::vec3 v0 = vertices[0];
 	glm::vec3 v1 = vertices[1];
@@ -193,18 +202,21 @@ void Renderer::FillTriangle(std::vector<glm::vec4> vertices, glm::vec3 faceColor
 				float lambda3 = barycentricCoords.y;
 				float xValue, yValue, zValue;
 
-				xValue = lambda1 * (1 / vertices[0].x) + lambda2 * (1 / vertices[1].x) + lambda3 * (1 / vertices[2].x);
-				yValue = lambda1 * (1 / vertices[0].y) + lambda2 * (1 / vertices[1].y) + lambda3 * (1 / vertices[2].y);
-				zValue = lambda1 * (1 / vertices[0].z) + lambda2 * (1 / vertices[1].z) + lambda3 * (1 / vertices[2].z);
-				//zValue = lambda1 * (vertices[0].z) + lambda2 * (vertices[1].z) + lambda3 * (vertices[2].z);
+				//xValue = lambda1 * (1 / vertices[0].x) + lambda2 * (1 / vertices[1].x) + lambda3 * (1 / vertices[2].x);
+				//yValue = lambda1 * (1 / vertices[0].y) + lambda2 * (1 / vertices[1].y) + lambda3 * (1 / vertices[2].y);
+				float _zValue = lambda1 * (1 / vertices[0].z) + lambda2 * (1 / vertices[1].z) + lambda3 * (1 / vertices[2].z);
+
+				xValue = lambda1 * (vertices[0].x) + lambda2 * (vertices[1].x) + lambda3 * (vertices[2].x);
+				yValue = lambda1 * (vertices[0].y) + lambda2 * (vertices[1].y) + lambda3 * (vertices[2].y);
+				zValue = lambda1 * (vertices[0].z) + lambda2 * (vertices[1].z) + lambda3 * (vertices[2].z);
 				point = glm::vec3(xValue, yValue, zValue);
 				float I = 0;
 				for (int i = 0; i < lights.size(); ++i)
 				{
-					float ill = lights[i]->CalculateIllumination(point, normal);
+					float ill = lights[i]->CalculateIllumination(point, normal, vertexTransformationMatrix);
 					I += ill;
 				}
-
+				I += 0.5;
 				/*float edgesTreshold = 0.04;
 				if (lambda1 < edgesTreshold || lambda2 < edgesTreshold || lambda3 < edgesTreshold)
 				{
@@ -226,7 +238,7 @@ void Renderer::FillTriangle(std::vector<glm::vec4> vertices, glm::vec3 faceColor
 				float g = std::min(faceColor.g * I, 1.0f);
 				float b = std::min(faceColor.b * I, 1.0f);
 				glm::vec3 finalFaceColor(r, g, b);
-				putPixel(x, y, finalFaceColor, zValue);
+				putPixel(x, y, finalFaceColor, 1/_zValue);
 			}
 		}
 	}
@@ -242,7 +254,8 @@ void Renderer::renderFaces(std::vector<Face>& faces,
 	glm::vec3& facesColor,
 	glm::vec3& normalsColor,
 	std::map<int, glm::vec3>& indexesTovertexNormals,
-	std::vector<Light*> lights)
+	std::vector<Light*> lights,
+	glm::mat4x4 vertexTransformationMatrix)
 {
 	std::map<int, std::vector<glm::vec3>> vertexIndexesTonormals;
 
@@ -265,7 +278,7 @@ void Renderer::renderFaces(std::vector<Face>& faces,
 		faceVertexes.push_back(finalVertices[face.GetVertexIndex(0) - 1]);
 		faceVertexes.push_back(finalVertices[face.GetVertexIndex(1) - 1]);
 		faceVertexes.push_back(finalVertices[face.GetVertexIndex(2) - 1]);
-		FillTriangle(faceVertexes, facesColor, edgesColor, lights);
+		FillTriangle(faceVertexes, facesColor, edgesColor, lights, vertexTransformationMatrix);
 		if (isActiveModel && (isShowFaceNormals || isShowVertexNormals))
 		{
 			int v0Index = face.GetVertexIndex(0);
@@ -530,7 +543,7 @@ void Renderer::Render(Scene& scene)
 			glm::vec3(scene.facesColor),
 			glm::vec3(scene.normalsColor),
 			currentModel->indexesTovertexNormals,
-			scene.lights);
+			scene.lights, cameraViewingTransformInverse);
 		if (isActiveModel && scene.isShowBoundingBox)
 			renderBoundingBox(currentModel->boundingBox, vertexTransformationMatrix, glm::vec3(scene.boundingBoxColor));
 	}
