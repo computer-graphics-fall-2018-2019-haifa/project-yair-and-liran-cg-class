@@ -154,6 +154,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 				static int c = 0;
 				ImGui::RadioButton("LightRotation", &c, 0); ImGui::SameLine();
 				ImGui::RadioButton("LightTranslation", &c, 1);
+				ImGui::SliderFloat("Ambient level", &(scene.ambientLevel), 0.0f, 1.0f);
 				if(scene.isAddLight)
 				{
 					if(lightOption==0)

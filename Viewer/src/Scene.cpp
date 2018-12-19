@@ -72,6 +72,14 @@ void Scene::AddNewPointLight()
 		SetActiveLightIndex(0);
 }
 
+void Scene::AddAmbientLight()
+{
+	Light* light = new PointLight("PointLight1");
+	lights.push_back(light);
+	if (lights.size() == 1)
+		SetActiveLightIndex(0);
+}
+
 const int Scene::GetCameraCount() const
 {
 	return cameras.size();

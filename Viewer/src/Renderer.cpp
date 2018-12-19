@@ -77,15 +77,6 @@ void Renderer::ClearColorBuffer(const glm::vec3& color)
 			putPixel(i, j, color, std::numeric_limits<float>::max(),true);
 		}
 	}
-	if (zBuffer)
-	{
-		delete[] zBuffer;
-	}
-	zBuffer = new float[viewportWidth * viewportHeight];
-	for(int i=0;i< viewportWidth * viewportHeight;i++)
-	{
-		zBuffer[i] = 10000000;
-	}
 }
 
 void Renderer::SetViewport(int viewportWidth, int viewportHeight, int viewportX, int viewportY)
@@ -170,7 +161,7 @@ glm::vec2 Renderer::GetBarycentricCoors2D(std::vector<glm::vec4> vertices, glm::
 	return glm::vec2(lambda1, lambda2);
 }
 
-void Renderer::FillTriangle(std::vector<glm::vec4> vertices, glm::vec3 faceColor, glm::vec3 edgesColor, std::vector<Light*> lights, glm::mat4x4 vertexTransformationMatrix)
+void Renderer::FillTriangle(std::vector<glm::vec4> vertices, glm::vec3 faceColor, glm::vec3 edgesColor, std::vector<Light*> lights)
 {
 	glm::vec3 v0 = vertices[0];
 	glm::vec3 v1 = vertices[1];
@@ -201,22 +192,18 @@ void Renderer::FillTriangle(std::vector<glm::vec4> vertices, glm::vec3 faceColor
 				float lambda2 = barycentricCoords.x;
 				float lambda3 = barycentricCoords.y;
 				float xValue, yValue, zValue;
+				xValue = lambda1 * (1 / vertices[0].x) + lambda2 * (1 / vertices[1].x) + lambda3 * (1 / vertices[2].x);
+				yValue = lambda1 * (1 / vertices[0].y) + lambda2 * (1 / vertices[1].y) + lambda3 * (1 / vertices[2].y);
+				zValue = 1 / (lambda1 * (1 / vertices[0].z) + lambda2 * (1 / vertices[1].z) + lambda3 * (1 / vertices[2].z));
 
-				//xValue = lambda1 * (1 / vertices[0].x) + lambda2 * (1 / vertices[1].x) + lambda3 * (1 / vertices[2].x);
-				//yValue = lambda1 * (1 / vertices[0].y) + lambda2 * (1 / vertices[1].y) + lambda3 * (1 / vertices[2].y);
-				float _zValue = lambda1 * (1 / vertices[0].z) + lambda2 * (1 / vertices[1].z) + lambda3 * (1 / vertices[2].z);
-
-				xValue = lambda1 * (vertices[0].x) + lambda2 * (vertices[1].x) + lambda3 * (vertices[2].x);
-				yValue = lambda1 * (vertices[0].y) + lambda2 * (vertices[1].y) + lambda3 * (vertices[2].y);
-				zValue = lambda1 * (vertices[0].z) + lambda2 * (vertices[1].z) + lambda3 * (vertices[2].z);
 				point = glm::vec3(xValue, yValue, zValue);
 				float I = 0;
 				for (int i = 0; i < lights.size(); ++i)
 				{
-					float ill = lights[i]->CalculateIllumination(point, normal, vertexTransformationMatrix);
+					float ill = lights[i]->CalculateIllumination(point, normal);
 					I += ill;
 				}
-				I += 0.5;
+				I += scene->ambientLevel;
 				/*float edgesTreshold = 0.04;
 				if (lambda1 < edgesTreshold || lambda2 < edgesTreshold || lambda3 < edgesTreshold)
 				{
@@ -238,24 +225,13 @@ void Renderer::FillTriangle(std::vector<glm::vec4> vertices, glm::vec3 faceColor
 				float g = std::min(faceColor.g * I, 1.0f);
 				float b = std::min(faceColor.b * I, 1.0f);
 				glm::vec3 finalFaceColor(r, g, b);
-				putPixel(x, y, finalFaceColor, 1/_zValue);
+				putPixel(x, y, finalFaceColor, zValue);
 			}
 		}
 	}
 }
 
-void Renderer::renderFaces(std::vector<Face>& faces,
-	std::vector<glm::vec4>& finalVertices,
-	bool isActiveModel,
-	GLfloat scaleNormalLength,
-	bool isShowFaceNormals,
-	bool isShowVertexNormals,
-	glm::vec3& edgesColor,
-	glm::vec3& facesColor,
-	glm::vec3& normalsColor,
-	std::map<int, glm::vec3>& indexesTovertexNormals,
-	std::vector<Light*> lights,
-	glm::mat4x4 vertexTransformationMatrix)
+void Renderer::renderFaces(std::vector<Face>& faces, std::vector<glm::vec4>& finalVertices, bool isActiveModel)
 {
 	std::map<int, std::vector<glm::vec3>> vertexIndexesTonormals;
 
@@ -278,8 +254,8 @@ void Renderer::renderFaces(std::vector<Face>& faces,
 		faceVertexes.push_back(finalVertices[face.GetVertexIndex(0) - 1]);
 		faceVertexes.push_back(finalVertices[face.GetVertexIndex(1) - 1]);
 		faceVertexes.push_back(finalVertices[face.GetVertexIndex(2) - 1]);
-		FillTriangle(faceVertexes, facesColor, edgesColor, lights, vertexTransformationMatrix);
-		if (isActiveModel && (isShowFaceNormals || isShowVertexNormals))
+		FillTriangle(faceVertexes, glm::vec3(scene->facesColor), glm::vec3(scene->edgesColor), scene->lights);
+		if (isActiveModel && (scene->isShowFaceNormals || scene->isShowVertexNormals))
 		{
 			int v0Index = face.GetVertexIndex(0);
 			int v1Index = face.GetVertexIndex(1);
@@ -289,15 +265,15 @@ void Renderer::renderFaces(std::vector<Face>& faces,
 			glm::vec3 v2 = finalVertices[v2Index - 1];
 			glm::vec3 mean = (v0 + v1 + v2) / GLfloat(3);
 			glm::vec3 direction = glm::normalize(glm::cross((v0 - v2), (v0 - v1)));
-			glm::vec3 to = mean + (direction * scaleNormalLength);
-			if (isShowFaceNormals)
-				DrawEdge(glm::vec4(mean[0], mean[1], mean[2], 1), glm::vec4(to[0], to[1], to[2], 1), normalsColor);
+			glm::vec3 to = mean + (direction * scene->scaleNormalLength);
+			if (scene->isShowFaceNormals)
+				DrawEdge(glm::vec4(mean[0], mean[1], mean[2], 1), glm::vec4(to[0], to[1], to[2], 1), glm::vec3(scene->normalsColor));
 			vertexIndexesTonormals[v0Index - 1].push_back(direction);
 			vertexIndexesTonormals[v1Index - 1].push_back(direction);
 			vertexIndexesTonormals[v2Index - 1].push_back(direction);
 		}
 	}
-	if (isShowVertexNormals) {
+	if (scene->isShowVertexNormals) {
 		for (std::map<int, std::vector<glm::vec3>>::iterator it = vertexIndexesTonormals.begin(); it != vertexIndexesTonormals.end(); ++it) {
 			glm::vec4 startVec = finalVertices[it->first];
 			std::vector<glm::vec3> direcrtions = it->second;
@@ -307,8 +283,8 @@ void Renderer::renderFaces(std::vector<Face>& faces,
 				direcrtion = direcrtion + direcrtions[j];
 			}
 			direcrtion = glm::normalize(direcrtion / GLfloat(direcrtions.size()));
-			glm::vec4 endVec = startVec + (glm::vec4(direcrtion[0], direcrtion[1], direcrtion[2], 1)* scaleNormalLength);
-			DrawEdge(startVec, endVec, normalsColor);
+			glm::vec4 endVec = startVec + (glm::vec4(direcrtion[0], direcrtion[1], direcrtion[2], 1)* scene->scaleNormalLength);
+			DrawEdge(startVec, endVec, glm::vec3(scene->normalsColor));
 		}
 	}
 }
@@ -533,17 +509,7 @@ void Renderer::Render(Scene& scene)
 		std::vector<glm::vec4> finalModelVertexes = getFinalVertexesFromWortldTrans(vertexTransformationMatrix, vertices);
 		std::vector<Face> faces = currentModel->GetFaces();
 		bool isActiveModel = modelIndex == activeModelIndex;
-		renderFaces(faces,
-			finalModelVertexes,
-			isActiveModel,
-			scene.scaleNormalLength,
-			scene.isShowFaceNormals,
-			scene.isShowVertexNormals,
-			glm::vec3(scene.edgesColor),
-			glm::vec3(scene.facesColor),
-			glm::vec3(scene.normalsColor),
-			currentModel->indexesTovertexNormals,
-			scene.lights, cameraViewingTransformInverse);
+		renderFaces(faces, finalModelVertexes, isActiveModel);
 		if (isActiveModel && scene.isShowBoundingBox)
 			renderBoundingBox(currentModel->boundingBox, vertexTransformationMatrix, glm::vec3(scene.boundingBoxColor));
 	}

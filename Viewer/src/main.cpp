@@ -53,8 +53,8 @@ int main(int argc, char **argv)
 	glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
 
 	// Create the renderer and the scene
-	Renderer renderer = Renderer(frameBufferWidth, frameBufferHeight);
 	Scene scene = Scene();
+	Renderer renderer = Renderer(frameBufferWidth, frameBufferHeight);
 	//Camera(const glm::vec4& eye, const glm::vec4& at, const glm::vec4& up)
 	glm::vec3 eye = glm::vec3(0, 0, 50);
 	glm::vec3 at = glm::vec3(frameBufferWidth / 2, frameBufferHeight / 2, 0);

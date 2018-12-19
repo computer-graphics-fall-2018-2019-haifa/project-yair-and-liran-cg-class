@@ -29,9 +29,10 @@ public:
 	bool isAddCamera = false, isShowFaceNormals = false, isShowVertexNormals = false, isShowBoundingBox = true;
 	bool isAddLight = false, isAddParallelLight = false, isAddPointLight = false;
 	float camScale = 1, zoom = 1;
+	float ambientLevel = 0.5;
 	GLfloat scaleNormalLength = 0.1;
 	glm::vec4 edgesColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.00f);
-	glm::vec4 facesColor = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+	glm::vec4 facesColor = glm::vec4(0.5f, 0.5f, 0.5f, 0.5f);
 	glm::vec4 normalsColor = glm::vec4(0.0f, 1.0f, 0.0f, 1.00f);
 	glm::vec4 gridColor = glm::vec4(0.125f, 0.125f, 0.25f, 1.00f);
 	glm::vec4 boundingBoxColor = glm::vec4(1.0f, 0.0f, 0.0f, 1.00f);
@@ -47,6 +48,7 @@ public:
 	void AddNewCamera(glm::vec3 eye = glm::vec3(0, -500, 500), glm::vec3 at = glm::vec3(0, 0, 0), glm::vec3 up = glm::vec3(0, 1, 1));
 	void AddNewParallelLight();
 	void AddNewPointLight();
+	void AddAmbientLight();
 	const int GetCameraCount() const;
 
 	void SetActiveCameraIndex(int index);
