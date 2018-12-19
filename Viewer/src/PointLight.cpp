@@ -8,5 +8,6 @@ PointLight::PointLight(std::string _name) : Light(_name)
 float PointLight::CalculateIllumination(glm::vec3 point, glm::vec3 normal)
 {
 	glm::vec3 _l = glm::normalize(position-point);
-	return L * (_l.x*normal.x + _l.y*normal.y + _l.z*normal.z);
+	float tmp = (_l.x*normal.x + _l.y*normal.y + _l.z*normal.z);
+	return L * tmp;
 }

@@ -179,6 +179,7 @@ void Renderer::FillTriangle(std::vector<glm::vec4> vertices, glm::vec3 faceColor
 	int min_y = std::min(vertices[0].y, std::min(vertices[1].y, vertices[2].y));
 	int max_y = std::max(vertices[0].y, std::max(vertices[1].y, vertices[2].y));
 	glm::vec3 point;
+	int counter = 0;
 	for (int x = min_x; x <= max_x; ++x)
 	{
 		for (int y = min_y; y <= max_y; ++y)
@@ -188,15 +189,28 @@ void Renderer::FillTriangle(std::vector<glm::vec4> vertices, glm::vec3 faceColor
 
 			if (barycentricCoords[0] >= 0 && barycentricCoords[1] >= 0 && ((barycentricCoords[0] + barycentricCoords[1]) <= 1))
 			{
+				counter++;
 				float lambda1 = 1 - barycentricCoords.x - barycentricCoords.y;
 				float lambda2 = barycentricCoords.x;
 				float lambda3 = barycentricCoords.y;
 				float xValue, yValue, zValue;
-				xValue = lambda1 * (1 / vertices[0].x) + lambda2 * (1 / vertices[1].x) + lambda3 * (1 / vertices[2].x);
-				yValue = lambda1 * (1 / vertices[0].y) + lambda2 * (1 / vertices[1].y) + lambda3 * (1 / vertices[2].y);
-				zValue = 1 / (lambda1 * (1 / vertices[0].z) + lambda2 * (1 / vertices[1].z) + lambda3 * (1 / vertices[2].z));
+				
+
+				if (scene->isPrespective)
+				{
+					xValue = lambda1 * (1 / vertices[0].x) + lambda2 * (1 / vertices[1].x) + lambda3 * (1 / vertices[2].x);
+					yValue = lambda1 * (1 / vertices[0].y) + lambda2 * (1 / vertices[1].y) + lambda3 * (1 / vertices[2].y);
+					zValue = 1 / (lambda1 * (1 / vertices[0].z) + lambda2 * (1 / vertices[1].z) + lambda3 * (1 / vertices[2].z));
+				}
+				else
+				{
+					xValue = lambda1 * vertices[0].x + lambda2 * vertices[1].x + lambda3 * vertices[2].x;
+					yValue = lambda1 * vertices[0].y + lambda2 * vertices[1].y + lambda3 * vertices[2].y;
+					zValue = lambda1 * vertices[0].z + lambda2 * vertices[1].z + lambda3 * vertices[2].z;
+				}
 
 				point = glm::vec3(xValue, yValue, zValue);
+				//point = glm::vec3(x, y, zValue);
 				float I = 0;
 				for (int i = 0; i < lights.size(); ++i)
 				{

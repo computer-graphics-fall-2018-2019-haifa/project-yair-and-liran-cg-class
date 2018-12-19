@@ -26,7 +26,7 @@ public:
 	int activeCameraIndex;
 	int activeLightIndex;
 	int activeModelIndex;
-	bool isAddCamera = false, isShowFaceNormals = false, isShowVertexNormals = false, isShowBoundingBox = true;
+	bool isAddCamera = false, isShowFaceNormals = false, isShowVertexNormals = false, isShowBoundingBox = false;
 	bool isAddLight = false, isAddParallelLight = false, isAddPointLight = false;
 	float camScale = 1, zoom = 1;
 	float ambientLevel = 0.5;
