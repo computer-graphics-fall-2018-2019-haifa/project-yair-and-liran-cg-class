@@ -31,12 +31,12 @@ public:
 	float camScale = 1, zoom = 1;
 	float ambientLevel = 0.5;
 	GLfloat scaleNormalLength = 0.1;
-	glm::vec4 edgesColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.00f);
-	glm::vec4 facesColor = glm::vec4(0.5f, 0.5f, 0.5f, 0.5f);
-	glm::vec4 normalsColor = glm::vec4(0.0f, 1.0f, 0.0f, 1.00f);
-	glm::vec4 gridColor = glm::vec4(0.125f, 0.125f, 0.25f, 1.00f);
-	glm::vec4 boundingBoxColor = glm::vec4(1.0f, 0.0f, 0.0f, 1.00f);
-	glm::vec4 beackgroundColor = glm::vec4(0.137f, 0.535f, 0.7f, 1.00f);
+	glm::vec3 edgesColor = glm::vec3(1.0f, 1.0f, 1.0f);
+	glm::vec3 facesColor = glm::vec3(0.144f, 0.515f, 0.5f);
+	glm::vec3 normalsColor = glm::vec3(0.0f, 1.0f, 0.0f);
+	glm::vec3 gridColor = glm::vec3(0.77f, 0.77f, 0.897f);
+	glm::vec3 boundingBoxColor = glm::vec3(1.0f, 0.0f, 0.0f);
+	glm::vec3 beackgroundColor = glm::vec3(0.0f, 0.0f, 0.0f);
 
 	Scene();
 

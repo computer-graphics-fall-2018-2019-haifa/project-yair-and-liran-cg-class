@@ -15,7 +15,7 @@
 #define M_PI           3.14159265358979323846  /* pi */
 #define INDEX(width,x,y,c) ((x)+(y)*(width))*3+(c)
 #define Z_INDEX(width,x,y) ((x)+(y)*(width))
-#define GRID_LENGTH 1000
+#define GRID_LENGTH 300
 #define GRID_DELTA 50
 
 Renderer::Renderer(int viewportWidth, int viewportHeight, int viewportX, int viewportY) :
@@ -74,7 +74,7 @@ void Renderer::ClearColorBuffer(const glm::vec3& color)
 	{
 		for (int j = 0; j < viewportHeight; j++)
 		{
-			putPixel(i, j, color, std::numeric_limits<float>::max(),true);
+			putPixel(i, j, color, std::numeric_limits<float>::max(), true);
 		}
 	}
 }
@@ -161,7 +161,7 @@ glm::vec2 Renderer::GetBarycentricCoors2D(std::vector<glm::vec4> vertices, glm::
 	return glm::vec2(lambda1, lambda2);
 }
 
-void Renderer::FillTriangle(std::vector<glm::vec4> vertices, glm::vec3 faceColor, glm::vec3 edgesColor, std::vector<Light*> lights)
+void Renderer::FillTriangle(std::vector<glm::vec4>& vertices, std::vector<glm::vec3>& normals)
 {
 	glm::vec3 v0 = vertices[0];
 	glm::vec3 v1 = vertices[1];
@@ -194,7 +194,7 @@ void Renderer::FillTriangle(std::vector<glm::vec4> vertices, glm::vec3 faceColor
 				float lambda2 = barycentricCoords.x;
 				float lambda3 = barycentricCoords.y;
 				float xValue, yValue, zValue;
-				
+
 
 				if (scene->isPrespective)
 				{
@@ -212,9 +212,9 @@ void Renderer::FillTriangle(std::vector<glm::vec4> vertices, glm::vec3 faceColor
 				point = glm::vec3(xValue, yValue, zValue);
 				//point = glm::vec3(x, y, zValue);
 				float I = 0;
-				for (int i = 0; i < lights.size(); ++i)
+				for (int i = 0; i < scene->lights.size(); ++i)
 				{
-					float ill = lights[i]->CalculateIllumination(point, normal);
+					float ill = scene->lights[i]->CalculateIllumination(point, normal);
 					I += ill;
 				}
 				I += scene->ambientLevel;
@@ -235,9 +235,9 @@ void Renderer::FillTriangle(std::vector<glm::vec4> vertices, glm::vec3 faceColor
 					glm::vec3 finalFaceColor(r, g, b);
 					putPixel(x, y, finalFaceColor, zValue);
 				}*/
-				float r = std::min(faceColor.r * I, 1.0f);
-				float g = std::min(faceColor.g * I, 1.0f);
-				float b = std::min(faceColor.b * I, 1.0f);
+				float r = std::min(scene->facesColor.r * I, 1.0f);
+				float g = std::min(scene->facesColor.g * I, 1.0f);
+				float b = std::min(scene->facesColor.b * I, 1.0f);
 				glm::vec3 finalFaceColor(r, g, b);
 				putPixel(x, y, finalFaceColor, zValue);
 			}
@@ -247,59 +247,64 @@ void Renderer::FillTriangle(std::vector<glm::vec4> vertices, glm::vec3 faceColor
 
 void Renderer::renderFaces(std::vector<Face>& faces, std::vector<glm::vec4>& finalVertices, bool isActiveModel)
 {
-	std::map<int, std::vector<glm::vec3>> vertexIndexesTonormals;
+	std::map<int, std::vector<glm::vec3>> vertexIndexeToNormals;
+	std::map<int, glm::vec3> vertexIndexeToNormal;
 
 	for (int faceIndex = 0; faceIndex < faces.size(); ++faceIndex)
 	{
 		Face face = faces[faceIndex];
-		/*int indexArr1[] = { 0,1,2 };
-		int indexArr2[] = { 1,2,0 };
-		for (int i = 0; i < 3; ++i)
+		int v0Index = face.GetVertexIndex(0);
+		int v1Index = face.GetVertexIndex(1);
+		int v2Index = face.GetVertexIndex(2);
+		glm::vec3 v0 = finalVertices[v0Index - 1];
+		glm::vec3 v1 = finalVertices[v1Index - 1];
+		glm::vec3 v2 = finalVertices[v2Index - 1];
+		glm::vec3 direction = glm::normalize(glm::cross((v0 - v2), (v0 - v1)));
+		vertexIndexeToNormals[v0Index - 1].push_back(direction);
+		vertexIndexeToNormals[v1Index - 1].push_back(direction);
+		vertexIndexeToNormals[v2Index - 1].push_back(direction);
+		
+		if (isActiveModel && scene->isShowFaceNormals)
 		{
-			int v1Index = indexArr1[i];
-			int v2Index = indexArr2[i];
-			int vertexIndex1 = face.GetVertexIndex(v1Index);
-			int vertexIndex2 = face.GetVertexIndex(v2Index);
-			glm::vec4 v1 = finalVertices[vertexIndex1 - 1];
-			glm::vec4 v2 = finalVertices[vertexIndex2 - 1];
-			DrawEdge(v1, v2, edgesColor);
-		}*/
-		std::vector<glm::vec4> faceVertexes;
-		faceVertexes.push_back(finalVertices[face.GetVertexIndex(0) - 1]);
-		faceVertexes.push_back(finalVertices[face.GetVertexIndex(1) - 1]);
-		faceVertexes.push_back(finalVertices[face.GetVertexIndex(2) - 1]);
-		FillTriangle(faceVertexes, glm::vec3(scene->facesColor), glm::vec3(scene->edgesColor), scene->lights);
-		if (isActiveModel && (scene->isShowFaceNormals || scene->isShowVertexNormals))
-		{
-			int v0Index = face.GetVertexIndex(0);
-			int v1Index = face.GetVertexIndex(1);
-			int v2Index = face.GetVertexIndex(2);
-			glm::vec3 v0 = finalVertices[v0Index - 1];
-			glm::vec3 v1 = finalVertices[v1Index - 1];
-			glm::vec3 v2 = finalVertices[v2Index - 1];
 			glm::vec3 mean = (v0 + v1 + v2) / GLfloat(3);
-			glm::vec3 direction = glm::normalize(glm::cross((v0 - v2), (v0 - v1)));
 			glm::vec3 to = mean + (direction * scene->scaleNormalLength);
-			if (scene->isShowFaceNormals)
-				DrawEdge(glm::vec4(mean[0], mean[1], mean[2], 1), glm::vec4(to[0], to[1], to[2], 1), glm::vec3(scene->normalsColor));
-			vertexIndexesTonormals[v0Index - 1].push_back(direction);
-			vertexIndexesTonormals[v1Index - 1].push_back(direction);
-			vertexIndexesTonormals[v2Index - 1].push_back(direction);
+			DrawEdge(glm::vec4(mean[0], mean[1], mean[2], 1), glm::vec4(to[0], to[1], to[2], 1), scene->normalsColor);
+		}
+
+	}
+
+	for (std::map<int, std::vector<glm::vec3>>::iterator it = vertexIndexeToNormals.begin(); it != vertexIndexeToNormals.end(); ++it) {
+		std::vector<glm::vec3> direcrtions = it->second;
+		glm::vec3 direction(0, 0, 0);
+		for (int j = 0; j < direcrtions.size(); ++j)
+		{
+			direction = direction + direcrtions[j];
+		}
+		vertexIndexeToNormal[it->first] = glm::normalize(direction / GLfloat(direcrtions.size()));
+
+		if (scene->isShowVertexNormals) {
+			glm::vec4 startVec = finalVertices[it->first];
+			direction = vertexIndexeToNormal[it->first];
+			glm::vec4 endVec = startVec + (glm::vec4(direction[0], direction[1], direction[2], 1)* scene->scaleNormalLength);
+			DrawEdge(startVec, endVec, scene->normalsColor);
 		}
 	}
-	if (scene->isShowVertexNormals) {
-		for (std::map<int, std::vector<glm::vec3>>::iterator it = vertexIndexesTonormals.begin(); it != vertexIndexesTonormals.end(); ++it) {
-			glm::vec4 startVec = finalVertices[it->first];
-			std::vector<glm::vec3> direcrtions = it->second;
-			glm::vec3 direcrtion(0, 0, 0);
-			for (int j = 0; j < direcrtions.size(); ++j)
-			{
-				direcrtion = direcrtion + direcrtions[j];
-			}
-			direcrtion = glm::normalize(direcrtion / GLfloat(direcrtions.size()));
-			glm::vec4 endVec = startVec + (glm::vec4(direcrtion[0], direcrtion[1], direcrtion[2], 1)* scene->scaleNormalLength);
-			DrawEdge(startVec, endVec, glm::vec3(scene->normalsColor));
-		}
+
+	for (int faceIndex = 0; faceIndex < faces.size(); ++faceIndex)
+	{
+		Face face = faces[faceIndex];
+		std::vector<glm::vec4> faceVertexes;
+		std::vector<glm::vec3> faceVertexesNormals;
+		int v0Index = face.GetVertexIndex(0);
+		int v1Index = face.GetVertexIndex(1);
+		int v2Index = face.GetVertexIndex(2);
+		faceVertexes.push_back(finalVertices[v0Index - 1]);
+		faceVertexes.push_back(finalVertices[v1Index - 1]);
+		faceVertexes.push_back(finalVertices[v2Index - 1]);
+		faceVertexesNormals.push_back(vertexIndexeToNormal[v0Index - 1]);
+		faceVertexesNormals.push_back(vertexIndexeToNormal[v1Index - 1]);
+		faceVertexesNormals.push_back(vertexIndexeToNormal[v2Index - 1]);
+		FillTriangle(faceVertexes, faceVertexesNormals);
 	}
 }
 
@@ -508,7 +513,7 @@ void Renderer::Render(Scene& scene)
 	glm::mat4x4 gridTransformationMatrix =
 		cameraNormalizationMatrix *
 		cameraViewingTransformInverse;
-	RenderGrid(gridTransformationMatrix, glm::vec3(scene.gridColor));
+	RenderGrid(gridTransformationMatrix, scene.gridColor);
 
 	// render models objects
 	for (int modelIndex = 0; modelIndex < modelsNumber; ++modelIndex)
@@ -525,7 +530,7 @@ void Renderer::Render(Scene& scene)
 		bool isActiveModel = modelIndex == activeModelIndex;
 		renderFaces(faces, finalModelVertexes, isActiveModel);
 		if (isActiveModel && scene.isShowBoundingBox)
-			renderBoundingBox(currentModel->boundingBox, vertexTransformationMatrix, glm::vec3(scene.boundingBoxColor));
+			renderBoundingBox(currentModel->boundingBox, vertexTransformationMatrix, scene.boundingBoxColor);
 	}
 
 	//render cameras objects

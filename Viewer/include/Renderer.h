@@ -45,7 +45,7 @@ public:
 	void BersenhamAlg(GLfloat p1, GLfloat q1, GLfloat p2, GLfloat q2, bool isXYchanged, glm::vec3& color);
 	void DrawEdge(glm::vec4& v1, glm::vec4& v2, glm::vec3& color);
 	glm::vec2 GetBarycentricCoors2D(std::vector<glm::vec4> vertices, glm::vec3 p);
-	void FillTriangle(std::vector<glm::vec4> vertices, glm::vec3 faceColor, glm::vec3 edgesColor, std::vector<Light*> lights);
+	void FillTriangle(std::vector<glm::vec4>& vertices, std::vector<glm::vec3>& normals);
 	void renderFaces(std::vector<Face>& faces, std::vector<glm::vec4>& finalVertices, bool isActiveModel = false);
 	std::vector<glm::vec4> getFinalVertexesFromWortldTrans(glm::mat4x4& worldTransformation, std::vector<glm::vec3>& vertices);
 
