@@ -20,6 +20,8 @@ private:
 
 
 public:
+	enum ShadingMode { Flat, Gouraud, Phong};
+	ShadingMode shadingMode = Flat;
 	std::vector<Light*> lights;
 	std::vector<Camera*> cameras;
 	bool isPrespective = false;

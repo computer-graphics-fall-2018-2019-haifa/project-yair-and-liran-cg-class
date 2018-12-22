@@ -48,6 +48,6 @@ public:
 	void FillTriangle(std::vector<glm::vec4>& vertices, std::vector<glm::vec3>& normals);
 	void renderFaces(std::vector<Face>& faces, std::vector<glm::vec4>& finalVertices, bool isActiveModel = false);
 	std::vector<glm::vec4> getFinalVertexesFromWortldTrans(glm::mat4x4& worldTransformation, std::vector<glm::vec3>& vertices);
-
+	glm::vec3 GetColorForPointAndNormal(glm::vec3& point, glm::vec3& normal);
 	// Add more methods/functionality as needed...
 };

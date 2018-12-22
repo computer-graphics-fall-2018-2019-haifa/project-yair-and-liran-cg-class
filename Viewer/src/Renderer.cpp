@@ -161,12 +161,26 @@ glm::vec2 Renderer::GetBarycentricCoors2D(std::vector<glm::vec4> vertices, glm::
 	return glm::vec2(lambda1, lambda2);
 }
 
+glm::vec3 Renderer::GetColorForPointAndNormal(glm::vec3& point, glm::vec3& normal)
+{
+	float I = 0;
+	for (int i = 0; i < scene->lights.size(); ++i)
+	{
+		float ill = scene->lights[i]->CalculateIllumination(point, normal);
+		I += ill;
+	}
+	I += scene->ambientLevel;
+	float r = std::min(scene->facesColor.r * I, 1.0f);
+	float g = std::min(scene->facesColor.g * I, 1.0f);
+	float b = std::min(scene->facesColor.b * I, 1.0f);
+	return glm::vec3(r, g, b);
+}
+
 void Renderer::FillTriangle(std::vector<glm::vec4>& vertices, std::vector<glm::vec3>& normals)
 {
 	glm::vec3 v0 = vertices[0];
 	glm::vec3 v1 = vertices[1];
 	glm::vec3 v2 = vertices[2];
-	glm::vec3 normal = glm::normalize(glm::cross((v0 - v2), (v0 - v1)));
 	for (int i = 0; i < vertices.size(); ++i)
 	{
 		vertices[i].x = (vertices[i].x + 1) * (viewportWidth / 2) * scene->zoom;
@@ -208,16 +222,25 @@ void Renderer::FillTriangle(std::vector<glm::vec4>& vertices, std::vector<glm::v
 					yValue = lambda1 * vertices[0].y + lambda2 * vertices[1].y + lambda3 * vertices[2].y;
 					zValue = lambda1 * vertices[0].z + lambda2 * vertices[1].z + lambda3 * vertices[2].z;
 				}
-
 				point = glm::vec3(xValue, yValue, zValue);
-				//point = glm::vec3(x, y, zValue);
-				float I = 0;
-				for (int i = 0; i < scene->lights.size(); ++i)
+				glm::vec3 normal, finalFaceColor;
+
+				switch (scene->shadingMode)
 				{
-					float ill = scene->lights[i]->CalculateIllumination(point, normal);
-					I += ill;
+				case Scene::Flat:
+					normal = glm::normalize(glm::cross((v0 - v2), (v0 - v1)));
+					finalFaceColor = GetColorForPointAndNormal(point, normal);
+					break;
+				case Scene::Gouraud:
+					normal = lambda1*normals[0] + lambda2 * normals[1] + lambda3 * normals[2];
+					finalFaceColor = GetColorForPointAndNormal(point, normal);
+					break;
+				case Scene::Phong:
+					glm::vec3 color0 = GetColorForPointAndNormal(v0, normals[0]);
+					glm::vec3 color1 = GetColorForPointAndNormal(v1, normals[1]);
+					glm::vec3 color2 = GetColorForPointAndNormal(v2, normals[2]);
+					finalFaceColor = lambda1 * color0 + lambda2 * color1 + lambda3 * color2;
 				}
-				I += scene->ambientLevel;
 				/*float edgesTreshold = 0.04;
 				if (lambda1 < edgesTreshold || lambda2 < edgesTreshold || lambda3 < edgesTreshold)
 				{
@@ -235,10 +258,6 @@ void Renderer::FillTriangle(std::vector<glm::vec4>& vertices, std::vector<glm::v
 					glm::vec3 finalFaceColor(r, g, b);
 					putPixel(x, y, finalFaceColor, zValue);
 				}*/
-				float r = std::min(scene->facesColor.r * I, 1.0f);
-				float g = std::min(scene->facesColor.g * I, 1.0f);
-				float b = std::min(scene->facesColor.b * I, 1.0f);
-				glm::vec3 finalFaceColor(r, g, b);
 				putPixel(x, y, finalFaceColor, zValue);
 			}
 		}

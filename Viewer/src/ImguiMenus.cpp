@@ -66,12 +66,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 				}
 			}
 
-			ImGui::ColorEdit3("Edges color", (float*)&(scene.edgesColor));
-			ImGui::ColorEdit3("Faces color", (float*)&(scene.facesColor));
-			ImGui::ColorEdit3("Grid color", (float*)&(scene.gridColor));
-			ImGui::ColorEdit3("Normals color", (float*)&(scene.normalsColor));
-			ImGui::ColorEdit3("Bounding Box color", (float*)&(scene.boundingBoxColor));
-			ImGui::ColorEdit3("Background color color", (float*)&(scene.beackgroundColor));
+			
 
 			ImGui::Combo("Select Model", &scene.activeModelIndex, items, modelsNumber);
 			ImGui::Combo("Select Camera", &scene.activeCameraIndex, cameras, cameraCount);
@@ -141,8 +136,6 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 				ImGui::SliderFloat("Distance", &(activeCamera->distance), 0, 10);
 			}
 
-
-
 			if (ImGui::CollapsingHeader("Light"))
 			{
 				scene.isAddLight = ImGui::Button("AddLight", ImVec2(70, 30));
@@ -185,6 +178,30 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 						//scene.isAddPointLight = scene.isAddLight;
 					}
 				}
+			}
+		
+			if (ImGui::CollapsingHeader("Color"))
+			{
+				ImGui::ColorEdit3("Edges color", (float*)&(scene.edgesColor));
+				ImGui::ColorEdit3("Faces color", (float*)&(scene.facesColor));
+				ImGui::ColorEdit3("Grid color", (float*)&(scene.gridColor));
+				ImGui::ColorEdit3("Normals color", (float*)&(scene.normalsColor));
+				ImGui::ColorEdit3("Bounding Box color", (float*)&(scene.boundingBoxColor));
+				ImGui::ColorEdit3("Background color color", (float*)&(scene.beackgroundColor));
+			}
+			
+			static int shade = 0;
+			if (ImGui::CollapsingHeader("Shading"))
+			{
+				ImGui::RadioButton("Flat", &shade, 0);
+				ImGui::RadioButton("Gouraud", &shade, 1);
+				ImGui::RadioButton("Phong", &shade, 2);
+			}
+			switch (shade)
+			{
+			case 0: scene.shadingMode = Scene::Flat; break;
+			case 1: scene.shadingMode = Scene::Gouraud; break;
+			case 2: scene.shadingMode = Scene::Phong; break;
 			}
 		}
 		ImGui::End();
