@@ -20,7 +20,7 @@ private:
 
 
 public:
-	enum ShadingMode { Flat, Gouraud, Phong};
+	enum ShadingMode { Flat, Gouraud, Phong, Texture};
 	ShadingMode shadingMode = Flat;
 	std::vector<Light*> lights;
 	std::vector<Camera*> cameras;

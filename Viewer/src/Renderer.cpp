@@ -176,6 +176,8 @@ glm::vec3 Renderer::GetColorForPointAndNormal(glm::vec3& point, glm::vec3& norma
 	return glm::vec3(r, g, b);
 }
 
+
+
 void Renderer::FillTriangle(std::vector<glm::vec4>& vertices, std::vector<glm::vec3>& normals)
 {
 	glm::vec3 v0 = vertices[0];
@@ -240,6 +242,13 @@ void Renderer::FillTriangle(std::vector<glm::vec4>& vertices, std::vector<glm::v
 					glm::vec3 color1 = GetColorForPointAndNormal(v1, normals[1]);
 					glm::vec3 color2 = GetColorForPointAndNormal(v2, normals[2]);
 					finalFaceColor = lambda1 * color0 + lambda2 * color1 + lambda3 * color2;
+					break;
+				case Scene::Texture:
+					{
+						float a = float(x - min_x) / float(max_x - min_x);
+						finalFaceColor = glm::vec3(a, a*a, a*a*a);
+					}
+					break;
 				}
 				/*float edgesTreshold = 0.04;
 				if (lambda1 < edgesTreshold || lambda2 < edgesTreshold || lambda3 < edgesTreshold)

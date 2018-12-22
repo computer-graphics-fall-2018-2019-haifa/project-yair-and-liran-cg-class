@@ -196,12 +196,14 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 				ImGui::RadioButton("Flat", &shade, 0);
 				ImGui::RadioButton("Gouraud", &shade, 1);
 				ImGui::RadioButton("Phong", &shade, 2);
+				ImGui::RadioButton("Texture", &shade, 3);
 			}
 			switch (shade)
 			{
 			case 0: scene.shadingMode = Scene::Flat; break;
 			case 1: scene.shadingMode = Scene::Gouraud; break;
 			case 2: scene.shadingMode = Scene::Phong; break;
+			case 3: scene.shadingMode = Scene::Texture; break;
 			}
 		}
 		ImGui::End();
