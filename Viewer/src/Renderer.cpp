@@ -11,6 +11,8 @@
 #include <glm/common.hpp>
 #include <vector>
 #include <algorithm>
+#include <math.h>
+#include "ParallelLight.h"
 
 #define M_PI           3.14159265358979323846  /* pi */
 #define INDEX(width,x,y,c) ((x)+(y)*(width))*3+(c)
@@ -166,8 +168,18 @@ glm::vec3 Renderer::GetColorForPointAndNormal(glm::vec3& point, glm::vec3& norma
 	float I = 0;
 	for (int i = 0; i < scene->lights.size(); ++i)
 	{
-		float ill = scene->lights[i]->CalculateIllumination(point, normal);
+		//Camera* cam = scene->GetActiveCamera();
+		//glm::vec3 V = glm::normalize(cam->eye-point);
+		float ill = scene->lights[i]->CalculateIllumination(point, normal,scene);
 		I += ill;
+		//glm::vec3 pos = scene->lights[i]->position;
+		//glm::vec3 L = glm::normalize(pos);
+		//glm::vec3 R = (L*normal)+ (L*normal) -L;
+		//R = glm::normalize(R);
+		//Camera* cam = *scene->GetActiveCamera();
+		//glm::vec3 V = glm::normalize(cam->eye-point);
+		//float specular = pow(((R.x*V.x) + (R.y*V.y) + (R.z*V.z)), scene->lights[i]->a);
+		//I += specular;
 	}
 	I += scene->ambientLevel;
 	float r = std::min(scene->facesColor.r * I, 1.0f);
@@ -577,6 +589,25 @@ void Renderer::Render(Scene& scene)
 		std::vector<glm::vec3> vertices = currentCamera->GetVertices();
 		std::vector<glm::vec4> finalModelVertexes = getFinalVertexesFromWortldTrans(vertexTransformationMatrix, vertices);
 		std::vector<Face> faces = currentCamera->GetFaces();
+		renderFaces(faces, finalModelVertexes);
+	}
+
+	//render point light objects
+	for (int lightIndex = 0; lightIndex < scene.lights.size(); ++lightIndex)
+	{
+		
+		MeshModel* currentLight = scene.lights[lightIndex];
+		if (dynamic_cast<ParallelLight*>(currentLight) != nullptr)
+			continue;
+		glm::mat4x4 vertexTransformationMatrix =
+			cameraNormalizationMatrix *
+			glm::inverse(cameraViewingTransform) *
+			currentLight->GetWorldTransformation() *
+			scene.GetActiveCamera()->GetViewTransformation();
+
+		std::vector<glm::vec3> vertices = currentLight->GetVertices();
+		std::vector<glm::vec4> finalModelVertexes = getFinalVertexesFromWortldTrans(vertexTransformationMatrix, vertices);
+		std::vector<Face> faces = currentLight->GetFaces();
 		renderFaces(faces, finalModelVertexes);
 	}
 

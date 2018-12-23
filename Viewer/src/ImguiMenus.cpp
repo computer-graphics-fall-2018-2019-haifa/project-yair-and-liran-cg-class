@@ -160,6 +160,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 					/** Active camera parameters ***/
 					Light* activeLight = scene.GetActiveLight();
 					ImGui::SliderFloat("L level", &(activeLight->L), 0.0f, 50.0f);
+					ImGui::SliderFloat("a level", &(activeLight->a), 0.1f, 6.0f);
 					ImGui::Text("Light parameters");
 
 					if (c == 0)
