@@ -170,7 +170,7 @@ glm::vec3 Renderer::GetColorForPointAndNormal(glm::vec3& point, glm::vec3& norma
 	{
 		//Camera* cam = scene->GetActiveCamera();
 		//glm::vec3 V = glm::normalize(cam->eye-point);
-		float ill = scene->lights[i]->CalculateIllumination(point, normal,scene);
+		float ill = scene->lights[i]->CalculateIllumination(point, normal, scene);
 		I += ill;
 		//glm::vec3 pos = scene->lights[i]->position;
 		//glm::vec3 L = glm::normalize(pos);
@@ -190,7 +190,7 @@ glm::vec3 Renderer::GetColorForPointAndNormal(glm::vec3& point, glm::vec3& norma
 
 
 
-void Renderer::FillTriangle(std::vector<glm::vec4>& vertices, std::vector<glm::vec3>& normals)
+void Renderer::FillTriangle(std::vector<glm::vec4>& vertices, std::vector<glm::vec3>& normals, bool isLight)
 {
 	glm::vec3 v0 = vertices[0];
 	glm::vec3 v1 = vertices[1];
@@ -239,28 +239,34 @@ void Renderer::FillTriangle(std::vector<glm::vec4>& vertices, std::vector<glm::v
 				point = glm::vec3(xValue, yValue, zValue);
 				glm::vec3 normal, finalFaceColor;
 
-				switch (scene->shadingMode)
+				if (isLight)
+					finalFaceColor = glm::vec3(1, 1, 1);
+				else
 				{
-				case Scene::Flat:
-					normal = glm::normalize(glm::cross((v0 - v2), (v0 - v1)));
-					finalFaceColor = GetColorForPointAndNormal(point, normal);
-					break;
-				case Scene::Gouraud:
-					normal = lambda1*normals[0] + lambda2 * normals[1] + lambda3 * normals[2];
-					finalFaceColor = GetColorForPointAndNormal(point, normal);
-					break;
-				case Scene::Phong:
-					glm::vec3 color0 = GetColorForPointAndNormal(v0, normals[0]);
-					glm::vec3 color1 = GetColorForPointAndNormal(v1, normals[1]);
-					glm::vec3 color2 = GetColorForPointAndNormal(v2, normals[2]);
-					finalFaceColor = lambda1 * color0 + lambda2 * color1 + lambda3 * color2;
-					break;
-				case Scene::Texture:
+
+					switch (scene->shadingMode)
+					{
+					case Scene::Flat:
+						normal = glm::normalize(glm::cross((v0 - v2), (v0 - v1)));
+						finalFaceColor = GetColorForPointAndNormal(point, normal);
+						break;
+					case Scene::Gouraud:
+						normal = lambda1 * normals[0] + lambda2 * normals[1] + lambda3 * normals[2];
+						finalFaceColor = GetColorForPointAndNormal(point, normal);
+						break;
+					case Scene::Phong:
+						glm::vec3 color0 = GetColorForPointAndNormal(v0, normals[0]);
+						glm::vec3 color1 = GetColorForPointAndNormal(v1, normals[1]);
+						glm::vec3 color2 = GetColorForPointAndNormal(v2, normals[2]);
+						finalFaceColor = lambda1 * color0 + lambda2 * color1 + lambda3 * color2;
+						break;
+					case Scene::Texture:
 					{
 						float a = float(x - min_x) / float(max_x - min_x);
 						finalFaceColor = glm::vec3(a, a*a, a*a*a);
 					}
 					break;
+					}
 				}
 				/*float edgesTreshold = 0.04;
 				if (lambda1 < edgesTreshold || lambda2 < edgesTreshold || lambda3 < edgesTreshold)
@@ -279,13 +285,15 @@ void Renderer::FillTriangle(std::vector<glm::vec4>& vertices, std::vector<glm::v
 					glm::vec3 finalFaceColor(r, g, b);
 					putPixel(x, y, finalFaceColor, zValue);
 				}*/
+
+
 				putPixel(x, y, finalFaceColor, zValue);
 			}
 		}
 	}
 }
 
-void Renderer::renderFaces(std::vector<Face>& faces, std::vector<glm::vec4>& finalVertices, bool isActiveModel)
+void Renderer::renderFaces(std::vector<Face>& faces, std::vector<glm::vec4>& finalVertices, bool isActiveModel, bool isLight)
 {
 	std::map<int, std::vector<glm::vec3>> vertexIndexeToNormals;
 	std::map<int, glm::vec3> vertexIndexeToNormal;
@@ -303,7 +311,7 @@ void Renderer::renderFaces(std::vector<Face>& faces, std::vector<glm::vec4>& fin
 		vertexIndexeToNormals[v0Index - 1].push_back(direction);
 		vertexIndexeToNormals[v1Index - 1].push_back(direction);
 		vertexIndexeToNormals[v2Index - 1].push_back(direction);
-		
+
 		if (isActiveModel && scene->isShowFaceNormals)
 		{
 			glm::vec3 mean = (v0 + v1 + v2) / GLfloat(3);
@@ -344,7 +352,7 @@ void Renderer::renderFaces(std::vector<Face>& faces, std::vector<glm::vec4>& fin
 		faceVertexesNormals.push_back(vertexIndexeToNormal[v0Index - 1]);
 		faceVertexesNormals.push_back(vertexIndexeToNormal[v1Index - 1]);
 		faceVertexesNormals.push_back(vertexIndexeToNormal[v2Index - 1]);
-		FillTriangle(faceVertexes, faceVertexesNormals);
+		FillTriangle(faceVertexes, faceVertexesNormals, isLight);
 	}
 }
 
@@ -550,6 +558,7 @@ void Renderer::Render(Scene& scene)
 	int activeModelIndex = scene.GetActiveModelIndex();
 
 	glm::mat4x4 cameraViewingTransformInverse = glm::inverse(cameraViewingTransform);
+	scene.SetActiveCameraFinalTransformation();
 	glm::mat4x4 gridTransformationMatrix =
 		cameraNormalizationMatrix *
 		cameraViewingTransformInverse;
@@ -578,13 +587,13 @@ void Renderer::Render(Scene& scene)
 	{
 		if (cameraIndex == scene.activeCameraIndex)
 			continue;
-		MeshModel* currentCamera = scene.cameras[cameraIndex];
+		Camera* currentCamera = scene.cameras[cameraIndex];
 
 		glm::mat4x4 vertexTransformationMatrix =
 			cameraNormalizationMatrix *
-			glm::inverse(cameraViewingTransform) *
+			cameraViewingTransformInverse *
 			currentCamera->GetWorldTransformation() *
-			scene.cameras[cameraIndex]->GetViewTransformation();
+			currentCamera->GetViewTransformation();
 
 		std::vector<glm::vec3> vertices = currentCamera->GetVertices();
 		std::vector<glm::vec4> finalModelVertexes = getFinalVertexesFromWortldTrans(vertexTransformationMatrix, vertices);
@@ -595,20 +604,19 @@ void Renderer::Render(Scene& scene)
 	//render point light objects
 	for (int lightIndex = 0; lightIndex < scene.lights.size(); ++lightIndex)
 	{
-		
 		MeshModel* currentLight = scene.lights[lightIndex];
 		if (dynamic_cast<ParallelLight*>(currentLight) != nullptr)
 			continue;
+
 		glm::mat4x4 vertexTransformationMatrix =
 			cameraNormalizationMatrix *
-			glm::inverse(cameraViewingTransform) *
-			currentLight->GetWorldTransformation() *
-			scene.GetActiveCamera()->GetViewTransformation();
+			cameraViewingTransformInverse *
+			currentLight->GetWorldTransformation();
 
 		std::vector<glm::vec3> vertices = currentLight->GetVertices();
 		std::vector<glm::vec4> finalModelVertexes = getFinalVertexesFromWortldTrans(vertexTransformationMatrix, vertices);
 		std::vector<Face> faces = currentLight->GetFaces();
-		renderFaces(faces, finalModelVertexes);
+		renderFaces(faces, finalModelVertexes, false, true);
 	}
 
 }

@@ -7,7 +7,7 @@ class Scene;
 class PointLight : public Light
 {
 public:
-	PointLight::PointLight(std::string _name);
+	PointLight::PointLight(std::string _name, MeshModel* meshPtr);
 	float CalculateIllumination(glm::vec3 point, glm::vec3 normal, Scene* scene);
 };
 

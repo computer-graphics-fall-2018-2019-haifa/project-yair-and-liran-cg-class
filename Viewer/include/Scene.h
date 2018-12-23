@@ -50,7 +50,6 @@ public:
 	void AddNewCamera(glm::vec3 eye = glm::vec3(0, -500, 500), glm::vec3 at = glm::vec3(0, 0, 0), glm::vec3 up = glm::vec3(0, 1, 1));
 	void AddNewParallelLight();
 	void AddNewPointLight();
-	void AddAmbientLight();
 	const int GetCameraCount() const;
 
 	void SetActiveCameraIndex(int index);
@@ -72,5 +71,6 @@ public:
 	Light* GetActiveLight();
 	Camera* GetActiveCamera();
 	glm::mat4x4 GetCameraScalingMatrix();
+	void SetActiveCameraFinalTransformation();
 	// Add more methods as needed...
 };

@@ -57,7 +57,7 @@ void Scene::AddNewCamera(glm::vec3 eye, glm::vec3 at, glm::vec3 up)
 
 void Scene::AddNewParallelLight()
 {
-	Light* light = new ParallelLight("parallel1");
+	Light* light = new ParallelLight("parallel " + std::to_string(lights.size()));
 	lights.push_back(light);
 	if (lights.size() == 1)
 		SetActiveLightIndex(0);
@@ -66,19 +66,17 @@ void Scene::AddNewParallelLight()
 
 void Scene::AddNewPointLight()
 {
-	Light* light = new PointLight("PointLight1");
+	std::string lightPath = "..\\Data\\obj_examples\\bulb.obj";
+	MeshModel* meshPtr = Utils::LoadMeshModel(lightPath);
+	Light* light = new PointLight("PointLight" + std::to_string(lights.size()), meshPtr);
+	light->param->scale_x = 10;
+	light->param->scale_y = 10;
+	light->param->scale_z = 10;
 	lights.push_back(light);
 	if (lights.size() == 1)
 		SetActiveLightIndex(0);
 }
 
-void Scene::AddAmbientLight()
-{
-	Light* light = new PointLight("PointLight1");
-	lights.push_back(light);
-	if (lights.size() == 1)
-		SetActiveLightIndex(0);
-}
 
 const int Scene::GetCameraCount() const
 {
@@ -195,4 +193,19 @@ glm::mat4x4 Scene::GetCameraScalingMatrix()
 		0 ,  0 ,  camScale,  0,
 		0 ,  0 ,  0 ,  1 };
 	return C;
+}
+
+void Scene::SetActiveCameraFinalTransformation()
+{
+	Camera* cam = GetActiveCamera();
+	glm::mat4x4 trans = glm::inverse(cam->GetViewTransformation());
+	glm::mat4x4 rot = glm::inverse(cam->tm->rotataionXmatrix * cam->tm->rotataionYmatrix * cam->tm->rotataionZmatrix);
+	for (int i = 0; i < lights.size(); ++i)
+	{
+		Light* currentLight = lights[i];
+		glm::vec3 pos = currentLight->position;
+		glm::vec3 dir = currentLight->direction;
+		currentLight->currentPosition = trans * currentLight->GetWorldTransformation() * glm::vec4(pos.x, pos.y, pos.z, 1);
+		currentLight->currentDirection = rot * currentLight->GetWorldTransformation() * glm::vec4(dir.x, dir.y, dir.z, 1);
+	}
 }

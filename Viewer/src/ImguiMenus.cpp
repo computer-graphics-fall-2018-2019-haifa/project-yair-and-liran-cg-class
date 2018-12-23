@@ -13,6 +13,8 @@
 #include <nfd.h>
 #include <random>
 #include "ModelGeometricParameters.h"
+#include "ParallelLight.h"
+#include "PointLight.h"
 
 bool showDemoWindow = false;
 bool showAnotherWindow = false;
@@ -145,8 +147,8 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 				ImGui::RadioButton("Parallel Light", &lightOption, 0); ImGui::SameLine();
 				ImGui::RadioButton("Point Light", &lightOption, 1);
 				static int c = 0;
-				ImGui::RadioButton("LightRotation", &c, 0); ImGui::SameLine();
-				ImGui::RadioButton("LightTranslation", &c, 1);
+				//ImGui::RadioButton("LightRotation", &c, 0); ImGui::SameLine();
+				//ImGui::RadioButton("LightTranslation", &c, 1);
 				ImGui::SliderFloat("Ambient level", &(scene.ambientLevel), 0.0f, 1.0f);
 				if(scene.isAddLight)
 				{
@@ -159,24 +161,21 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 				{
 					/** Active camera parameters ***/
 					Light* activeLight = scene.GetActiveLight();
-					ImGui::SliderFloat("L level", &(activeLight->L), 0.0f, 50.0f);
-					ImGui::SliderFloat("a level", &(activeLight->a), 0.1f, 6.0f);
+					ImGui::SliderFloat("L level", &(activeLight->L), 0.0f, 1.0f);
+					ImGui::SliderFloat("a level", &(activeLight->a), 0.0f, 6.0f);
 					ImGui::Text("Light parameters");
 
-					if (c == 0)
+					if (dynamic_cast<ParallelLight*>(activeLight) != nullptr)
 					{
 						ImGui::SliderFloat("Light X rotation", &(activeLight->param->rot_x), -360.0f, 360.0f);
 						ImGui::SliderFloat("Light Y rotation", &(activeLight->param->rot_y), -360.0f, 360.0f);
 						ImGui::SliderFloat("Light Z rotation", &(activeLight->param->rot_z), -360.0f, 360.0f);
-						//scene.isAddParallelLight = scene.isAddLight;
-
 					}
-					else if (c == 1)
+					else if (dynamic_cast<PointLight*>(activeLight) != nullptr)
 					{
 						ImGui::SliderFloat("Light X translation", &(activeLight->param->trans_x), -1000.0f, 1000.0f);
 						ImGui::SliderFloat("Light Y translation", &(activeLight->param->trans_y), -1000.0f, 1000.0f);
 						ImGui::SliderFloat("Light Z translation", &(activeLight->param->trans_z), -1000.0f, 1000.0f);
-						//scene.isAddPointLight = scene.isAddLight;
 					}
 				}
 			}
