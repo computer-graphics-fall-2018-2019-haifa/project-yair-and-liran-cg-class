@@ -162,7 +162,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 					/** Active camera parameters ***/
 					Light* activeLight = scene.GetActiveLight();
 					ImGui::SliderFloat("L level", &(activeLight->L), 0.0f, 1.0f);
-					ImGui::SliderFloat("a level", &(activeLight->a), 0.0f, 6.0f);
+					ImGui::SliderInt("a level", &(activeLight->a), 1, 300);
 					ImGui::Text("Light parameters");
 
 					if (dynamic_cast<ParallelLight*>(activeLight) != nullptr)

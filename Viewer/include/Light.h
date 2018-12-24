@@ -12,7 +12,7 @@ public:
 	Light(std::string _modelName) : L(0.2), a(1), MeshModel(_modelName){}
 	virtual float CalculateIllumination(glm::vec3 point, glm::vec3 normal, Scene* scene) = 0;
 	float L;
-	float a;
+	int a;
 	glm::vec3 position, direction;
 	glm::vec3 currentPosition, currentDirection;
 };

@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <math.h>
 #include "ParallelLight.h"
+#include "PointLight.h"
 
 #define M_PI           3.14159265358979323846  /* pi */
 #define INDEX(width,x,y,c) ((x)+(y)*(width))*3+(c)
@@ -617,6 +618,12 @@ void Renderer::Render(Scene& scene)
 		std::vector<glm::vec4> finalModelVertexes = getFinalVertexesFromWortldTrans(vertexTransformationMatrix, vertices);
 		std::vector<Face> faces = currentLight->GetFaces();
 		renderFaces(faces, finalModelVertexes, false, true);
+		glm::vec4 tmp = finalModelVertexes[0];
+		tmp.x = (tmp.x + 1) *(viewportWidth / 2)*scene.zoom;
+		tmp.y = (tmp.y + 1) *(viewportHeight / 2)*scene.zoom;
+
+
+		dynamic_cast<PointLight*>(currentLight)->currentPosition = tmp;
 	}
 
 }

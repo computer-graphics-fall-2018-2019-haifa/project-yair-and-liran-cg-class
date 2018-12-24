@@ -197,15 +197,21 @@ glm::mat4x4 Scene::GetCameraScalingMatrix()
 
 void Scene::SetActiveCameraFinalTransformation()
 {
-	Camera* cam = GetActiveCamera();
-	glm::mat4x4 trans = glm::inverse(cam->GetViewTransformation());
-	glm::mat4x4 rot = glm::inverse(cam->tm->rotataionXmatrix * cam->tm->rotataionYmatrix * cam->tm->rotataionZmatrix);
-	for (int i = 0; i < lights.size(); ++i)
-	{
-		Light* currentLight = lights[i];
-		glm::vec3 pos = currentLight->position;
-		glm::vec3 dir = currentLight->direction;
-		currentLight->currentPosition = trans * currentLight->GetWorldTransformation() * glm::vec4(pos.x, pos.y, pos.z, 1);
-		currentLight->currentDirection = rot * currentLight->GetWorldTransformation() * glm::vec4(dir.x, dir.y, dir.z, 1);
-	}
+	//Camera* cam = GetActiveCamera();
+	//glm::mat4x4 trans = glm::inverse(cam->GetViewTransformation());
+	//glm::mat4x4 rot = glm::inverse(cam->tm->rotataionXmatrix * cam->tm->rotataionYmatrix * cam->tm->rotataionZmatrix);
+	//glm::mat4x4 cameraViewingTransform = cam->GetViewTransformation();
+	//glm::mat4x4 cameraViewingTransformInverse = glm::inverse(cameraViewingTransform);
+
+	//for (int i = 0; i < lights.size(); ++i)
+	//{
+	//	Light* currentLight = lights[i];
+	//	glm::mat4x4 vertexTransformationMatrix =
+	//		cameraViewingTransformInverse *
+	//		currentLight->GetWorldTransformation();
+	//	glm::vec3 pos = currentLight->position;
+	//	glm::vec3 dir = currentLight->direction;
+	//	currentLight->currentPosition = vertexTransformationMatrix * glm::vec4(pos.x, pos.y, pos.z, 1);
+	//	currentLight->currentDirection = vertexTransformationMatrix * glm::vec4(dir.x, dir.y, dir.z, 1);
+	//}
 }
