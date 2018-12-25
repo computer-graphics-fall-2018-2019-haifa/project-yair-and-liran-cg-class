@@ -9,31 +9,16 @@ ParallelLight::ParallelLight(std::string _name): Light(_name)
 
 float ParallelLight::CalculateIllumination(glm::vec3 point, glm::vec3 normal,Scene* scene)
 {
-	glm::vec4 newDirection = glm::vec4(direction.x, direction.y, direction.z, 1);
 	Camera* cam = scene->GetActiveCamera();
-	glm::mat4x4 trans = GetWorldTransformation();
-	//glm::mat4x4 camTrans = cam ->
-	glm::mat4x4 cameraViewingTransform = cam->GetViewTransformation();
-	glm::mat4x4 cameraViewingTransformInverse = glm::inverse(cameraViewingTransform);
-	glm::mat4x4 vertexTransformationMatrix =
-		cameraViewingTransformInverse *
-		GetWorldTransformation();
-	newDirection = vertexTransformationMatrix * newDirection;
-	float dotProduct = direction.x*normal.x + direction.y*normal.y + direction.z*normal.z;
-	if (dotProduct < 0)
-		return 0;
-	float tmp = (direction.x*normal.x + direction.y*normal.y + direction.z*normal.z);
 
-
-	glm::vec3 Lpoint =  glm::normalize(direction);
-	glm::vec3 R = glm::dot(Lpoint,normal)*normal + glm::dot(Lpoint,normal)*normal - Lpoint;
+	glm::vec3 LightDirection = -direction;
+	glm::vec3 R = 2.0f * (glm::dot(LightDirection, normal)) * normal - LightDirection;
+	glm::vec3 V = glm::normalize(cam->eye - point);
 	R = glm::normalize(R);
-	
-	//glm::vec3 V = glm::normalize(cam->eye - point);
-	glm::vec3 V = cam->eye - point;
-	float specular = pow(((R.x*V.x) + (R.y*V.y) + (R.z*V.z)), a);
+	float dotProd = glm::max(glm::dot(V, R), 0.0f);
+	float specular = pow(dotProd, a);
 
-	//specular = std::max(0.0f, specular);
+	float diffuse = glm::max(glm::dot(-glm::normalize(LightDirection), normal), 0.0f);
 
-	return L * tmp + L*specular;
+	return diffuseLevel * diffuse + specularLevel * specular;
 }

@@ -164,23 +164,13 @@ glm::vec2 Renderer::GetBarycentricCoors2D(std::vector<glm::vec4> vertices, glm::
 	return glm::vec2(lambda1, lambda2);
 }
 
-glm::vec3 Renderer::GetColorForPointAndNormal(glm::vec3& point, glm::vec3& normal)
+glm::vec3 Renderer::GetColorForPointAndNormal(glm::vec3 point, glm::vec3 normal)
 {
 	float I = 0;
 	for (int i = 0; i < scene->lights.size(); ++i)
 	{
-		//Camera* cam = scene->GetActiveCamera();
-		//glm::vec3 V = glm::normalize(cam->eye-point);
 		float ill = scene->lights[i]->CalculateIllumination(point, normal, scene);
 		I += ill;
-		//glm::vec3 pos = scene->lights[i]->position;
-		//glm::vec3 L = glm::normalize(pos);
-		//glm::vec3 R = (L*normal)+ (L*normal) -L;
-		//R = glm::normalize(R);
-		//Camera* cam = *scene->GetActiveCamera();
-		//glm::vec3 V = glm::normalize(cam->eye-point);
-		//float specular = pow(((R.x*V.x) + (R.y*V.y) + (R.z*V.z)), scene->lights[i]->a);
-		//I += specular;
 	}
 	I += scene->ambientLevel;
 	float r = std::min(scene->facesColor.r * I, 1.0f);
@@ -248,7 +238,7 @@ void Renderer::FillTriangle(std::vector<glm::vec4>& vertices, std::vector<glm::v
 					switch (scene->shadingMode)
 					{
 					case Scene::Flat:
-						normal = glm::normalize(glm::cross((v0 - v2), (v0 - v1)));
+						normal = glm::normalize(glm::cross((v0 - v1), (v1 - v2)));
 						finalFaceColor = GetColorForPointAndNormal(point, normal);
 						break;
 					case Scene::Gouraud:
@@ -256,9 +246,9 @@ void Renderer::FillTriangle(std::vector<glm::vec4>& vertices, std::vector<glm::v
 						finalFaceColor = GetColorForPointAndNormal(point, normal);
 						break;
 					case Scene::Phong:
-						glm::vec3 color0 = GetColorForPointAndNormal(v0, normals[0]);
-						glm::vec3 color1 = GetColorForPointAndNormal(v1, normals[1]);
-						glm::vec3 color2 = GetColorForPointAndNormal(v2, normals[2]);
+						glm::vec3 color0 = GetColorForPointAndNormal(vertices[0], normals[0]);
+						glm::vec3 color1 = GetColorForPointAndNormal(vertices[1], normals[1]);
+						glm::vec3 color2 = GetColorForPointAndNormal(vertices[2], normals[2]);
 						finalFaceColor = lambda1 * color0 + lambda2 * color1 + lambda3 * color2;
 						break;
 					case Scene::Texture:
@@ -308,7 +298,7 @@ void Renderer::renderFaces(std::vector<Face>& faces, std::vector<glm::vec4>& fin
 		glm::vec3 v0 = finalVertices[v0Index - 1];
 		glm::vec3 v1 = finalVertices[v1Index - 1];
 		glm::vec3 v2 = finalVertices[v2Index - 1];
-		glm::vec3 direction = glm::normalize(glm::cross((v0 - v2), (v0 - v1)));
+		glm::vec3 direction = glm::normalize(glm::cross((v0 - v2), (v1 - v2)));
 		vertexIndexeToNormals[v0Index - 1].push_back(direction);
 		vertexIndexeToNormals[v1Index - 1].push_back(direction);
 		vertexIndexeToNormals[v2Index - 1].push_back(direction);
