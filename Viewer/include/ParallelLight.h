@@ -7,7 +7,7 @@ class Scene;
 class ParallelLight : public Light
 {
 public:
-	ParallelLight::ParallelLight(std::string _name);
+	ParallelLight::ParallelLight(std::string _name, MeshModel* meshPtr);
 	float CalculateIllumination(glm::vec3 point, glm::vec3 normal, Scene* scene);
 };
 

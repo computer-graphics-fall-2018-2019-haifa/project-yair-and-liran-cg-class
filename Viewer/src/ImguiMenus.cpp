@@ -165,8 +165,11 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 					ImGui::SliderFloat("Diffuse level", &(activeLight->diffuseLevel), 0.0f, 1.0f);
 					ImGui::SliderInt("a level", &(activeLight->a), 1, 30);
 					ImGui::Text("Light parameters");
+					ImGui::SliderFloat("Light X translation", &(activeLight->param->trans_x), -1000.0f, 1000.0f);
+					ImGui::SliderFloat("Light Y translation", &(activeLight->param->trans_y), -1000.0f, 1000.0f);
+					ImGui::SliderFloat("Light Z translation", &(activeLight->param->trans_z), -1000.0f, 1000.0f);
 
-					if (dynamic_cast<ParallelLight*>(activeLight) != nullptr)
+					/*if (dynamic_cast<ParallelLight*>(activeLight) != nullptr)
 					{
 						ImGui::SliderFloat("Light X rotation", &(activeLight->param->rot_x), -360.0f, 360.0f);
 						ImGui::SliderFloat("Light Y rotation", &(activeLight->param->rot_y), -360.0f, 360.0f);
@@ -177,7 +180,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 						ImGui::SliderFloat("Light X translation", &(activeLight->param->trans_x), -1000.0f, 1000.0f);
 						ImGui::SliderFloat("Light Y translation", &(activeLight->param->trans_y), -1000.0f, 1000.0f);
 						ImGui::SliderFloat("Light Z translation", &(activeLight->param->trans_z), -1000.0f, 1000.0f);
-					}
+					}*/
 				}
 			}
 		

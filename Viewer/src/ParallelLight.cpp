@@ -2,16 +2,17 @@
 #include <algorithm>
 #include "Scene.h"
 
-ParallelLight::ParallelLight(std::string _name): Light(_name)
+ParallelLight::ParallelLight(std::string _name, MeshModel* meshPtr) : Light(_name, meshPtr)
 {
-	direction = glm::normalize(glm::vec3(0, 0, 50));
+	position = glm::vec3(0, 0, 150);
 }
+
 
 float ParallelLight::CalculateIllumination(glm::vec3 point, glm::vec3 normal,Scene* scene)
 {
 	Camera* cam = scene->GetActiveCamera();
 
-	glm::vec3 LightDirection = -direction;
+	glm::vec3 LightDirection = -currentPosition;
 	glm::vec3 R = 2.0f * (glm::dot(LightDirection, normal)) * normal - LightDirection;
 	glm::vec3 V = glm::normalize(cam->eye - point);
 	R = glm::normalize(R);

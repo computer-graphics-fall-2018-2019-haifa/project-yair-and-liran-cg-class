@@ -181,8 +181,10 @@ glm::vec3 Renderer::GetColorForPointAndNormal(glm::vec3 point, glm::vec3 normal)
 
 
 
-void Renderer::FillTriangle(std::vector<glm::vec4>& vertices, std::vector<glm::vec3>& normals, bool isLight)
+void Renderer::FillTriangle(std::vector<glm::vec4>& vertices, std::vector<glm::vec3>& normals, bool isLight, bool isPointLight)
 {
+	float edgesTreshold = 0.04;
+	glm::vec3 whiteColor(1, 1, 1), yellowColor(0.946, 0.946, 0.032);
 	glm::vec3 v0 = vertices[0];
 	glm::vec3 v1 = vertices[1];
 	glm::vec3 v2 = vertices[2];
@@ -216,25 +218,16 @@ void Renderer::FillTriangle(std::vector<glm::vec4>& vertices, std::vector<glm::v
 
 
 				if (scene->isPrespective)
-				{
-					xValue = lambda1 * (1 / vertices[0].x) + lambda2 * (1 / vertices[1].x) + lambda3 * (1 / vertices[2].x);
-					yValue = lambda1 * (1 / vertices[0].y) + lambda2 * (1 / vertices[1].y) + lambda3 * (1 / vertices[2].y);
 					zValue = 1 / (lambda1 * (1 / vertices[0].z) + lambda2 * (1 / vertices[1].z) + lambda3 * (1 / vertices[2].z));
-				}
 				else
-				{
-					xValue = lambda1 * vertices[0].x + lambda2 * vertices[1].x + lambda3 * vertices[2].x;
-					yValue = lambda1 * vertices[0].y + lambda2 * vertices[1].y + lambda3 * vertices[2].y;
 					zValue = lambda1 * vertices[0].z + lambda2 * vertices[1].z + lambda3 * vertices[2].z;
-				}
-				point = glm::vec3(xValue, yValue, zValue);
-				glm::vec3 normal, finalFaceColor;
 
+				point = glm::vec3(x, y, zValue);
+				glm::vec3 normal, finalFaceColor;
 				if (isLight)
-					finalFaceColor = glm::vec3(1, 1, 1);
+					finalFaceColor = isPointLight ? whiteColor : yellowColor;
 				else
 				{
-
 					switch (scene->shadingMode)
 					{
 					case Scene::Flat:
@@ -253,8 +246,15 @@ void Renderer::FillTriangle(std::vector<glm::vec4>& vertices, std::vector<glm::v
 						break;
 					case Scene::Texture:
 					{
-						float a = float(x - min_x) / float(max_x - min_x);
-						finalFaceColor = glm::vec3(a, a*a, a*a*a);
+						if ((lambda1 < edgesTreshold || lambda2 < edgesTreshold || lambda3 < edgesTreshold) && false)
+						{
+							putPixel(x, y, scene->edgesColor, zValue);
+						}
+						else
+						{
+							float a = float(x - min_x) / float(max_x - min_x);
+							finalFaceColor = glm::vec3(pow(a, 5), pow(a, 6), pow(a,2));
+						}						
 					}
 					break;
 					}
@@ -284,7 +284,7 @@ void Renderer::FillTriangle(std::vector<glm::vec4>& vertices, std::vector<glm::v
 	}
 }
 
-void Renderer::renderFaces(std::vector<Face>& faces, std::vector<glm::vec4>& finalVertices, bool isActiveModel, bool isLight)
+void Renderer::renderFaces(std::vector<Face>& faces, std::vector<glm::vec4>& finalVertices, bool isActiveModel, bool isLight, bool isPointLight)
 {
 	std::map<int, std::vector<glm::vec3>> vertexIndexeToNormals;
 	std::map<int, glm::vec3> vertexIndexeToNormal;
@@ -343,7 +343,7 @@ void Renderer::renderFaces(std::vector<Face>& faces, std::vector<glm::vec4>& fin
 		faceVertexesNormals.push_back(vertexIndexeToNormal[v0Index - 1]);
 		faceVertexesNormals.push_back(vertexIndexeToNormal[v1Index - 1]);
 		faceVertexesNormals.push_back(vertexIndexeToNormal[v2Index - 1]);
-		FillTriangle(faceVertexes, faceVertexesNormals, isLight);
+		FillTriangle(faceVertexes, faceVertexesNormals, isLight, isPointLight);
 	}
 }
 
@@ -595,9 +595,7 @@ void Renderer::Render(Scene& scene)
 	//render point light objects
 	for (int lightIndex = 0; lightIndex < scene.lights.size(); ++lightIndex)
 	{
-		MeshModel* currentLight = scene.lights[lightIndex];
-		if (dynamic_cast<ParallelLight*>(currentLight) != nullptr)
-			continue;
+		Light* currentLight = scene.lights[lightIndex];
 
 		glm::mat4x4 vertexTransformationMatrix =
 			cameraNormalizationMatrix *
@@ -607,14 +605,15 @@ void Renderer::Render(Scene& scene)
 		std::vector<glm::vec3> vertices = currentLight->GetVertices();
 		std::vector<glm::vec4> finalModelVertexes = getFinalVertexesFromWortldTrans(vertexTransformationMatrix, vertices);
 		std::vector<Face> faces = currentLight->GetFaces();
-		renderFaces(faces, finalModelVertexes, false, true);
-		glm::vec4 tmp = finalModelVertexes[0];
-		tmp.x = (tmp.x + 1) *(viewportWidth / 2)*scene.zoom;
-		tmp.y = (tmp.y + 1) *(viewportHeight / 2)*scene.zoom;
+		glm::vec4 pos = finalModelVertexes[0];
+		pos.x = (pos.x + 1) *(viewportWidth / 2)*scene.zoom;
+		pos.y = (pos.y + 1) *(viewportHeight / 2)*scene.zoom;
+		currentLight->currentPosition = pos;
+		bool isPointLight = dynamic_cast<PointLight*>(currentLight) != nullptr;
+		renderFaces(faces, finalModelVertexes, false, true, isPointLight);
 
-
-		dynamic_cast<PointLight*>(currentLight)->currentPosition = tmp;
 	}
+
 
 }
 

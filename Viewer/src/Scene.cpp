@@ -57,7 +57,12 @@ void Scene::AddNewCamera(glm::vec3 eye, glm::vec3 at, glm::vec3 up)
 
 void Scene::AddNewParallelLight()
 {
-	Light* light = new ParallelLight("parallel " + std::to_string(lights.size()));
+	std::string lightPath = "..\\Data\\obj_examples\\sun.obj";
+	MeshModel* meshPtr = Utils::LoadMeshModel(lightPath);
+	Light* light = new ParallelLight("ParallelLight " + std::to_string(lights.size()), meshPtr);
+	light->param->scale_x = 20;
+	light->param->scale_y = 20;
+	light->param->scale_z = 20;
 	lights.push_back(light);
 	if (lights.size() == 1)
 		SetActiveLightIndex(0);
