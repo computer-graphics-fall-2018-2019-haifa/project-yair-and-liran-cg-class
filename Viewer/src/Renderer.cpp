@@ -253,30 +253,21 @@ void Renderer::FillTriangle(std::vector<glm::vec4>& vertices, std::vector<glm::v
 						else
 						{
 							float a = float(x - min_x) / float(max_x - min_x);
-							finalFaceColor = glm::vec3(pow(a, 5), pow(a, 6), pow(a,2));
-						}						
+							finalFaceColor = glm::vec3(pow(a, 5), pow(a, 6), pow(a, 2));
+						}
 					}
 					break;
 					}
 				}
-				/*float edgesTreshold = 0.04;
-				if (lambda1 < edgesTreshold || lambda2 < edgesTreshold || lambda3 < edgesTreshold)
-				{
-					float r = std::min(edgesColor.r * I, 1.0f);
-					float g = std::min(edgesColor.g * I, 1.0f);
-					float b = std::min(edgesColor.b * I, 1.0f);
-					glm::vec3 finalEdgeColor(r, g, b);
-					putPixel(x, y, finalEdgeColor, zValue);
-				}
-				else
-				{
-					float r = std::min(faceColor.r * I, 1.0f);
-					float g = std::min(faceColor.g * I, 1.0f);
-					float b = std::min(faceColor.b * I, 1.0f);
-					glm::vec3 finalFaceColor(r, g, b);
-					putPixel(x, y, finalFaceColor, zValue);
-				}*/
 
+				if (scene->isFog && !isLight)
+				{
+					float _far = 600, _near = 1;
+					Camera* cam = scene->GetActiveCamera();
+					float f = (_far - abs(zValue)) / (_far - _near);
+					//finalFaceColor = (1 - f)*scene->fogColor + f * finalFaceColor;
+					finalFaceColor = glm::mix(scene->fogColor, finalFaceColor, f);
+				}
 
 				putPixel(x, y, finalFaceColor, zValue);
 			}

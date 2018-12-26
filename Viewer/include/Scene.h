@@ -24,7 +24,7 @@ public:
 	ShadingMode shadingMode = Flat;
 	std::vector<Light*> lights;
 	std::vector<Camera*> cameras;
-	bool isPrespective = false;
+	bool isPrespective = true, isFog = false;
 	int activeCameraIndex;
 	int activeLightIndex;
 	int activeModelIndex;
@@ -39,6 +39,7 @@ public:
 	glm::vec3 gridColor = glm::vec3(0.77f, 0.77f, 0.897f);
 	glm::vec3 boundingBoxColor = glm::vec3(1.0f, 0.0f, 0.0f);
 	glm::vec3 beackgroundColor = glm::vec3(0.0f, 0.0f, 0.0f);
+	glm::vec3 fogColor = glm::vec3(0.8353f, 0.7804f, 0.9098f);
 
 	Scene();
 

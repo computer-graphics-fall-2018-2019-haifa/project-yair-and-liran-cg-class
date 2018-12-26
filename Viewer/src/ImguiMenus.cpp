@@ -68,7 +68,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 				}
 			}
 
-			
+
 
 			ImGui::Combo("Select Model", &scene.activeModelIndex, items, modelsNumber);
 			ImGui::Combo("Select Camera", &scene.activeCameraIndex, cameras, cameraCount);
@@ -150,11 +150,11 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 				//ImGui::RadioButton("LightRotation", &c, 0); ImGui::SameLine();
 				//ImGui::RadioButton("LightTranslation", &c, 1);
 				ImGui::SliderFloat("Ambient level", &(scene.ambientLevel), 0.0f, 1.0f);
-				if(scene.isAddLight)
+				if (scene.isAddLight)
 				{
-					if(lightOption==0)
+					if (lightOption == 0)
 						scene.isAddParallelLight = scene.isAddLight;
-					else if(lightOption==1)
+					else if (lightOption == 1)
 						scene.isAddPointLight = scene.isAddLight;
 				}
 				if (lightCount > 0)
@@ -183,7 +183,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 					}*/
 				}
 			}
-		
+
 			if (ImGui::CollapsingHeader("Color"))
 			{
 				ImGui::ColorEdit3("Edges color", (float*)&(scene.edgesColor));
@@ -192,8 +192,9 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 				ImGui::ColorEdit3("Normals color", (float*)&(scene.normalsColor));
 				ImGui::ColorEdit3("Bounding Box color", (float*)&(scene.boundingBoxColor));
 				ImGui::ColorEdit3("Background color color", (float*)&(scene.beackgroundColor));
+				ImGui::ColorEdit3("Fog color", (float*)&(scene.fogColor));
 			}
-			
+
 			static int shade = 0;
 			if (ImGui::CollapsingHeader("Shading"))
 			{
@@ -201,6 +202,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 				ImGui::RadioButton("Gouraud", &shade, 1);
 				ImGui::RadioButton("Phong", &shade, 2);
 				ImGui::RadioButton("Texture", &shade, 3);
+				ImGui::Checkbox("Activate fog", &scene.isFog);
 			}
 			switch (shade)
 			{
