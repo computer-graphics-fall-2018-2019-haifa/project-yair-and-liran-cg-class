@@ -168,6 +168,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 					ImGui::SliderFloat("Light X translation", &(activeLight->param->trans_x), -1000.0f, 1000.0f);
 					ImGui::SliderFloat("Light Y translation", &(activeLight->param->trans_y), -1000.0f, 1000.0f);
 					ImGui::SliderFloat("Light Z translation", &(activeLight->param->trans_z), -1000.0f, 1000.0f);
+					ImGui::ColorEdit3("Light color", (float*)&(activeLight->colorVector));
 
 					/*if (dynamic_cast<ParallelLight*>(activeLight) != nullptr)
 					{

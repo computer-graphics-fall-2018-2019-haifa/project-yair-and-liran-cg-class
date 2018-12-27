@@ -167,15 +167,22 @@ glm::vec2 Renderer::GetBarycentricCoors2D(std::vector<glm::vec4> vertices, glm::
 glm::vec3 Renderer::GetColorForPointAndNormal(glm::vec3 point, glm::vec3 normal)
 {
 	float I = 0;
+	glm::vec3 IwithColor = glm::vec3(0,0,0);
 	for (int i = 0; i < scene->lights.size(); ++i)
 	{
 		float ill = scene->lights[i]->CalculateIllumination(point, normal, scene);
+		IwithColor.x += ill * scene->lights[i]->colorVector.x;
+		IwithColor.y += ill * scene->lights[i]->colorVector.y;
+		IwithColor.z += ill * scene->lights[i]->colorVector.z;
 		I += ill;
 	}
 	I += scene->ambientLevel;
-	float r = std::min(scene->facesColor.r * I, 1.0f);
-	float g = std::min(scene->facesColor.g * I, 1.0f);
-	float b = std::min(scene->facesColor.b * I, 1.0f);
+	IwithColor.x += scene->ambientLevel;
+	IwithColor.y += scene->ambientLevel;
+	IwithColor.z += scene->ambientLevel;
+	float r = std::min(scene->facesColor.r * IwithColor.x, 1.0f);
+	float g = std::min(scene->facesColor.g * IwithColor.y, 1.0f);
+	float b = std::min(scene->facesColor.b * IwithColor.z, 1.0f);
 	return glm::vec3(r, g, b);
 }
 

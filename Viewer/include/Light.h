@@ -15,6 +15,7 @@ public:
 	int a=1;
 	glm::vec3 position, direction;
 	glm::vec3 currentPosition, currentDirection;
+	glm::vec3 colorVector = glm::vec3(1, 1, 1);
 };
 
 #endif
