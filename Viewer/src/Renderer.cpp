@@ -188,10 +188,9 @@ glm::vec3 Renderer::GetColorForPointAndNormal(glm::vec3 point, glm::vec3 normal)
 
 
 
-void Renderer::FillTriangle(std::vector<glm::vec4>& vertices, std::vector<glm::vec3>& normals, bool isLight, bool isPointLight)
+void Renderer::FillTriangle(std::vector<glm::vec4>& vertices, std::vector<glm::vec3>& normals, bool isLight, Light* light)
 {
 	float edgesTreshold = 0.04;
-	glm::vec3 whiteColor(1, 1, 1), yellowColor(0.946, 0.946, 0.032);
 	glm::vec3 v0 = vertices[0];
 	glm::vec3 v1 = vertices[1];
 	glm::vec3 v2 = vertices[2];
@@ -232,7 +231,7 @@ void Renderer::FillTriangle(std::vector<glm::vec4>& vertices, std::vector<glm::v
 				point = glm::vec3(x, y, zValue);
 				glm::vec3 normal, finalFaceColor;
 				if (isLight)
-					finalFaceColor = isPointLight ? whiteColor : yellowColor;
+					finalFaceColor = light->colorVector;
 				else
 				{
 					switch (scene->shadingMode)
@@ -282,7 +281,7 @@ void Renderer::FillTriangle(std::vector<glm::vec4>& vertices, std::vector<glm::v
 	}
 }
 
-void Renderer::renderFaces(std::vector<Face>& faces, std::vector<glm::vec4>& finalVertices, bool isActiveModel, bool isLight, bool isPointLight)
+void Renderer::renderFaces(std::vector<Face>& faces, std::vector<glm::vec4>& finalVertices, bool isActiveModel, bool isLight, Light* light)
 {
 	std::map<int, std::vector<glm::vec3>> vertexIndexeToNormals;
 	std::map<int, glm::vec3> vertexIndexeToNormal;
@@ -341,7 +340,7 @@ void Renderer::renderFaces(std::vector<Face>& faces, std::vector<glm::vec4>& fin
 		faceVertexesNormals.push_back(vertexIndexeToNormal[v0Index - 1]);
 		faceVertexesNormals.push_back(vertexIndexeToNormal[v1Index - 1]);
 		faceVertexesNormals.push_back(vertexIndexeToNormal[v2Index - 1]);
-		FillTriangle(faceVertexes, faceVertexesNormals, isLight, isPointLight);
+		FillTriangle(faceVertexes, faceVertexesNormals, isLight, light);
 	}
 }
 
@@ -608,7 +607,7 @@ void Renderer::Render(Scene& scene)
 		pos.y = (pos.y + 1) *(viewportHeight / 2)*scene.zoom;
 		currentLight->currentPosition = pos;
 		bool isPointLight = dynamic_cast<PointLight*>(currentLight) != nullptr;
-		renderFaces(faces, finalModelVertexes, false, true, isPointLight);
+		renderFaces(faces, finalModelVertexes, false, true, currentLight);
 
 	}
 

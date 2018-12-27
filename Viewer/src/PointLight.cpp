@@ -2,7 +2,7 @@
 #include <algorithm>
 #include "Scene.h"
 
-PointLight::PointLight(std::string _name, MeshModel* meshPtr) : Light(_name, meshPtr)
+PointLight::PointLight(std::string _name, MeshModel* meshPtr) : Light(_name, glm::vec3(1, 1, 1), meshPtr)
 {
 	position = glm::vec3(0, 0, 50);
 }

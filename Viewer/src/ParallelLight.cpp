@@ -2,7 +2,7 @@
 #include <algorithm>
 #include "Scene.h"
 
-ParallelLight::ParallelLight(std::string _name, MeshModel* meshPtr) : Light(_name, meshPtr)
+ParallelLight::ParallelLight(std::string _name, MeshModel* meshPtr) : Light(_name, glm::vec3(0.946, 0.946, 0.032), meshPtr)
 {
 	position = glm::vec3(0, 0, 150);
 }

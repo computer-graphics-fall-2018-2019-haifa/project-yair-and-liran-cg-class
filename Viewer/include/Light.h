@@ -7,7 +7,7 @@ class Scene;
 class Light : public MeshModel
 {
 public:
-	Light(std::string _modelName, MeshModel* meshPtr) :  
+	Light(std::string _modelName, glm::vec3 color, MeshModel* meshPtr) :   colorVector(color),
 	MeshModel(meshPtr->faces, meshPtr->vertices, meshPtr->faceNormals, _modelName) {}
 	Light(std::string _modelName) : MeshModel(_modelName){}
 	virtual float CalculateIllumination(glm::vec3 point, glm::vec3 normal, Scene* scene) = 0;
