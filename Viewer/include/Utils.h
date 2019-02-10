@@ -3,23 +3,25 @@
 #include <string>
 #include "MeshModel.h"
 
-/*
- * Utils class.
- * This class is consisted of static helper methods that can have many clients across the code.
- */
 class Utils
 {
 public:
+	static glm::mat4x4 TranslationMatrix(const glm::vec3& translationVector);
+	static glm::mat4x4 XRotationMatrix(double angle);
+	static glm::mat4x4 YRotationMatrix(double angle);
+	static glm::mat4x4 ZRotationMatrix(double angle);
+	static glm::mat4x4 AxisRotationMatrix(glm::vec3 axis, double angle);
+	static glm::mat4x4 ScalingMatrix(const glm::vec3& scalingVector);
+	static glm::mat4x4 XScalingMatrix(double factor);
+	static glm::mat4x4 YScalingMatrix(double factor);
+	static glm::mat4x4 ZScalingMatrix(double factor);
+
 	static glm::vec3 Vec3fFromStream(std::istream& issLine);
 	static glm::vec2 Vec2fFromStream(std::istream& issLine);
-	static MeshModel* LoadMeshModel(const std::string& filePath);
 
-	// Add here more static utility functions...
-	// For example:
-	//	1. function that gets an angle, and returns a rotation matrix around a certian axis
-	//	2. function that gets a vector, and returns a translation matrix
-	//	3. anything else that may be useful in global scope
+	static std::shared_ptr<MeshModel> LoadMeshModel(const std::string& filePath);
 
-private:
+	static std::vector<glm::vec3> CalculateNormals(std::vector<glm::vec3> vertices, std::vector<Face> faces);
+
 	static std::string GetFileName(const std::string& filePath);
 };

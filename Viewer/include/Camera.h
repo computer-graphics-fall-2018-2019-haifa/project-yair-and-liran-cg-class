@@ -2,45 +2,80 @@
 #include <memory>
 #include <glm/glm.hpp>
 #include "MeshModel.h"
-
 /*
- * Camera class. This class takes care of all the camera transformations and manipulations.
- *
- * Implementation suggestion:
- * --------------------------
- * Make the Camera class be a subclass of MeshModel, so you can easily and elegantly render 
- * the cameras you have added to the scene.
- */
-class Camera : public MeshModel
+* Camera class. This class takes care of all the camera transformations and manipulations.
+*/
+class Camera
 {
 private:
 	glm::mat4x4 viewTransformation;
 	glm::mat4x4 projectionTransformation;
 
+	glm::vec3 eye;
+	glm::vec3 up;
+	glm::vec3 at;
+
+	glm::vec3 x;
+	glm::vec3 y;
+	glm::vec3 z;
+
+	float zoom;
+	float fovy;
+	float height;
+	float zNear;
+	float zFar;
+	float aspectRatio;
+
+	bool prespective;
+
 public:
-	float	near_, far_;
-	float distance = 10;
-	glm::vec3 eye, at, up;
-	Camera(const glm::vec3& eye, const glm::vec3& at, const glm::vec3& up, int index = 0, MeshModel* meshPtr = nullptr);
+	Camera(const glm::vec3& eye, const glm::vec3& at, const glm::vec3& up, const float aspectRatio);
 	~Camera();
 
-	void SetCameraLookAt();
-
 	void SetOrthographicProjection(
-		const float left,
-		const float right,
-		const float bottom,
-		const float top,
-		const float near,
-		const float far);
+		const float height,
+		const float aspectRatio,
+		const float zNear,
+		const float zFar);
 
-	void SetPerspectiveProjection(const float left, const float right, const float bottom, const float top,
-		const float near, const float far);
+	void SetPerspectiveProjection(
+		const float fovy,
+		const float aspect,
+		const float zNear,
+		const float zFar);
 
-	void SetZoom(const float zoom);
+	void UpdateProjectionMatrix();
 
-	// Add more methods/functionality as needed...
+	void SetNear(const float zNear);
 
-	glm::mat4x4 GetProjectionTransformation(int viewPortWidthMiddle, int viewPortHeightMiddle, bool isOrth);
-	glm::mat4x4 GetViewTransformation();
+	void SetFar(const float zFar);
+
+	void SetFovy(const float fovy);
+
+	void SetHeight(const float height);
+
+	void Zoom(const float factor);
+
+	void SphericalRotate(const glm::vec2& sphericalDelta);
+
+	const glm::mat4x4& GetProjectionTransformation() const;
+
+	const glm::mat4x4& GetViewTransformation() const;
+
+	void SetAspectRatio(float aspectRatio);
+
+	void SwitchToPrespective();
+	void SwitchToOrthographic();
+
+	float GetNear();
+
+	float GetFar();
+
+	float GetFovy();
+
+	float GetHeight();
+
+	bool IsPrespective();
+
+	const glm::vec3& GetEye() const;
 };

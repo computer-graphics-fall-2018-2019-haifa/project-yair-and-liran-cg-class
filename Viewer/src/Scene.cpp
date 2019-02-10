@@ -1,9 +1,6 @@
 #include "Scene.h"
 #include "MeshModel.h"
 #include <string>
-#include "Utils.h"
-#include "ParallelLight.h"
-#include "PointLight.h"
 
 Scene::Scene() :
 	activeCameraIndex(0),
@@ -12,97 +9,56 @@ Scene::Scene() :
 
 }
 
-void Scene::AddModel(MeshModel* model)
+void Scene::AddModel(const std::shared_ptr<MeshModel>& model)
 {
 	models.push_back(model);
 }
 
-void Scene::AddLight(Light* light)
+void Scene::AddCamera(const Camera& camera)
 {
-	lights.push_back(light);
+	cameras.push_back(camera);
 }
 
-const int Scene::GetModelCount() const
+int Scene::GetModelCount() const
 {
 	return models.size();
 }
 
-const int Scene::GetLightCount() const
-{
-	return lights.size();
-}
-
-void Scene::AddNewCamera(glm::vec3 eye, glm::vec3 at, glm::vec3 up)
-{
-	std::string cameraPath = "..\\Data\\camera.obj";
-	MeshModel* meshPtr = Utils::LoadMeshModel(cameraPath);
-	glm::mat4x4 _rotataionYmatrix
-	{ glm::cos(1.57)			,	0	,	glm::sin(1.57)	,	0,
-		0							,	1	,				0					,	0,
-		-1 * glm::sin(1.57)	,	0	,	glm::cos(1.57)	,	0,
-		0										,	0	,				0					,	1 };
-
-	for(int i=0 ; i<meshPtr->vertices.size() ; i++)
-	{
-		glm::vec4 tmp = _rotataionYmatrix * glm::vec4(meshPtr->vertices[i][0], meshPtr->vertices[i][1], meshPtr->vertices[i][2], 1);
-		meshPtr->vertices[i] = glm::vec3(tmp[0], tmp[1], tmp[2]);
-	}
-	Camera* camera = new Camera(eye, at, up, cameras.size(), meshPtr);
-	camera->param->scale_x = 20;
-	camera->param->scale_y = 20;
-	camera->param->scale_z = 20;
-	cameras.push_back(camera);
-
-}
-
-void Scene::AddNewParallelLight()
-{
-	std::string lightPath = "..\\Data\\obj_examples\\sun.obj";
-	MeshModel* meshPtr = Utils::LoadMeshModel(lightPath);
-	Light* light = new ParallelLight("ParallelLight " + std::to_string(lights.size()), meshPtr);
-	light->param->scale_x = 20;
-	light->param->scale_y = 20;
-	light->param->scale_z = 20;
-	lights.push_back(light);
-	if (lights.size() == 1)
-		SetActiveLightIndex(0);
-	
-}
-
-void Scene::AddNewPointLight()
-{
-	std::string lightPath = "..\\Data\\obj_examples\\bulb.obj";
-	MeshModel* meshPtr = Utils::LoadMeshModel(lightPath);
-	Light* light = new PointLight("PointLight" + std::to_string(lights.size()), meshPtr);
-	light->param->scale_x = 10;
-	light->param->scale_y = 10;
-	light->param->scale_z = 10;
-	lights.push_back(light);
-	if (lights.size() == 1)
-		SetActiveLightIndex(0);
-}
-
-
-const int Scene::GetCameraCount() const
+int Scene::GetCameraCount() const
 {
 	return cameras.size();
 }
 
+std::shared_ptr<MeshModel> Scene::GetModel(int index) const
+{
+	return models[index];
+}
+
+Camera& Scene::GetCamera(int index)
+{
+	return cameras[index];
+}
+
+const Camera& Scene::GetCamera(int index) const
+{
+	return cameras[index];
+}
+
+const Camera& Scene::GetActiveCamera() const
+{
+	return cameras[activeCameraIndex];
+}
+
+Camera& Scene::GetActiveCamera()
+{
+	return cameras[activeCameraIndex];
+}
+
 void Scene::SetActiveCameraIndex(int index)
 {
-	// implementation suggestion...
 	if (index >= 0 && index < cameras.size())
 	{
 		activeCameraIndex = index;
-	}
-}
-
-void Scene::SetActiveLightIndex(int index)
-{
-	// implementation suggestion...
-	if (index >= 0 && index < lights.size())
-	{
-		activeLightIndex = index;
 	}
 }
 
@@ -111,18 +67,9 @@ const int Scene::GetActiveCameraIndex() const
 	return activeCameraIndex;
 }
 
-const int Scene::GetActiveLightIndex() const
-{
-	return activeLightIndex;
-}
-
 void Scene::SetActiveModelIndex(int index)
 {
-	// implementation suggestion...
-	if (index >= 0 && index < models.size())
-	{
-		activeModelIndex = index;
-	}
+	activeModelIndex = index;
 }
 
 const int Scene::GetActiveModelIndex() const
@@ -130,93 +77,32 @@ const int Scene::GetActiveModelIndex() const
 	return activeModelIndex;
 }
 
-MeshModel* Scene::GetModelByIndex(int index)
-{
-	return models[index];
-}
-
-Light* Scene::GetLightByIndex(int index)
-{
-	return lights[index];
-}
-
-Camera* Scene::GetCameraByIndex(int cameraIndex)
-{
-	return cameras[cameraIndex];
-}
-
-std::vector<std::string> Scene::getModelNames()
-{
-	std::vector<std::string> names;
-	for (int i = 0; i < models.size(); ++i)
-	{
-		names.push_back(models[i]->GetName());
-	}
-	return names;
-}
-
-std::vector<std::string> Scene::getLightNames()
-{
-	std::vector<std::string> names;
-	for (int i = 0; i < lights.size(); ++i)
-	{
-		names.push_back(lights[i]->GetName());
-	}
-	return names;
-}
-
-std::vector<std::string> Scene::GetCameraNames()
-{
-	std::vector<std::string> names;
-	for (int i = 0; i < GetCameraCount(); ++i)
-	{
-		names.push_back(cameras[i]->GetName());
-	}
-	return names;
-}
-
-MeshModel* Scene::GetActiveModel()
+const std::shared_ptr<MeshModel>& Scene::GetActiveModel() const
 {
 	return models[activeModelIndex];
 }
 
-Camera* Scene::GetActiveCamera()
+void Scene::AddLight(const std::shared_ptr<PointLight>& light)
 {
-	return cameras[activeCameraIndex];
+	lights.push_back(light);
 }
 
-Light* Scene::GetActiveLight()
+int Scene::GetLightCount() const
 {
-	return lights[activeLightIndex];
+	return lights.size();
 }
 
-glm::mat4x4 Scene::GetCameraScalingMatrix()
+std::shared_ptr<PointLight> Scene::GetLight(int index) const
 {
-	glm::mat4x4 C
-	{ camScale,  0 ,  0 ,  0,
-		0 ,  camScale,  0 ,  0,
-		0 ,  0 ,  camScale,  0,
-		0 ,  0 ,  0 ,  1 };
-	return C;
+	return lights[index];
 }
 
-void Scene::SetActiveCameraFinalTransformation()
+const std::vector<std::shared_ptr<PointLight>>& Scene::GetActiveLights() const
 {
-	//Camera* cam = GetActiveCamera();
-	//glm::mat4x4 trans = glm::inverse(cam->GetViewTransformation());
-	//glm::mat4x4 rot = glm::inverse(cam->tm->rotataionXmatrix * cam->tm->rotataionYmatrix * cam->tm->rotataionZmatrix);
-	//glm::mat4x4 cameraViewingTransform = cam->GetViewTransformation();
-	//glm::mat4x4 cameraViewingTransformInverse = glm::inverse(cameraViewingTransform);
+	return lights;
+}
 
-	//for (int i = 0; i < lights.size(); ++i)
-	//{
-	//	Light* currentLight = lights[i];
-	//	glm::mat4x4 vertexTransformationMatrix =
-	//		cameraViewingTransformInverse *
-	//		currentLight->GetWorldTransformation();
-	//	glm::vec3 pos = currentLight->position;
-	//	glm::vec3 dir = currentLight->direction;
-	//	currentLight->currentPosition = vertexTransformationMatrix * glm::vec4(pos.x, pos.y, pos.z, 1);
-	//	currentLight->currentDirection = vertexTransformationMatrix * glm::vec4(dir.x, dir.y, dir.z, 1);
-	//}
+const AmbientLight& Scene::GetAmbientLight()
+{
+	return ambientLight;
 }

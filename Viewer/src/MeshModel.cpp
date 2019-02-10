@@ -1,191 +1,196 @@
 #include "MeshModel.h"
-//#include "Utils.h"
+#include "Utils.h"
 #include <vector>
 #include <string>
+#include <iostream>
+#include <fstream>
 #include <sstream>
-#include <map>
-#include "glad/glad.h"
-#define M_PI           3.14159265358979323846  /* pi */
+#include <random>
+#include <glm/gtc/matrix_transform.hpp>
 
-
-
-MeshModel::MeshModel(std::vector<Face>& faces, std::vector<glm::vec3>& vertices, std::vector<glm::vec3>& normals, std::string& modelName) :
-	modelName(modelName),
-	worldTransform(glm::mat4x4(1)),
-	tm(new TransformationMatrices()),
-	param(new ModelGeometricParameters()), 
-	boundingBox(vertices)
+MeshModel::MeshModel(std::vector<Face> faces, std::vector<glm::vec3> vertices, std::vector<glm::vec3> normals, std::vector<glm::vec2> textureCoords, const std::string& modelName) :
+	modelTransform(1),
+	worldTransform(1),
+	modelName(modelName)
 {
-	this->faces = faces;
-	this->vertices = vertices;
-	this->faceNormals = normals; // GetFaceNormals(faces, vertices);
-	this->modelName = modelName;
-	//CalculateVertexNormals();
-}
+	worldTransform = glm::mat4x4(1);
+	std::random_device rd;
+	std::mt19937 mt(rd());
+	std::uniform_real_distribution<double> dist(0, 1);
+	color = glm::vec3(dist(mt), dist(mt), dist(mt));
 
-MeshModel::MeshModel(std::string _modelName) : 
-	modelName(_modelName), 
-	worldTransform(glm::mat4x4(1)),	
-	tm(new TransformationMatrices()),
-	param(new ModelGeometricParameters()), 
-	boundingBox(std::vector<glm::vec3>())
-{
+	modelVertices.reserve(3 * faces.size());
+	for (int i = 0; i < faces.size(); i++)
+	{
+		Face currentFace = faces.at(i);
+		for (int j = 0; j < 3; j++)
+		{
+			int vertexIndex = currentFace.GetVertexIndex(j) - 1;
+
+			Vertex vertex;
+			vertex.position = vertices[vertexIndex];
+			vertex.normal = normals[vertexIndex];
+
+			if (textureCoords.size() > 0)
+			{
+				int textureCoordsIndex = currentFace.GetTextureIndex(j) - 1;
+				vertex.textureCoords = textureCoords[textureCoordsIndex];
+			}
+
+			modelVertices.push_back(vertex);
+		}
+	}
+
+	glGenVertexArrays(1, &vao);
+	glGenBuffers(1, &vbo);
+
+	glBindVertexArray(vao);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, modelVertices.size() * sizeof(Vertex), &modelVertices[0], GL_STATIC_DRAW);
+
+	// Vertex Positions
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)0);
+	glEnableVertexAttribArray(0);
+
+	// Normals attribute
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)(3 * sizeof(GLfloat)));
+	glEnableVertexAttribArray(1);
+
+	// Vertex Texture Coords
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)(6 * sizeof(GLfloat)));
+	glEnableVertexAttribArray(2);
+
+	// unbind to make sure other code does not change it somewhere else
+	glBindVertexArray(0);
 }
 
 MeshModel::~MeshModel()
 {
-	delete tm;
-	delete param;
+	glDeleteVertexArrays(1, &vao);
+	glDeleteBuffers(1, &vbo);
 }
 
-void MeshModel::SetWorldTransformation(glm::mat4x4& worldTransform)
-{
-	this->worldTransform = worldTransform;
-}
-
-glm::mat4x4& MeshModel::GetWorldTransformation()
-{
-	this->SetTransofrmationMatrices();
-
-	worldTransform =
-		tm->translationMatrix *
-		tm->rotataionXmatrix *
-		tm->rotataionYmatrix *
-		tm->rotataionZmatrix *
-		tm->scaleMatrix;
-
-	return worldTransform;
-}
-
-void MeshModel::SetColor(glm::vec4& color)
-{
-	this->color = color;
-}
-
-glm::vec4& MeshModel::GetColor() 
+const glm::vec3& MeshModel::GetColor() const
 {
 	return color;
 }
 
-std::string& MeshModel::GetModelName()
+void MeshModel::SetColor(const glm::vec3& color)
+{
+	this->color = color;
+}
+
+const std::string& MeshModel::GetModelName()
 {
 	return modelName;
 }
 
-std::vector<glm::vec3> MeshModel::GetVertices()
+void MeshModel::SetWorldTransformation(const glm::mat4x4& worldTransform)
 {
-	return vertices;
+	this->worldTransform = worldTransform;
 }
 
-std::vector<Face> MeshModel::GetFaces()
+const glm::mat4x4& MeshModel::GetWorldTransformation() const
 {
-	return faces;
+	return worldTransform;
 }
 
-std::string MeshModel::GetName()
+void MeshModel::SetModelTransformation(const glm::mat4x4& worldTransform)
 {
-	return modelName;
+	this->modelTransform = worldTransform;
 }
 
-void MeshModel::SetTransofrmationMatrices()
+const glm::mat4x4& MeshModel::GetModelTransformation() const
 {
-	glm::mat4x4 _scaleMatrix
-	{ param->scale_x,  0 ,  0 ,  0,
-		0 ,  param->scale_y,  0 ,  0,
-		0 ,  0 ,  param->scale_z,  0,
-		0 ,  0 ,  0 ,  1 };
-
-	glm::mat4x4 _translationMatrix
-	{ 1,  0 ,  0 ,  param->trans_x,
-		0 ,  1,  0 ,  param->trans_y,
-		0 ,  0 ,  1,  param->trans_z,
-		0 ,  0 ,  0 ,  1 };
-
-	double degToRad = double(M_PI) / double(180);
-
-	glm::mat4x4 _rotataionXmatrix
-	{ 1	,				0					,					0						,	0,
-		0	,	glm::cos(param->rot_x* degToRad)	,	-1 * glm::sin(param->rot_x* degToRad)	,	0,
-		0	,	glm::sin(param->rot_x* degToRad)	,	glm::cos(param->rot_x* degToRad)			,	0,
-		0	,				0					,					0						,	1 };
-
-	glm::mat4x4 _rotataionYmatrix
-	{ glm::cos(param->rot_y* degToRad)			,	0	,	glm::sin(param->rot_y* degToRad)	,	0,
-		0							,	1	,				0					,	0,
-		-1 * glm::sin(param->rot_y* degToRad)	,	0	,	glm::cos(param->rot_y* degToRad)	,	0,
-		0										,	0	,				0					,	1 };
-
-
-	glm::mat4x4 _rotataionZmatrix
-	{ glm::cos(param->rot_z* degToRad)	,	-1 * glm::sin(param->rot_z* degToRad)	,	0	,	0,
-		glm::sin(param->rot_z* degToRad)	,	glm::cos(param->rot_z* degToRad)			,	0	,	0,
-		0					,				0							,	1	,	0,
-		0					,				0							,	0	,	1 };
-
-	tm->scaleMatrix = _scaleMatrix;
-	tm->rotataionXmatrix = _rotataionXmatrix;
-	tm->rotataionYmatrix = _rotataionYmatrix;
-	tm->rotataionZmatrix = _rotataionZmatrix;
-	tm->translationMatrix = glm::transpose(_translationMatrix);
+	return modelTransform;
 }
 
-std::vector<glm::vec3> MeshModel::GetFaceNormals(std::vector<Face>& faces, std::vector<glm::vec3>& vertices)
+void MeshModel::TranslateModel(const glm::vec3& translationVector)
 {
-	std::vector<glm::vec3> faceNormals;
-	for (int i = 0; i < faces.size(); ++i)
-	{
-		Face face = faces[i];
-		int v0Index = face.GetVertexIndex(0);
-		int v1Index = face.GetVertexIndex(1);
-		int v2Index = face.GetVertexIndex(2);
-		glm::vec3 v0 = vertices[v0Index];
-		glm::vec3 v1 = vertices[v1Index];
-		glm::vec3 v2 = vertices[v2Index];
-		glm::vec3 sum3 = v0 + v1 + v2;
-		glm::vec3 mean(sum3[0] / 3, sum3[1] / 3, sum3[2] / 3);
-		glm::vec3 direction = glm::cross(glm::normalize(v0-v1), glm::normalize(v0-v2));
-		glm::vec3 to = mean + direction;
-	}
-	return faceNormals;
+	modelTransform = Utils::TranslationMatrix(translationVector) * modelTransform;
 }
 
-void MeshModel::CalculateVertexNormals()
+void MeshModel::TranslateWorld(const glm::vec3& translationVector)
 {
-	/*
-	std::map<int, std::vector<int>> vertexIndexesToFacesindexes;
-	for (int i = 0; i < this->faces.size(); ++i)
-	{
-		Face face = faces[i];
-		for (int j = 0; j < face.vertexIndices.size(); ++j)
-		{
-			int vertexIndex = face.vertexIndices[j];
-			vertexIndexesToFacesindexes[vertexIndex].push_back(i);
-		}
-	}
-	for (std::map<int, std::vector<int>>::iterator it = vertexIndexesToFacesindexes.begin(); it != vertexIndexesToFacesindexes.end(); ++it) {
-		glm::vec3 vertexNormal;
-		for (int i = 0; i < it->second.size(); ++i)
-		{
-			Face face = faces[i];
+	worldTransform = Utils::TranslationMatrix(translationVector) * worldTransform;
+}
 
-		}
+void MeshModel::RotateXModel(double angle)
+{
+	modelTransform = Utils::XRotationMatrix(angle) * modelTransform;
+}
 
-		indexesTovertexNormals[it->first] = vertexNormal;
-	}
+void MeshModel::RotateYModel(double angle)
+{
+	modelTransform = Utils::YRotationMatrix(angle) * modelTransform;
+}
 
+void MeshModel::RotateZModel(double angle)
+{
+	modelTransform = Utils::ZRotationMatrix(angle) * modelTransform;
+}
 
+void MeshModel::ScaleXModel(double factor)
+{
+	modelTransform = Utils::XScalingMatrix(factor) * modelTransform;
+}
 
+void MeshModel::ScaleYModel(double factor)
+{
+	modelTransform = Utils::YScalingMatrix(factor) * modelTransform;
+}
 
-	for (std::map<int, std::vector<glm::vec3>>::iterator it = indexesToFacesNormals.begin(); it != indexesToFacesNormals.end(); ++it) {
-		std::vector<glm::vec3> vertexes = it->second;
-		GLfloat vertexesNum = vertexes.size();
-		glm::vec3 temp(0,0,0);
-		for (int i = 0; i < vertexes.size(); ++i)
-		{
-			temp = temp + vertexes[i];
-		}
-		temp = glm::normalize(temp / vertexesNum);
-		indexesTovertexNormals.insert(std::make_pair(it->first,temp));
-	}
-	*/
+void MeshModel::ScaleZModel(double factor)
+{
+	modelTransform = Utils::ZScalingMatrix(factor) * modelTransform;
+}
+
+void MeshModel::ScaleModel(double factor)
+{
+	modelTransform = glm::scale(glm::mat4(1), glm::vec3(factor, factor, factor)) * modelTransform;
+}
+
+void MeshModel::RotateXWorld(double angle)
+{
+	worldTransform = Utils::XRotationMatrix(angle) * worldTransform;
+}
+
+void MeshModel::RotateYWorld(double angle)
+{
+	worldTransform = Utils::YRotationMatrix(angle) * worldTransform;
+}
+
+void MeshModel::RotateZWorld(double angle)
+{
+	worldTransform = Utils::ZRotationMatrix(angle) * worldTransform;
+}
+
+void MeshModel::ScaleXWorld(double factor)
+{
+	worldTransform = Utils::XScalingMatrix(factor) * worldTransform;
+}
+
+void MeshModel::ScaleYWorld(double factor)
+{
+	worldTransform = Utils::YScalingMatrix(factor) * worldTransform;
+}
+
+void MeshModel::ScaleZWorld(double factor)
+{
+	worldTransform = Utils::ZScalingMatrix(factor) * worldTransform;
+}
+
+void MeshModel::ScaleWorld(double factor)
+{
+	worldTransform = glm::scale(glm::mat4(1), glm::vec3(factor, factor, factor)) * worldTransform;
+}
+
+GLuint MeshModel::GetVAO() const
+{
+	return vao;
+}
+
+const std::vector<Vertex>& MeshModel::GetModelVertices()
+{
+	return modelVertices;
 }

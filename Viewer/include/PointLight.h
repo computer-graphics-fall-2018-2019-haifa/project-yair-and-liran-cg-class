@@ -1,14 +1,17 @@
-#include "Light.h"
-#ifndef __POINTLIGHT__
-#define __POINTLIGHT__
+#pragma once
 
-class Scene;
+#include <glm/glm.hpp>
+#include <memory>
+#include "Light.h"
 
 class PointLight : public Light
 {
 public:
-	PointLight::PointLight(std::string _name, MeshModel* meshPtr);
-	float CalculateIllumination(glm::vec3 point, glm::vec3 normal, Scene* scene);
-};
+	PointLight(const glm::vec3& position);
+	PointLight(const glm::vec3& position, const glm::vec3& color);
+	virtual ~PointLight();
+	glm::vec3& GetPosition();
 
-#endif
+private:
+	glm::vec3 position;
+};
