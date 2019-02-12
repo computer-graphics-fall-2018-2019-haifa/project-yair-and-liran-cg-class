@@ -186,3 +186,24 @@ const glm::vec3& Camera::GetEye() const
 {
 	return eye;
 }
+
+void Camera::TranslateCameraX(float units)
+{
+	eye.x += units;
+	UpdateProjectionMatrix();
+	viewTransformation = glm::lookAt(eye, at, up);
+}
+
+void Camera::TranslateCameraY(float units)
+{
+	eye.y += units;
+	UpdateProjectionMatrix();
+	viewTransformation = glm::lookAt(eye, at, up);
+}
+
+void Camera::TranslateCameraZ(float units)
+{
+	eye.z += units;
+	UpdateProjectionMatrix();
+	viewTransformation = glm::lookAt(eye, at, up);
+}

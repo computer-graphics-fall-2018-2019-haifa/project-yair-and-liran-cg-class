@@ -78,4 +78,8 @@ public:
 	bool IsPrespective();
 
 	const glm::vec3& GetEye() const;
+
+	void TranslateCameraX(float units);
+	void TranslateCameraY(float units);
+	void TranslateCameraZ(float units);
 };

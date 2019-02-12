@@ -252,6 +252,36 @@ void HandleImguiInput()
 		{
 			scene->GetActiveModel()->TranslateModel(glm::vec3(0, 0, -0.2));
 		}
+
+		if (imgui->KeysDown[80]) // p
+		{
+			scene->GetActiveCamera().TranslateCameraZ(0.01);
+		}
+
+		if (imgui->KeysDown[59]) // :
+		{
+			scene->GetActiveCamera().TranslateCameraZ(-0.01);
+		}
+
+		if (imgui->KeysDown[76]) // l
+		{
+			scene->GetActiveCamera().TranslateCameraX(0.01);
+		}
+
+		if (imgui->KeysDown[39]) // '
+		{
+			scene->GetActiveCamera().TranslateCameraX(-0.01);
+		}
+
+		if (imgui->KeysDown[91]) // [
+		{
+			scene->GetActiveCamera().TranslateCameraY(0.01);
+		}
+
+		if (imgui->KeysDown[93]) // ]
+		{
+			scene->GetActiveCamera().TranslateCameraY(-0.01);
+		}
 	}
 
 	if (!imgui->WantCaptureMouse)
